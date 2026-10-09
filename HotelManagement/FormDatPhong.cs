@@ -72,19 +72,19 @@ namespace HotelManagement.Forms
             var pnlFilter = new GroupBox { Text = "Tìm phòng trống", Dock = DockStyle.Top, Height = 80 };
             
             var lblNgayNhan = new Label { Text = "Ngày nhận:", Location = new Point(20, 30), AutoSize = true };
-            _dtpNgayNhan = new DateTimePicker { Location = new Point(90, 27), Width = 110, Format = DateTimePickerFormat.Short };
+            _dtpNgayNhan = new DateTimePicker { Location = new Point(100, 27), Width = 120, Format = DateTimePickerFormat.Short };
             
-            var lblNgayTra = new Label { Text = "Ngày trả:", Location = new Point(220, 30), AutoSize = true };
-            _dtpNgayTra = new DateTimePicker { Location = new Point(280, 27), Width = 110, Format = DateTimePickerFormat.Short };
+            var lblNgayTra = new Label { Text = "Ngày trả:", Location = new Point(240, 30), AutoSize = true };
+            _dtpNgayTra = new DateTimePicker { Location = new Point(310, 27), Width = 120, Format = DateTimePickerFormat.Short };
             _dtpNgayTra.Value = DateTime.Now.AddDays(1);
 
-            var lblLoaiPhong = new Label { Text = "Loại phòng:", Location = new Point(410, 30), AutoSize = true };
-            _cboLoaiPhong = new ComboBox { Location = new Point(480, 27), Width = 150, DropDownStyle = ComboBoxStyle.DropDownList };
+            var lblLoaiPhong = new Label { Text = "Loại phòng:", Location = new Point(450, 30), AutoSize = true };
+            _cboLoaiPhong = new ComboBox { Location = new Point(530, 27), Width = 150, DropDownStyle = ComboBoxStyle.DropDownList };
             
-            var lblSoKhach = new Label { Text = "Số khách:", Location = new Point(650, 30), AutoSize = true };
-            _numSoKhach = new NumericUpDown { Location = new Point(720, 27), Width = 60, Minimum = 1, Maximum = 50, Value = 1 };
+            var lblSoKhach = new Label { Text = "Số khách:", Location = new Point(700, 30), AutoSize = true };
+            _numSoKhach = new NumericUpDown { Location = new Point(770, 27), Width = 60, Minimum = 1, Maximum = 50, Value = 1 };
             
-            _btnTimPhong = new Button { Text = "Tìm phòng", Location = new Point(810, 25), Width = 90, Height = 30 };
+            _btnTimPhong = new Button { Text = "Tìm phòng", Location = new Point(850, 25), Width = 100, Height = 30 };
             _btnTimPhong.Click += async (_, _) => await TimPhongAsync();
 
             pnlFilter.Controls.AddRange(new Control[] {
