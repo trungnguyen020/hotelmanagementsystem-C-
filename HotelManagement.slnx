@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="HotelManagement.BLL/HotelManagement.BLL.csproj" />
+  <Project Path="HotelManagement.DAL/HotelManagement.DAL.csproj" />
+  <Project Path="HotelManagement.Models/HotelManagement.Models.csproj" />
+  <Project Path="HotelManagement/HotelManagement.csproj" />
+</Solution>
