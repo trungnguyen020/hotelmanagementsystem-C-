@@ -15,6 +15,7 @@ namespace HotelManagement
 
         private MenuStrip menuChinh = null!;
         private ToolStripMenuItem mnuDatPhong = null!;
+        private ToolStripMenuItem mnuCheckIn = null!;
         private ToolStripMenuItem mnuQuanLyNhanSu = null!;   // chỉ Admin
         private ToolStripMenuItem mnuBaoCao = null!;         // chỉ Admin
         private ToolStripMenuItem mnuDoiMatKhau = null!;
@@ -63,6 +64,13 @@ namespace HotelManagement
                 form.ShowDialog(this);
             };
 
+            mnuCheckIn = new ToolStripMenuItem("Check-in");
+            mnuCheckIn.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormCheckIn(_taiKhoanDangNhap);
+                form.ShowDialog(this);
+            };
+
             // --- Quản lý khách hàng (tất cả vai trò đều thấy) ---
             var mnuKhachHang = new ToolStripMenuItem("Quản lý khách hàng");
             mnuKhachHang.Click += (_, _) =>
@@ -92,6 +100,7 @@ namespace HotelManagement
             mnuDangXuat.Click += MnuDangXuat_Click;
 
             menuChinh.Items.Add(mnuDatPhong);
+            menuChinh.Items.Add(mnuCheckIn);
             menuChinh.Items.Add(mnuKhachHang);
             menuChinh.Items.Add(mnuQuanLyNhanSu);
             menuChinh.Items.Add(mnuBaoCao);

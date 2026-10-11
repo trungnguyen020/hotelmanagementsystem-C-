@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using HotelManagement.Models.Entities;
 
 namespace HotelManagement.DAL.Repositories
@@ -67,7 +67,9 @@ namespace HotelManagement.DAL.Repositories
 
         public async Task<DatPhong?> GetChiTietDayDuAsync(int idDatPhong)
             => await _dbSet
-                .Include(dp => dp.ChiTietDatPhongs).ThenInclude(ct => ct.IdPhongNavigation)
+                .Include(dp => dp.ChiTietDatPhongs)
+                    .ThenInclude(ct => ct.IdPhongNavigation)
+                        .ThenInclude(p => p.IdLoaiphongNavigation)
                 .Include(dp => dp.ChiTietDichVus).ThenInclude(cv => cv.IdDichvuNavigation)
                 .Include(dp => dp.IdKhachhangNavigation)
                 .Include(dp => dp.HoaDon)
