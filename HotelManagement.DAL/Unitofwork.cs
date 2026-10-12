@@ -16,6 +16,7 @@ namespace HotelManagement.DAL.Repositories
         private IRepository<NhanSu>? _nhanSuRepository;
         private IRepository<LoaiPhong>? _loaiPhongRepository;
         private IRepository<DichVu>? _dichVuRepository;
+        private IRepository<ChiTietDichVu>? _chiTietDichVuRepository;
         private IRepository<VaiTro>? _vaiTroRepository;
         private IRepository<NhatKyHoatDong>? _nhatKyHoatDongRepository;
 
@@ -44,6 +45,9 @@ namespace HotelManagement.DAL.Repositories
 
         public IRepository<DichVu> DichVuRepository
             => _dichVuRepository ??= new Repository<DichVu>(_context);
+
+        public IRepository<ChiTietDichVu> ChiTietDichVuRepository
+            => _chiTietDichVuRepository ??= new Repository<ChiTietDichVu>(_context);
 
         public IRepository<VaiTro> VaiTroRepository
             => _vaiTroRepository ??= new Repository<VaiTro>(_context);

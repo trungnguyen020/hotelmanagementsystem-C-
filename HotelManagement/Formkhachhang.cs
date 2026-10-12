@@ -6,31 +6,13 @@ namespace HotelManagement.Forms
 {
     /// <summary>
     /// Form CRUD Khách hàng (DCKLTTQ-67) — mở từ menu "Quản lý khách hàng" của FormChinh.
-    /// Dựng control bằng code trong constructor, theo đúng khuôn mẫu
-    /// đã thống nhất từ FormLoaiPhong/FormPhong (không dùng Designer).
+    /// Giao diện khai báo trong FormKhachHang.Designer.cs.
     /// Tự tạo scope DI riêng, dispose khi đóng Form.
     /// </summary>
-    public class FormKhachHang : Form
+    public partial class FormKhachHang : Form
     {
         private readonly IServiceScope _scope;
         private readonly IKhachHangService _khachHangService;
-
-        private DataGridView _dgv = null!;
-        private TextBox _txtTimKiem = null!;
-        private Button _btnTimKiem = null!;
-
-        private TextBox _txtTen = null!;
-        private TextBox _txtCccd = null!;
-        private TextBox _txtEmail = null!;
-        private TextBox _txtSdt = null!;
-        private ComboBox _cboGioiTinh = null!;
-        private DateTimePicker _dtpNgaySinh = null!;
-        private CheckBox _chkCoNgaySinh = null!;
-
-        private Button _btnThem = null!;
-        private Button _btnSua = null!;
-        private Button _btnXoa = null!;
-        private Button _btnLamMoi = null!;
 
         private int? _idDangChon;
 
@@ -39,106 +21,10 @@ namespace HotelManagement.Forms
             _scope = Program.ServiceProvider.CreateScope();
             _khachHangService = _scope.ServiceProvider.GetRequiredService<IKhachHangService>();
 
-            KhoiTaoGiaoDien();
+            InitializeComponent();
 
             Load += async (_, _) => await TaiDanhSachAsync();
             FormClosed += (_, _) => _scope.Dispose();
-        }
-
-        private void KhoiTaoGiaoDien()
-        {
-            Text = "Quản lý khách hàng";
-            Width = 950;
-            Height = 720;
-            StartPosition = FormStartPosition.CenterParent;
-            MinimumSize = new Size(850, 600);
-
-            // --- Thanh tìm kiếm ---
-            var lblTimKiem = new Label { Text = "Tìm kiếm:", Location = new Point(12, 15), AutoSize = true };
-            _txtTimKiem = new TextBox { Location = new Point(80, 12), Width = 220 };
-            _btnTimKiem = new Button { Text = "Tìm", Location = new Point(310, 10), Width = 100, Height = 30 };
-            _btnTimKiem.Click += async (_, _) => await TimKiemAsync();
-
-            // --- DataGridView ---
-            _dgv = new DataGridView
-            {
-                Location = new Point(12, 45),
-                Width = 910,
-                Height = 300,
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom,
-                ReadOnly = true,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                MultiSelect = false,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
-            };
-            _dgv.SelectionChanged += Dgv_SelectionChanged;
-
-            // --- Vùng nhập liệu ---
-            int yNhap = 370;
-            int lblWidth = 120;
-
-            var lblTen = new Label { Text = "Tên khách hàng:", Location = new Point(12, yNhap), AutoSize = true };
-            _txtTen = new TextBox { Location = new Point(lblWidth + 12, yNhap - 3), Width = 250 };
-
-            var lblCccd = new Label { Text = "CCCD:", Location = new Point(400, yNhap), AutoSize = true };
-            _txtCccd = new TextBox { Location = new Point(460, yNhap - 3), Width = 180 };
-
-            var lblSdt = new Label { Text = "Số điện thoại:", Location = new Point(12, yNhap + 35), AutoSize = true };
-            _txtSdt = new TextBox { Location = new Point(lblWidth + 12, yNhap + 32), Width = 180 };
-
-            var lblEmail = new Label { Text = "Email:", Location = new Point(400, yNhap + 35), AutoSize = true };
-            _txtEmail = new TextBox { Location = new Point(460, yNhap + 32), Width = 250 };
-
-            var lblGioiTinh = new Label { Text = "Giới tính:", Location = new Point(12, yNhap + 70), AutoSize = true };
-            _cboGioiTinh = new ComboBox
-            {
-                Location = new Point(lblWidth + 12, yNhap + 67),
-                Width = 120,
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            _cboGioiTinh.Items.AddRange(new object[] { "", "Nam", "Nữ" });
-            _cboGioiTinh.SelectedIndex = 0;
-
-            _chkCoNgaySinh = new CheckBox
-            {
-                Text = "Ngày sinh:",
-                Location = new Point(270, yNhap + 70),
-                AutoSize = true,
-                Checked = false
-            };
-            _dtpNgaySinh = new DateTimePicker
-            {
-                Location = new Point(370, yNhap + 67),
-                Width = 160,
-                Format = DateTimePickerFormat.Short,
-                Enabled = false
-            };
-            _chkCoNgaySinh.CheckedChanged += (_, _) => _dtpNgaySinh.Enabled = _chkCoNgaySinh.Checked;
-
-            // --- Nút thao tác ---
-            int yNut = yNhap + 115;
-            _btnThem = new Button { Text = "Thêm", Location = new Point(12, yNut), Width = 100, Height = 30 };
-            _btnSua = new Button { Text = "Sửa", Location = new Point(122, yNut), Width = 100, Height = 30 };
-            _btnXoa = new Button { Text = "Xóa", Location = new Point(232, yNut), Width = 100, Height = 30 };
-            _btnLamMoi = new Button { Text = "Làm mới", Location = new Point(342, yNut), Width = 100, Height = 30 };
-
-            _btnThem.Click += async (_, _) => await ThemAsync();
-            _btnSua.Click += async (_, _) => await SuaAsync();
-            _btnXoa.Click += async (_, _) => await XoaAsync();
-            _btnLamMoi.Click += (_, _) => LamMoiForm();
-
-            Controls.AddRange(new Control[]
-            {
-                lblTimKiem, _txtTimKiem, _btnTimKiem,
-                _dgv,
-                lblTen, _txtTen, lblCccd, _txtCccd,
-                lblSdt, _txtSdt, lblEmail, _txtEmail,
-                lblGioiTinh, _cboGioiTinh,
-                _chkCoNgaySinh, _dtpNgaySinh,
-                _btnThem, _btnSua, _btnXoa, _btnLamMoi
-            });
         }
 
         private async Task TaiDanhSachAsync()
@@ -274,11 +160,6 @@ namespace HotelManagement.Forms
             _cboGioiTinh.SelectedIndex = 0;
             _chkCoNgaySinh.Checked = false;
             _dgv.ClearSelection();
-        }
-
-        private void InitializeComponent()
-        {
-
         }
     }
 }

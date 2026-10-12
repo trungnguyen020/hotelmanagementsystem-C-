@@ -158,7 +158,17 @@ namespace HotelManagement.BLL.Services
                     TenLoaiPhong = ct.IdPhongNavigation?.IdLoaiphongNavigation?.Ten ?? string.Empty,
                     DonGia = ct.Dongia,
                     TrangThaiPhongHienTai = ct.IdPhongNavigation?.Trangthai ?? string.Empty
-                }).ToList()
+                }).ToList(),
+                DanhSachDichVu = datPhong.ChiTietDichVus.Select(cd => new ChiTietDichVuDto
+                {
+                    Id = cd.Id,
+                    IdDatPhong = cd.IdDatphong,
+                    IdDichVu = cd.IdDichvu,
+                    TenDichVu = cd.IdDichvuNavigation?.TenDichvu ?? string.Empty,
+                    SoLuong = cd.Soluong,
+                    DonGia = cd.Dongia,
+                    ThoiGian = cd.Thoigian
+                }).OrderBy(cd => cd.ThoiGian).ToList()
             };
         }
 
@@ -237,6 +247,141 @@ namespace HotelManagement.BLL.Services
             {
                 await _unitOfWork.RollbackTransactionAsync();
                 return (false, "Có lỗi xảy ra khi thực hiện check-in: " + ex.Message);
+            }
+        }
+
+        public async Task<List<DichVuDto>> LayDanhSachDichVuAsync()
+        {
+            var ds = await _unitOfWork.DichVuRepository.GetAllAsync();
+            return ds.Select(d => new DichVuDto
+            {
+                IdDichVu = d.IdDichvu,
+                TenDichVu = d.TenDichvu,
+                MucGia = d.Mucgia
+            }).OrderBy(d => d.TenDichVu).ToList();
+        }
+
+        public async Task<(bool Success, string Message)> ThemDichVuPhatSinhAsync(string maBooking, int idDichVu, int soLuong)
+        {
+            if (string.IsNullOrWhiteSpace(maBooking))
+                return (false, "Vui lòng nhập mã booking.");
+
+            if (soLuong <= 0)
+                return (false, "Số lượng dịch vụ phải lớn hơn 0.");
+
+            var dp = await _unitOfWork.DatPhongRepository.GetByMaBookingAsync(maBooking.Trim());
+            if (dp is null)
+                return (false, $"Không tìm thấy thông tin đặt phòng với mã booking '{maBooking}'.");
+
+            if (dp.Trangthai != "Đã check-in")
+                return (false, $"Chỉ có thể thêm dịch vụ phát sinh khi khách đang lưu trú ('Đã check-in'). Trạng thái hiện tại: {dp.Trangthai}.");
+
+            var dichVu = await _unitOfWork.DichVuRepository.GetByIdAsync(idDichVu);
+            if (dichVu is null)
+                return (false, "Dịch vụ được chọn không tồn tại.");
+
+            try
+            {
+                var ctDichVu = new HotelManagement.Models.Entities.ChiTietDichVu
+                {
+                    IdDatphong = dp.IdDatphong,
+                    IdDichvu = idDichVu,
+                    Soluong = soLuong,
+                    Dongia = dichVu.Mucgia, // Đơn giá chốt tại thời điểm dùng
+                    Thoigian = DateTime.Now
+                };
+
+                await _unitOfWork.ChiTietDichVuRepository.AddAsync(ctDichVu);
+                await _unitOfWork.SaveChangesAsync();
+
+                return (true, $"Đã thêm thành công {soLuong} x {dichVu.TenDichvu} vào booking {dp.Mabooking}.");
+            }
+            catch (Exception ex)
+            {
+                return (false, "Lỗi khi thêm dịch vụ phát sinh: " + ex.Message);
+            }
+        }
+
+        public async Task<(bool Success, string Message)> XoaDichVuPhatSinhAsync(int idChiTietDichVu)
+        {
+            var ct = await _unitOfWork.ChiTietDichVuRepository.GetByIdAsync(idChiTietDichVu);
+            if (ct is null)
+                return (false, "Không tìm thấy chi tiết dịch vụ cần xóa.");
+
+            var datPhong = await _unitOfWork.DatPhongRepository.GetByIdAsync(ct.IdDatphong);
+            if (datPhong != null && datPhong.Trangthai != "Đã check-in")
+                return (false, "Không thể xóa dịch vụ khi booking không ở trạng thái 'Đã check-in'.");
+
+            try
+            {
+                _unitOfWork.ChiTietDichVuRepository.Remove(ct);
+                await _unitOfWork.SaveChangesAsync();
+                return (true, "Đã xóa dịch vụ thành công.");
+            }
+            catch (Exception ex)
+            {
+                return (false, "Lỗi khi xóa dịch vụ: " + ex.Message);
+            }
+        }
+
+        public async Task<(bool Success, string Message)> CheckOutAsync(string maBooking)
+        {
+            if (string.IsNullOrWhiteSpace(maBooking))
+                return (false, "Vui lòng nhập mã booking.");
+
+            var dp = await _unitOfWork.DatPhongRepository.GetByMaBookingAsync(maBooking.Trim());
+            if (dp is null)
+                return (false, $"Không tìm thấy thông tin đặt phòng với mã booking '{maBooking}'.");
+
+            var datPhong = await _unitOfWork.DatPhongRepository.GetChiTietDayDuAsync(dp.IdDatphong);
+            if (datPhong is null)
+                return (false, "Không thể tải chi tiết đặt phòng.");
+
+            // Kiểm tra trạng thái booking - chỉ cho phép khi "Đã check-in"
+            if (datPhong.Trangthai == "Đã check-out")
+            {
+                string thoiGian = datPhong.NgaytraThucte.HasValue
+                    ? datPhong.NgaytraThucte.Value.ToString("dd/MM/yyyy HH:mm")
+                    : "trước đó";
+                return (false, $"Mã booking này đã hoàn tất check-out vào lúc {thoiGian}.");
+            }
+
+            if (datPhong.Trangthai == "Đã xác nhận")
+                return (false, "Booking chưa thực hiện check-in, không thể thực hiện check-out.");
+
+            if (datPhong.Trangthai == "Đã hủy")
+                return (false, "Booking này đã bị hủy, không thể check-out.");
+
+            if (datPhong.Trangthai != "Đã check-in")
+                return (false, $"Trạng thái booking ({datPhong.Trangthai}) không hợp lệ để check-out.");
+
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+
+                // 1. Cập nhật trạng thái booking và ngày trả thực tế
+                datPhong.Trangthai = "Đã check-out";
+                datPhong.NgaytraThucte = DateTime.Now;
+                _unitOfWork.DatPhongRepository.Update(datPhong);
+
+                // 2. Cập nhật trạng thái các phòng liên quan sang "Đang dọn"
+                foreach (var ct in datPhong.ChiTietDatPhongs)
+                {
+                    var phong = ct.IdPhongNavigation ?? await _unitOfWork.PhongRepository.GetByIdAsync(ct.IdPhong);
+                    if (phong != null)
+                    {
+                        phong.Trangthai = "Đang dọn";
+                        _unitOfWork.PhongRepository.Update(phong);
+                    }
+                }
+
+                await _unitOfWork.CommitTransactionAsync();
+                return (true, $"Check-out thành công cho mã booking {datPhong.Mabooking}! Các phòng đã được chuyển sang trạng thái 'Đang dọn'.");
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return (false, "Có lỗi xảy ra khi thực hiện check-out: " + ex.Message);
             }
         }
     }

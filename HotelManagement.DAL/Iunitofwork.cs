@@ -18,6 +18,7 @@ namespace HotelManagement.DAL.Repositories
         IRepository<NhanSu> NhanSuRepository { get; }
         IRepository<LoaiPhong> LoaiPhongRepository { get; }
         IRepository<DichVu> DichVuRepository { get; }
+        IRepository<ChiTietDichVu> ChiTietDichVuRepository { get; }
         IRepository<VaiTro> VaiTroRepository { get; }
         IRepository<NhatKyHoatDong> NhatKyHoatDongRepository { get; }
 
