@@ -20,6 +20,7 @@ namespace HotelManagement.Forms
         private readonly TaiKhoan _taiKhoanDangNhap;
         private readonly IServiceScope _scope;
         private readonly IDatPhongService _datPhongService;
+        private readonly IHoaDonService _hoaDonService;
         private readonly string? _maBookingKhoiTao;
 
         // Trạng thái hiện tại
@@ -33,6 +34,7 @@ namespace HotelManagement.Forms
 
             _scope = Program.ServiceProvider.CreateScope();
             _datPhongService = _scope.ServiceProvider.GetRequiredService<IDatPhongService>();
+            _hoaDonService = _scope.ServiceProvider.GetRequiredService<IHoaDonService>();
 
             InitializeComponent();
 
@@ -120,7 +122,7 @@ namespace HotelManagement.Forms
                 }
 
                 _currentBooking = booking;
-                HienThiThongTin(booking);
+                await HienThiThongTinAsync(booking);
             }
             catch (Exception ex)
             {
@@ -133,7 +135,7 @@ namespace HotelManagement.Forms
             }
         }
 
-        private void HienThiThongTin(DatPhongChiTietDto dto)
+        private async Task HienThiThongTinAsync(DatPhongChiTietDto dto)
         {
             _lblMaBookingVal.Text = dto.MaBooking;
             _lblTrangThaiVal.Text = dto.TrangThai;
@@ -159,12 +161,36 @@ namespace HotelManagement.Forms
             _dgvDichVu.AutoGenerateColumns = false;
             _dgvDichVu.DataSource = dto.DanhSachDichVu;
 
+            // Kiểm tra trạng thái hóa đơn thanh toán
+            try
+            {
+                var hoaDon = await _hoaDonService.LayHoaDonTheoMaBookingAsync(dto.MaBooking);
+                if (hoaDon != null && hoaDon.TrangThaiThanhtoan == "Đã thanh toán")
+                {
+                    _lblTrangThaiThanhToanVal.Text = $"Đã thanh toán ({hoaDon.PhuongThucThanhtoan ?? "Tiền mặt"})";
+                    _lblTrangThaiThanhToanVal.ForeColor = Color.DarkGreen;
+                }
+                else
+                {
+                    _lblTrangThaiThanhToanVal.Text = "Chưa thanh toán";
+                    _lblTrangThaiThanhToanVal.ForeColor = Color.Crimson;
+                }
+            }
+            catch
+            {
+                _lblTrangThaiThanhToanVal.Text = "Chưa thanh toán";
+                _lblTrangThaiThanhToanVal.ForeColor = Color.Crimson;
+            }
+
+            // Bật nút Thanh toán cho booking đang ở hoặc đã check-out
+            _btnThanhToan.Enabled = (dto.TrangThai == "Đã check-in" || dto.TrangThai == "Đã check-out");
+
             // Xử lý quyền thao tác Check-out & Thêm DV theo trạng thái
             if (dto.TrangThai == "Đã check-in")
             {
                 _btnCheckOut.Enabled = true;
                 _grpThemDichVu.Enabled = true;
-                _lblThongBao.Text = "Khách đang lưu trú ('Đã check-in'). Có thể thêm dịch vụ phát sinh hoặc thực hiện Check-out.";
+                _lblThongBao.Text = "Khách đang lưu trú ('Đã check-in'). Có thể thêm dịch vụ phát sinh, thanh toán hoặc thực hiện Check-out.";
                 _lblThongBao.ForeColor = Color.DarkGreen;
             }
             else if (dto.TrangThai == "Đã check-out")
@@ -360,8 +386,22 @@ namespace HotelManagement.Forms
 
             _dgvPhong.DataSource = null;
             _dgvDichVu.DataSource = null;
+            _lblTrangThaiThanhToanVal.Text = "-";
+            _lblTrangThaiThanhToanVal.ForeColor = Color.DarkOrange;
             _grpThemDichVu.Enabled = false;
             _btnCheckOut.Enabled = false;
+            _btnThanhToan.Enabled = false;
+        }
+
+        private async Task MoManHinhThanhToanAsync()
+        {
+            if (_currentBooking == null) return;
+
+            using var frm = new FormThanhToan(_currentBooking.MaBooking);
+            if (frm.ShowDialog(this) == DialogResult.OK)
+            {
+                await TraCuuBookingAsync();
+            }
         }
     }
 }

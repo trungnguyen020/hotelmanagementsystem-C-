@@ -134,16 +134,32 @@ namespace HotelManagement.Forms
             };
             _dgvPhongChon.DataSource = _dsPhongChon;
             
-            var pnlDatPhong = new Panel { Dock = DockStyle.Bottom, Height = 60 };
-            var btnXoaPhongChon = new Button { Text = "Bỏ chọn ↑", Location = new Point(20, 15), Width = 100, Height = 30 };
+            var pnlDatPhong = new Panel { Dock = DockStyle.Bottom, Height = 95 };
+            var btnXoaPhongChon = new Button { Text = "Bỏ chọn ↑", Location = new Point(20, 10), Width = 130, Height = 32 };
             btnXoaPhongChon.Click += BtnXoaPhongChon_Click;
 
-            _lblTongTien = new Label { Text = "Tổng tiền tạm tính: 0", Location = new Point(300, 20), AutoSize = true, Font = new Font(Font, FontStyle.Bold) };
-            
-            _btnDatPhong = new Button { Text = "ĐẶT PHÒNG", Location = new Point(620, 10), Width = 120, Height = 40, BackColor = Color.LightGreen };
+            _btnDatPhong = new Button 
+            { 
+                Text = "ĐẶT PHÒNG", 
+                Location = new Point(20, 48), 
+                Width = 130, 
+                Height = 38, 
+                BackColor = Color.LightGreen,
+                Font = new Font(Font, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
             _btnDatPhong.Click += async (_, _) => await DatPhongAsync();
 
-            pnlDatPhong.Controls.AddRange(new Control[] { btnXoaPhongChon, _lblTongTien, _btnDatPhong });
+            _lblTongTien = new Label 
+            { 
+                Text = "Tổng tiền tạm tính: 0", 
+                Location = new Point(170, 56), 
+                AutoSize = true, 
+                Font = new Font(Font.FontFamily, 11f, FontStyle.Bold),
+                ForeColor = Color.DarkSlateBlue
+            };
+
+            pnlDatPhong.Controls.AddRange(new Control[] { btnXoaPhongChon, _btnDatPhong, _lblTongTien });
             
             grpPhongChon.Controls.Add(_dgvPhongChon);
             grpPhongChon.Controls.Add(pnlDatPhong);

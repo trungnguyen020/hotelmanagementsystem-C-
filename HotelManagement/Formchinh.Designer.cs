@@ -65,6 +65,22 @@ namespace HotelManagement
             };
             mnuQuanLyPhong.DropDownItems.Add(mnuPhong);
 
+            var mnuSoDoPhong = new ToolStripMenuItem("Sơ đồ phòng");
+            mnuSoDoPhong.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormSoDoPhong(_taiKhoanDangNhap);
+                form.ShowDialog(this);
+            };
+            mnuQuanLyPhong.DropDownItems.Add(mnuSoDoPhong);
+
+            var mnuSoDoPhongTop = new ToolStripMenuItem("Sơ đồ phòng");
+            mnuSoDoPhongTop.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormSoDoPhong(_taiKhoanDangNhap);
+                form.ShowDialog(this);
+            };
+            menuChinh.Items.Add(mnuSoDoPhongTop);
+
             mnuDatPhong = new ToolStripMenuItem("Đặt phòng");
             mnuDatPhong.Click += (_, _) =>
             {
@@ -83,6 +99,13 @@ namespace HotelManagement
             mnuCheckOut.Click += (_, _) =>
             {
                 using var form = new HotelManagement.Forms.FormCheckOut(_taiKhoanDangNhap);
+                form.ShowDialog(this);
+            };
+
+            var mnuThanhToan = new ToolStripMenuItem("Thanh toán");
+            mnuThanhToan.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormThanhToan();
                 form.ShowDialog(this);
             };
 
@@ -117,6 +140,7 @@ namespace HotelManagement
             menuChinh.Items.Add(mnuDatPhong);
             menuChinh.Items.Add(mnuCheckIn);
             menuChinh.Items.Add(mnuCheckOut);
+            menuChinh.Items.Add(mnuThanhToan);
             menuChinh.Items.Add(mnuKhachHang);
             menuChinh.Items.Add(mnuQuanLyNhanSu);
             menuChinh.Items.Add(mnuBaoCao);

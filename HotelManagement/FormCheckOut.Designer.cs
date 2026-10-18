@@ -57,8 +57,10 @@ namespace HotelManagement.Forms
         private Button _btnThemDichVu = null!;
         private Button _btnXoaDichVu = null!;
 
-        // UI Controls - Thao tác Check-out
+        // UI Controls - Thao tác Check-out & Thanh toán
         private Label _lblThongBao = null!;
+        private Label _lblTrangThaiThanhToanVal = null!;
+        private Button _btnThanhToan = null!;
         private Button _btnCheckOut = null!;
         private Button _btnDong = null!;
 
@@ -148,7 +150,7 @@ namespace HotelManagement.Forms
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 2,
-                RowCount = 12,
+                RowCount = 13,
                 Padding = new Padding(10, 15, 10, 10),
                 AutoScroll = true
             };
@@ -216,6 +218,15 @@ namespace HotelManagement.Forms
                 ForeColor = Color.Firebrick
             };
             ThemDongThongTin("TỔNG CỘNG:", _lblTongCongVal, 11, inDamNhan: true);
+
+            _lblTrangThaiThanhToanVal = new Label
+            {
+                Text = "-",
+                AutoSize = true,
+                Font = new Font(Font, FontStyle.Bold),
+                ForeColor = Color.DarkOrange
+            };
+            ThemDongThongTin("Thanh toán:", _lblTrangThaiThanhToanVal, 12, inDamNhan: true);
 
             grpThongTin.Controls.Add(tblThongTin);
 
@@ -354,7 +365,7 @@ namespace HotelManagement.Forms
             var lblSL = new Label { Text = "Số lượng:", Location = new Point(16, 68), AutoSize = true };
             _numSoLuong = new NumericUpDown
             {
-                Location = new Point(80, 65),
+                Location = new Point(95, 65),
                 Width = 70,
                 Minimum = 1,
                 Maximum = 99,
@@ -364,7 +375,7 @@ namespace HotelManagement.Forms
             _btnThemDichVu = new Button
             {
                 Text = "+ Thêm dịch vụ",
-                Location = new Point(165, 62),
+                Location = new Point(180, 62),
                 Size = new Size(140, 32),
                 BackColor = Color.FromArgb(0, 120, 215),
                 ForeColor = Color.White,
@@ -378,7 +389,7 @@ namespace HotelManagement.Forms
             _btnXoaDichVu = new Button
             {
                 Text = "Xóa DV đã chọn",
-                Location = new Point(315, 62),
+                Location = new Point(330, 62),
                 Size = new Size(140, 32),
                 Cursor = Cursors.Hand
             };
@@ -402,6 +413,22 @@ namespace HotelManagement.Forms
                 ForeColor = Color.DarkSlateGray,
                 Font = new Font(Font, FontStyle.Italic)
             };
+
+            _btnThanhToan = new Button
+            {
+                Text = "Thanh toán",
+                Location = new Point(735, 6),
+                Size = new Size(170, 42),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                BackColor = Color.FromArgb(39, 174, 96), // Xanh lá cây nổi bật
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10.5f, FontStyle.Bold),
+                Cursor = Cursors.Hand,
+                Enabled = false
+            };
+            _btnThanhToan.FlatAppearance.BorderSize = 0;
+            _btnThanhToan.Click += async (_, _) => await MoManHinhThanhToanAsync();
 
             _btnCheckOut = new Button
             {
@@ -429,7 +456,7 @@ namespace HotelManagement.Forms
             };
             _btnDong.Click += (_, _) => Close();
 
-            pnlBottom.Controls.AddRange(new Control[] { _lblThongBao, _btnCheckOut, _btnDong });
+            pnlBottom.Controls.AddRange(new Control[] { _lblThongBao, _btnThanhToan, _btnCheckOut, _btnDong });
 
             // Add all controls to Form
             Controls.AddRange(new Control[] { grpTraCuu, grpThongTin, grpPhong, grpDichVu, _grpThemDichVu, pnlBottom });
