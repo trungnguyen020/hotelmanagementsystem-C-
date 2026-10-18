@@ -384,5 +384,26 @@ namespace HotelManagement.BLL.Services
                 return (false, "Có lỗi xảy ra khi thực hiện check-out: " + ex.Message);
             }
         }
+
+        public async Task<string?> LayMaBookingHienTaiCuaPhongAsync(int idPhong)
+        {
+            try
+            {
+                var danhSachDangO = await _unitOfWork.DatPhongRepository.FindAsync(dp => dp.Trangthai == "Đã check-in");
+                foreach (var dp in danhSachDangO)
+                {
+                    var dayDu = await _unitOfWork.DatPhongRepository.GetChiTietDayDuAsync(dp.IdDatphong);
+                    if (dayDu != null && dayDu.ChiTietDatPhongs.Any(ct => ct.IdPhong == idPhong))
+                    {
+                        return dayDu.Mabooking;
+                    }
+                }
+            }
+            catch
+            {
+                // Fallback nếu có lỗi xảy ra
+            }
+            return null;
+        }
     }
 }

@@ -46,5 +46,10 @@ namespace HotelManagement.BLL.Services
         /// các phòng liên quan sang "Đang dọn" trong cùng 1 transaction (DCKLTTQ-72).
         /// </summary>
         Task<(bool Success, string Message)> CheckOutAsync(string maBooking);
+
+        /// <summary>
+        /// Tra cứu mã booking hiện tại của một phòng đang ở trạng thái "Đang ở" phục vụ liên kết mở nhanh màn hình Check-out từ Sơ đồ phòng GDI+ (DCKLTTQ-73).
+        /// </summary>
+        Task<string?> LayMaBookingHienTaiCuaPhongAsync(int idPhong);
     }
 }
