@@ -21,6 +21,7 @@ namespace HotelManagement.DAL.Repositories
         IRepository<ChiTietDichVu> ChiTietDichVuRepository { get; }
         IRepository<VaiTro> VaiTroRepository { get; }
         IRepository<NhatKyHoatDong> NhatKyHoatDongRepository { get; }
+        IRepository<HoaDon> HoaDonRepository { get; }
 
         /// <summary>Lưu toàn bộ thay đổi đang pending xuống database (không kèm transaction tường minh).</summary>
         Task<int> SaveChangesAsync();

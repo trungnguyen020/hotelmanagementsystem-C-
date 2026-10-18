@@ -39,6 +39,7 @@ internal static class Program
         services.AddScoped<HotelManagement.BLL.Services.INhanSuService,
                     HotelManagement.BLL.Services.NhanSuService>();
         services.AddScoped<IDatPhongService, DatPhongService>();
+        services.AddScoped<IHoaDonService, HoaDonService>();
 
         ServiceProvider = services.BuildServiceProvider();
 

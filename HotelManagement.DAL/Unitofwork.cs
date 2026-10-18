@@ -19,6 +19,7 @@ namespace HotelManagement.DAL.Repositories
         private IRepository<ChiTietDichVu>? _chiTietDichVuRepository;
         private IRepository<VaiTro>? _vaiTroRepository;
         private IRepository<NhatKyHoatDong>? _nhatKyHoatDongRepository;
+        private IRepository<HoaDon>? _hoaDonRepository;
 
         public UnitOfWork(HotelManagementDbContext context)
         {
@@ -54,6 +55,9 @@ namespace HotelManagement.DAL.Repositories
 
         public IRepository<NhatKyHoatDong> NhatKyHoatDongRepository
             => _nhatKyHoatDongRepository ??= new Repository<NhatKyHoatDong>(_context);
+
+        public IRepository<HoaDon> HoaDonRepository
+            => _hoaDonRepository ??= new Repository<HoaDon>(_context);
 
         public async Task<int> SaveChangesAsync()
             => await _context.SaveChangesAsync();
