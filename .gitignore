@@ -480,3 +480,22 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# ============================================================
+# Project-specific: HotelManagement
+# ============================================================
+
+# Sensitive configuration (connection strings, secrets)
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/appsettings.Production.json
+
+# User Secrets (already outside repo, but just in case)
+secrets.json
+
+# Context / design docs (personal notes, not source code)
+HotelManagement_NguCanh*.md
+
+# Antigravity / Gemini agent cache
+.agents/
+.gemini/

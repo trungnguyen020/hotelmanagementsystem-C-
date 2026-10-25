@@ -51,6 +51,7 @@ namespace HotelManagement.Forms
         private Label _lblNoiDungChuyenKhoanVal = null!;
 
         // UI Controls - Thao tác
+        private Button _btnXuatPdf = null!;
         private Button _btnXacNhan = null!;
         private Button _btnHuy = null!;
 
@@ -460,6 +461,21 @@ namespace HotelManagement.Forms
                 Size = new Size(825, 60)
             };
 
+            _btnXuatPdf = new Button
+            {
+                Text = "📄 Xuất hóa đơn PDF",
+                Location = new Point(220, 8),
+                Size = new Size(200, 44),
+                BackColor = Color.FromArgb(13, 59, 102),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10.5f, FontStyle.Bold),
+                Cursor = Cursors.Hand,
+                Enabled = false
+            };
+            _btnXuatPdf.FlatAppearance.BorderSize = 0;
+            _btnXuatPdf.Click += async (_, _) => await XuatHoaDonPdfAsync();
+
             _btnXacNhan = new Button
             {
                 Text = "Xác nhận thanh toán",
@@ -485,7 +501,7 @@ namespace HotelManagement.Forms
             };
             _btnHuy.Click += (_, _) => Close();
 
-            pnlActions.Controls.AddRange(new Control[] { _btnXacNhan, _btnHuy });
+            pnlActions.Controls.AddRange(new Control[] { _btnXuatPdf, _btnXacNhan, _btnHuy });
 
             Controls.AddRange(new Control[] { grpTraCuu, grpThongTin, grpChiPhi, grpHinhThuc, pnlActions });
         }

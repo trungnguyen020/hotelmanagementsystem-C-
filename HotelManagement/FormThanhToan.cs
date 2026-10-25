@@ -19,6 +19,7 @@ namespace HotelManagement.Forms
         private string? _maBookingKhoiTao;
         private readonly IServiceScope _scope;
         private readonly IHoaDonService _hoaDonService;
+        private readonly IHoaDonPdfService _hoaDonPdfService;
 
         private HoaDonDto? _hoaDonHienTai;
         private decimal _tongTienSauGiamGia = 0;
@@ -28,6 +29,7 @@ namespace HotelManagement.Forms
             _maBookingKhoiTao = maBooking;
             _scope = Program.ServiceProvider.CreateScope();
             _hoaDonService = _scope.ServiceProvider.GetRequiredService<IHoaDonService>();
+            _hoaDonPdfService = _scope.ServiceProvider.GetRequiredService<IHoaDonPdfService>();
 
             InitializeComponent();
 
@@ -178,6 +180,8 @@ namespace HotelManagement.Forms
                     _pnlTienMat.Enabled = true;
                     _pnlChuyenKhoan.Enabled = true;
                 }
+
+                _btnXuatPdf.Enabled = true;
             }
             catch (Exception ex)
             {
@@ -306,13 +310,19 @@ namespace HotelManagement.Forms
                     return;
                 }
 
-                MessageBox.Show(
+                var dialogResult = MessageBox.Show(
                     $"Thanh toán thành công cho booking '{_hoaDonHienTai.MaBooking}'!\n" +
                     $"Hình thức: {phuongThuc}\n" +
-                    $"Hóa đơn đã được lưu trữ và cập nhật trạng thái 'Đã thanh toán'.",
-                    "Thành công",
-                    MessageBoxButtons.OK,
+                    $"Hóa đơn đã được lưu trữ và cập nhật trạng thái 'Đã thanh toán'.\n\n" +
+                    "Bạn có muốn xuất hóa đơn PDF ngay bây giờ không?",
+                    "Thanh toán thành công",
+                    MessageBoxButtons.YesNo,
                     MessageBoxIcon.Information);
+
+                if (dialogResult == DialogResult.Yes)
+                {
+                    await XuatHoaDonPdfAsync();
+                }
 
                 DialogResult = DialogResult.OK;
                 Close();
@@ -346,6 +356,61 @@ namespace HotelManagement.Forms
             _numTienKhachDua.Value = 0;
             _lblTienThuaVal.Text = "0 đ";
             _btnXacNhan.Enabled = false;
+            _btnXuatPdf.Enabled = false;
+        }
+
+        private async Task XuatHoaDonPdfAsync()
+        {
+            if (_hoaDonHienTai == null)
+            {
+                MessageBox.Show("Vui lòng tra cứu thông tin hóa đơn hợp lệ trước khi xuất PDF.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                using var sfd = new SaveFileDialog
+                {
+                    Title = "Lưu hóa đơn thanh toán PDF",
+                    Filter = "Tệp PDF (*.pdf)|*.pdf",
+                    FileName = $"HoaDon_{_hoaDonHienTai.MaBooking}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf"
+                };
+
+                if (sfd.ShowDialog(this) == DialogResult.OK)
+                {
+                    _btnXuatPdf.Enabled = false;
+                    _btnXuatPdf.Text = "Đang xuất PDF...";
+
+                    // Nạp lại dữ liệu hóa đơn mới nhất từ DB để đảm bảo tính nhất quán
+                    var hoaDonMoiNhat = await _hoaDonService.LayHoaDonTheoMaBookingAsync(_hoaDonHienTai.MaBooking) ?? _hoaDonHienTai;
+
+                    await _hoaDonPdfService.XuatFilePdfAsync(hoaDonMoiNhat, sfd.FileName);
+
+                    var xemNgay = MessageBox.Show(
+                        $"Xuất hóa đơn PDF thành công!\n\nĐường dẫn: {sfd.FileName}\n\nBạn có muốn mở xem hóa đơn ngay bây giờ không?",
+                        "Xuất PDF thành công",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question);
+
+                    if (xemNgay == DialogResult.Yes)
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = sfd.FileName,
+                            UseShellExecute = true
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Có lỗi xảy ra khi xuất hóa đơn PDF: " + ex.Message, "Lỗi xuất PDF", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                _btnXuatPdf.Enabled = _hoaDonHienTai != null;
+                _btnXuatPdf.Text = "📄 Xuất hóa đơn PDF";
+            }
         }
     }
 }

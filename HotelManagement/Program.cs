@@ -19,6 +19,7 @@ internal static class Program
         var configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
             .Build();
 
         var services = new ServiceCollection();
@@ -40,6 +41,9 @@ internal static class Program
                     HotelManagement.BLL.Services.NhanSuService>();
         services.AddScoped<IDatPhongService, DatPhongService>();
         services.AddScoped<IHoaDonService, HoaDonService>();
+        services.AddScoped<IHoaDonPdfService, HoaDonPdfService>();
+        services.AddScoped<IBaoCaoService, BaoCaoService>();
+        services.AddScoped<IBaoCaoExcelService, BaoCaoExcelService>();
 
         ServiceProvider = services.BuildServiceProvider();
 
