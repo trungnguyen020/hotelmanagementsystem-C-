@@ -21,6 +21,7 @@ namespace HotelManagement.Forms
         // UI Controls - Tra cứu
         private TextBox _txtMaBookingTraCuu = null!;
         private Button _btnTraCuu = null!;
+        private Button _btnTraCuuNangCao = null!;
 
         // UI Controls - Thông tin booking & Khách hàng
         private Label _lblMaBooking = null!;
@@ -114,7 +115,29 @@ namespace HotelManagement.Forms
             _btnTraCuu.FlatAppearance.BorderSize = 0;
             _btnTraCuu.Click += async (_, _) => await TaiDuLieuHoaDonAsync(_txtMaBookingTraCuu.Text.Trim());
 
-            grpTraCuu.Controls.AddRange(new Control[] { lblMaBookingPrompt, _txtMaBookingTraCuu, _btnTraCuu });
+            _btnTraCuuNangCao = new Button
+            {
+                Text = "Nâng cao",
+                Location = new Point(490, 21),
+                Size = new Size(120, 32),
+                BackColor = Color.FromArgb(108, 92, 231),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+            _btnTraCuuNangCao.FlatAppearance.BorderSize = 0;
+            _btnTraCuuNangCao.Click += async (_, _) =>
+            {
+                using var frm = new FormTraCuuBooking();
+                if (frm.ShowDialog(this) == DialogResult.OK && !string.IsNullOrWhiteSpace(frm.MaBookingDaChon))
+                {
+                    _txtMaBookingTraCuu.Text = frm.MaBookingDaChon;
+                    await TaiDuLieuHoaDonAsync(frm.MaBookingDaChon);
+                }
+            };
+
+            grpTraCuu.Controls.AddRange(new Control[] { lblMaBookingPrompt, _txtMaBookingTraCuu, _btnTraCuu, _btnTraCuuNangCao });
 
             // ================= 2. GroupBox: Thông tin lưu trú =================
             var grpThongTin = new GroupBox

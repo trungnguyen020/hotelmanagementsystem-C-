@@ -405,5 +405,36 @@ namespace HotelManagement.BLL.Services
             }
             return null;
         }
+
+        public async Task<List<BookingTimKiemDto>> TimKiemBookingAsync(
+            string? tenKhachHang = null,
+            string? sdt = null,
+            string? cccd = null,
+            string? soPhong = null,
+            string? trangThai = null)
+        {
+            var danhSach = await _unitOfWork.DatPhongRepository.TimKiemBookingAsync(
+                tenKhachHang, sdt, cccd, soPhong, trangThai);
+
+            return danhSach.Select(dp => new BookingTimKiemDto
+            {
+                IdDatPhong = dp.IdDatphong,
+                MaBooking = dp.Mabooking,
+                TrangThai = dp.Trangthai,
+                TenKhachHang = dp.IdKhachhangNavigation?.Ten ?? string.Empty,
+                SdtKhachHang = dp.IdKhachhangNavigation?.Sdt ?? string.Empty,
+                CccdKhachHang = dp.IdKhachhangNavigation?.Cccd ?? string.Empty,
+                NgayDat = dp.Ngaydat,
+                NgayNhanDuKien = dp.NgaynhanDukien,
+                NgayTraDuKien = dp.NgaytraDukien,
+                DanhSachSoPhong = dp.ChiTietDatPhongs != null
+                    ? string.Join(", ", dp.ChiTietDatPhongs
+                        .Where(ct => ct.IdPhongNavigation != null)
+                        .Select(ct => ct.IdPhongNavigation.Sophong))
+                    : string.Empty,
+                SoPhong = dp.ChiTietDatPhongs?.Count ?? 0,
+                SoNguoi = dp.Songuoi
+            }).ToList();
+        }
     }
 }

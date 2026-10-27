@@ -1,4 +1,4 @@
-﻿using HotelManagement.Models.Entities;
+using HotelManagement.Models.Entities;
 
 namespace HotelManagement.DAL.Repositories
 {
@@ -26,5 +26,17 @@ namespace HotelManagement.DAL.Repositories
 
         /// <summary>Lấy booking kèm đầy đủ chi tiết phòng, dịch vụ, khách hàng (Include).</summary>
         Task<DatPhong?> GetChiTietDayDuAsync(int idDatPhong);
+
+        /// <summary>
+        /// Tìm kiếm danh sách booking theo nhiều tiêu chí tùy chọn: tên khách hàng, SĐT, CCCD,
+        /// số phòng, trạng thái booking. Hỗ trợ nhân viên tra cứu nhanh mà không cần nhớ mã booking.
+        /// Kết quả bao gồm danh sách phòng thuộc booking (join ChiTietDatPhong → Phong).
+        /// </summary>
+        Task<IEnumerable<DatPhong>> TimKiemBookingAsync(
+            string? tenKhachHang = null,
+            string? sdt = null,
+            string? cccd = null,
+            string? soPhong = null,
+            string? trangThai = null);
     }
 }

@@ -29,6 +29,7 @@ namespace HotelManagement.Forms
         // UI Controls - Tìm kiếm
         private TextBox _txtMaBooking = null!;
         private Button _btnTim = null!;
+        private Button _btnTraCuuNangCao = null!;
         private Button _btnLamMoi = null!;
 
         // UI Controls - Thông tin booking & khách hàng
@@ -114,16 +115,38 @@ namespace HotelManagement.Forms
             _btnTim.FlatAppearance.BorderSize = 0;
             _btnTim.Click += async (_, _) => await TraCuuBookingAsync();
 
+            _btnTraCuuNangCao = new Button
+            {
+                Text = "Tra cứu",
+                Location = new Point(525, 23),
+                Size = new Size(165, 32),
+                BackColor = Color.FromArgb(108, 92, 231),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font(Font, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+            _btnTraCuuNangCao.FlatAppearance.BorderSize = 0;
+            _btnTraCuuNangCao.Click += async (_, _) =>
+            {
+                using var frm = new FormTraCuuBooking();
+                if (frm.ShowDialog(this) == DialogResult.OK && !string.IsNullOrWhiteSpace(frm.MaBookingDaChon))
+                {
+                    _txtMaBooking.Text = frm.MaBookingDaChon;
+                    await TraCuuBookingAsync();
+                }
+            };
+
             _btnLamMoi = new Button
             {
                 Text = "Làm mới",
-                Location = new Point(525, 23),
+                Location = new Point(700, 23),
                 Size = new Size(90, 32),
                 Cursor = Cursors.Hand
             };
             _btnLamMoi.Click += (_, _) => XoaTrangForm();
 
-            grpTraCuu.Controls.AddRange(new Control[] { lblMaBooking, _txtMaBooking, _btnTim, _btnLamMoi });
+            grpTraCuu.Controls.AddRange(new Control[] { lblMaBooking, _txtMaBooking, _btnTim, _btnTraCuuNangCao, _btnLamMoi });
 
             // ================= 2. GroupBox: Thông tin Đặt phòng & Khách hàng =================
             var grpThongTin = new GroupBox

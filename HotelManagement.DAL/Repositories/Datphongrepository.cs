@@ -74,5 +74,61 @@ namespace HotelManagement.DAL.Repositories
                 .Include(dp => dp.IdKhachhangNavigation)
                 .Include(dp => dp.HoaDon)
                 .FirstOrDefaultAsync(dp => dp.IdDatphong == idDatPhong);
+
+        public async Task<IEnumerable<DatPhong>> TimKiemBookingAsync(
+            string? tenKhachHang = null,
+            string? sdt = null,
+            string? cccd = null,
+            string? soPhong = null,
+            string? trangThai = null)
+        {
+            var query = _dbSet.AsNoTracking()
+                .Include(dp => dp.IdKhachhangNavigation)
+                .Include(dp => dp.ChiTietDatPhongs)
+                    .ThenInclude(ct => ct.IdPhongNavigation)
+                .AsQueryable();
+
+            // Lọc theo tên khách hàng (tìm kiếm chứa - case-insensitive)
+            if (!string.IsNullOrWhiteSpace(tenKhachHang))
+            {
+                string ten = tenKhachHang.Trim();
+                query = query.Where(dp => dp.IdKhachhangNavigation.Ten.Contains(ten));
+            }
+
+            // Lọc theo SĐT (tìm kiếm chứa)
+            if (!string.IsNullOrWhiteSpace(sdt))
+            {
+                string s = sdt.Trim();
+                query = query.Where(dp => dp.IdKhachhangNavigation.Sdt.Contains(s));
+            }
+
+            // Lọc theo CCCD (tìm kiếm chứa)
+            if (!string.IsNullOrWhiteSpace(cccd))
+            {
+                string c = cccd.Trim();
+                query = query.Where(dp => dp.IdKhachhangNavigation.Cccd.Contains(c));
+            }
+
+            // Lọc theo số phòng (kiểm tra booking có chứa phòng có số phòng khớp)
+            if (!string.IsNullOrWhiteSpace(soPhong))
+            {
+                string sp = soPhong.Trim();
+                query = query.Where(dp =>
+                    dp.ChiTietDatPhongs.Any(ct => ct.IdPhongNavigation.Sophong.Contains(sp)));
+            }
+
+            // Lọc theo trạng thái booking (chính xác)
+            if (!string.IsNullOrWhiteSpace(trangThai))
+            {
+                string tt = trangThai.Trim();
+                query = query.Where(dp => dp.Trangthai == tt);
+            }
+
+            // Sắp xếp theo ngày đặt mới nhất, giới hạn 100 kết quả
+            return await query
+                .OrderByDescending(dp => dp.Ngaydat)
+                .Take(100)
+                .ToListAsync();
+        }
     }
 }

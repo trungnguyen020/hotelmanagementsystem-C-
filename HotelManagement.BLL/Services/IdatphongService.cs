@@ -51,5 +51,16 @@ namespace HotelManagement.BLL.Services
         /// Tra cứu mã booking hiện tại của một phòng đang ở trạng thái "Đang ở" phục vụ liên kết mở nhanh màn hình Check-out từ Sơ đồ phòng GDI+ (DCKLTTQ-73).
         /// </summary>
         Task<string?> LayMaBookingHienTaiCuaPhongAsync(int idPhong);
+
+        /// <summary>
+        /// Tìm kiếm danh sách booking theo nhiều tiêu chí tùy chọn: tên khách hàng, SĐT, CCCD, số phòng, trạng thái.
+        /// Hỗ trợ nhân viên lễ tân tra cứu nhanh booking khi check-in/check-out/thanh toán mà không cần nhớ mã booking.
+        /// </summary>
+        Task<List<BookingTimKiemDto>> TimKiemBookingAsync(
+            string? tenKhachHang = null,
+            string? sdt = null,
+            string? cccd = null,
+            string? soPhong = null,
+            string? trangThai = null);
     }
 }
