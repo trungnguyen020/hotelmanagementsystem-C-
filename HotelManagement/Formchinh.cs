@@ -28,6 +28,7 @@ namespace HotelManagement
             bool laAdmin = _taiKhoanDangNhap.IdVaitroNavigation.TenVaitro == "Admin";
             mnuQuanLyNhanSu.Visible = laAdmin;
             mnuBaoCao.Visible = laAdmin;
+            mnuImportPhong.Visible = laAdmin;
             mnuDoiMatKhau.Visible = !laAdmin; // Không cho Admin đổi mật khẩu
 
             Text = $"Hệ thống quản lý khách sạn - Xin chào {_taiKhoanDangNhap.IdNhansuNavigation.Hoten} " +
