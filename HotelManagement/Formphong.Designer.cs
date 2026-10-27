@@ -40,6 +40,7 @@ namespace HotelManagement.Forms
         private Button _btnSua = null!;
         private Button _btnXoa = null!;
         private Button _btnLamMoi = null!;
+        private Button _btnImportExcel = null!;
 
         /// <summary>
         /// Required method for Designer support - do not modify
@@ -107,6 +108,21 @@ namespace HotelManagement.Forms
             _btnXoa = new Button { Text = "Xóa", Location = new Point(232, yNut), Width = 100 , Height = 30, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
             _btnLamMoi = new Button { Text = "Làm mới", Location = new Point(342, yNut), Width = 100, Height = 30, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
 
+            _btnImportExcel = new Button
+            {
+                Text = "📥 Import Excel",
+                Location = new Point(452, yNut),
+                Width = 135,
+                Height = 30,
+                Anchor = AnchorStyles.Left | AnchorStyles.Bottom,
+                BackColor = Color.FromArgb(13, 59, 102),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 9f, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+            _btnImportExcel.FlatAppearance.BorderSize = 0;
+
             _btnThem.Click += async (_, _) => await ThemAsync();
             _btnSua.Click += async (_, _) => await SuaAsync();
             _btnXoa.Click += async (_, _) => await XoaAsync();
@@ -119,7 +135,7 @@ namespace HotelManagement.Forms
                 lblSoPhong, _txtSoPhong,
                 lblLoaiPhong, _cboLoaiPhong,
                 lblTrangThai, _cboTrangThai,
-                _btnThem, _btnSua, _btnXoa, _btnLamMoi
+                _btnThem, _btnSua, _btnXoa, _btnLamMoi, _btnImportExcel
             });
         }
 

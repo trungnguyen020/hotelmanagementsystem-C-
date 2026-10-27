@@ -1,4 +1,4 @@
-﻿using HotelManagement.BLL.DTOs;
+using HotelManagement.BLL.DTOs;
 using HotelManagement.BLL.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,16 +14,32 @@ namespace HotelManagement.Forms
         private readonly IServiceScope _scope;
         private readonly IPhongService _phongService;
         private readonly ILoaiPhongService _loaiPhongService;
+        private readonly HotelManagement.Models.Entities.TaiKhoan? _taiKhoanDangNhap;
 
         private int? _idDangChon;
 
-        public FormPhong()
+        public FormPhong(HotelManagement.Models.Entities.TaiKhoan? taiKhoanDangNhap = null)
         {
+            _taiKhoanDangNhap = taiKhoanDangNhap;
             _scope = Program.ServiceProvider.CreateScope();
             _phongService = _scope.ServiceProvider.GetRequiredService<IPhongService>();
             _loaiPhongService = _scope.ServiceProvider.GetRequiredService<ILoaiPhongService>();
 
             InitializeComponent();
+
+            // Phân quyền: nút Import Excel chỉ hiển thị cho Admin
+            if (_taiKhoanDangNhap != null && _taiKhoanDangNhap.IdVaitroNavigation != null)
+            {
+                _btnImportExcel.Visible = _taiKhoanDangNhap.IdVaitroNavigation.TenVaitro == "Admin";
+            }
+
+            _btnImportExcel.Click += async (_, _) =>
+            {
+                using var form = new FormImportPhong();
+                form.ShowDialog(this);
+                // Tự động tải lại danh sách phòng sau khi import
+                await TaiDanhSachAsync();
+            };
 
             Load += async (_, _) =>
             {

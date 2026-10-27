@@ -44,6 +44,7 @@ internal static class Program
         services.AddScoped<IHoaDonPdfService, HoaDonPdfService>();
         services.AddScoped<IBaoCaoService, BaoCaoService>();
         services.AddScoped<IBaoCaoExcelService, BaoCaoExcelService>();
+        services.AddScoped<IPhongImportService, PhongImportService>();
 
         ServiceProvider = services.BuildServiceProvider();
 
