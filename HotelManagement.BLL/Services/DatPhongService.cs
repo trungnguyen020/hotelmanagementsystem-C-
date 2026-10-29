@@ -38,14 +38,14 @@ namespace HotelManagement.BLL.Services
             }).ToList();
         }
 
-        public async Task<(bool Success, string Message)> DatPhongAsync(
+        public async Task<(bool Success, string Message, string? MaBooking)> DatPhongAsync(
             int idKhachHang, int idNhanSu, DateOnly ngayNhan, DateOnly ngayTra, int soNguoi, List<int> danhSachIdPhong)
         {
             if (danhSachIdPhong == null || !danhSachIdPhong.Any())
-                return (false, "Vui lòng chọn ít nhất 1 phòng để đặt.");
+                return (false, "Vui lòng chọn ít nhất 1 phòng để đặt.", null);
 
             if (ngayNhan >= ngayTra)
-                return (false, "Ngày nhận phòng phải trước ngày trả phòng.");
+                return (false, "Ngày nhận phòng phải trước ngày trả phòng.", null);
 
             try
             {
@@ -59,7 +59,7 @@ namespace HotelManagement.BLL.Services
                     {
                         var phong = await _unitOfWork.PhongRepository.GetByIdAsync(idPhong);
                         await _unitOfWork.RollbackTransactionAsync();
-                        return (false, $"Phòng {phong?.Sophong} đã được đặt trong khoảng thời gian này.");
+                        return (false, $"Phòng {phong?.Sophong} đã được đặt trong khoảng thời gian này.", null);
                     }
                 }
 
@@ -113,12 +113,12 @@ namespace HotelManagement.BLL.Services
                 
                 await _unitOfWork.CommitTransactionAsync();
                 
-                return (true, $"Đặt phòng thành công! Mã booking: {maBooking}");
+                return (true, $"Đặt phòng thành công! Mã booking: {maBooking}", maBooking);
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackTransactionAsync();
-                return (false, "Có lỗi xảy ra khi đặt phòng: " + ex.Message);
+                return (false, "Có lỗi xảy ra khi đặt phòng: " + ex.Message, null);
             }
         }
 

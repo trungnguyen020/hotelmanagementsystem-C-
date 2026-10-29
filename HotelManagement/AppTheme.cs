@@ -6,63 +6,65 @@ namespace HotelManagement
 {
     /// <summary>
     /// Hệ thống quản lý màu sắc, font chữ và giao diện tập trung (Design System).
-    /// Chủ đề: Coastal Teal & Deep Ocean (Phong cách nghỉ dưỡng biển cao cấp, thanh lịch, trang nhã).
+    /// Chủ đề: Warm Bronze & Elegant Neutral (Phong cách khách sạn thanh lịch, trung tính, ấm).
     /// </summary>
     public static class AppTheme
     {
-        #region 1. Bảng màu chủ đạo (Color Palette - Coastal Resort)
+        #region 1. Bảng màu chủ đạo (Color Palette - Warm Bronze)
 
         // Nền & bề mặt (Backgrounds & Surfaces)
-        public static readonly Color Background = Color.FromArgb(244, 247, 249);        // Nền Form chính (#F4F7F9)
+        public static readonly Color Background = Color.FromArgb(247, 244, 239);        // Nền Form chính - trắng ngà ấm (#F7F4EF)
         public static readonly Color Surface = Color.FromArgb(255, 255, 255);           // Nền Card / Panel / DataGridView (#FFFFFF)
-        public static readonly Color SurfaceSecondary = Color.FromArgb(235, 242, 245);  // Nền MenuStrip / Header / Toolbar (#EBF2F5)
-        public static readonly Color SurfaceHover = Color.FromArgb(226, 236, 240);      // Nền khi hover item (#E2ECF0)
+        public static readonly Color SurfaceSecondary = Color.FromArgb(239, 234, 226);  // Nền MenuStrip / Header / Toolbar (#EFEAE2)
+        public static readonly Color SurfaceHover = Color.FromArgb(230, 223, 212);      // Nền khi hover item (#E6DFD4)
+        public static readonly Color SurfaceAlt = Color.FromArgb(251, 249, 246);        // Hàng xen kẽ DataGridView (#FBF9F6)
 
         // Đường viền (Borders & Dividers)
-        public static readonly Color Border = Color.FromArgb(209, 223, 230);            // Viền chính (#D1DFE6)
-        public static readonly Color BorderLight = Color.FromArgb(229, 239, 244);       // Viền mờ ngăn cách (#E5EFF4)
-        public static readonly Color BorderFocus = Color.FromArgb(15, 118, 110);        // Viền khi focus ô nhập liệu
+        public static readonly Color Border = Color.FromArgb(218, 210, 198);            // Viền chính (#DAD2C6)
+        public static readonly Color BorderLight = Color.FromArgb(233, 227, 217);       // Viền mờ ngăn cách (#E9E3D9)
+        public static readonly Color BorderFocus = Color.FromArgb(166, 124, 82);        // Viền khi focus ô nhập liệu (#A67C52)
 
         // Chữ (Typography Colors)
-        public static readonly Color TextPrimary = Color.FromArgb(22, 37, 52);          // Chữ chính - Deep Navy Charcoal (#162534)
-        public static readonly Color TextSecondary = Color.FromArgb(90, 111, 128);      // Chữ phụ, nhãn (#5A6F80)
-        public static readonly Color TextMuted = Color.FromArgb(143, 160, 173);         // Placeholder, chú thích (#8FA0AD)
+        public static readonly Color TextPrimary = Color.FromArgb(45, 41, 37);          // Chữ chính - Warm Charcoal (#2D2925)
+        public static readonly Color TextSecondary = Color.FromArgb(106, 98, 89);       // Chữ phụ, nhãn (#6A6259)
+        public static readonly Color TextMuted = Color.FromArgb(154, 145, 135);         // Placeholder, chú thích (#9A9187)
         public static readonly Color TextOnPrimary = Color.FromArgb(255, 255, 255);     // Chữ trên nền nút màu nhấn (#FFFFFF)
 
-        // Màu nhấn (Primary Accent - Deep Teal)
-        public static readonly Color Primary = Color.FromArgb(15, 118, 110);            // Teal chính (#0F766E)
-        public static readonly Color PrimaryHover = Color.FromArgb(17, 94, 89);          // Teal đậm khi hover (#115E59)
-        public static readonly Color PrimaryActive = Color.FromArgb(19, 78, 74);        // Teal khi bấm (#134E4A)
-        public static readonly Color PrimaryLight = Color.FromArgb(224, 246, 244);       // Nền highlight Teal nhạt (#E0F6F4)
-
-        // Màu nhấn phụ (Secondary Accent - Ocean Blue)
-        public static readonly Color OceanBlue = Color.FromArgb(2, 132, 199);           // Ocean Blue (#0284C7)
-        public static readonly Color OceanBlueHover = Color.FromArgb(3, 105, 161);      // Ocean Blue hover (#0369A1)
-        public static readonly Color OceanBlueLight = Color.FromArgb(224, 242, 254);    // Ocean Blue nhạt (#E0F2FE)
+        // Màu nhấn (Primary Accent - Warm Bronze)
+        public static readonly Color Primary = Color.FromArgb(140, 98, 57);             // Bronze chính (#8C6239)
+        public static readonly Color PrimaryHover = Color.FromArgb(116, 79, 45);         // Bronze đậm khi hover (#744F2D)
+        public static readonly Color PrimaryActive = Color.FromArgb(92, 62, 34);        // Bronze khi bấm (#5C3E22)
+        public static readonly Color PrimaryLight = Color.FromArgb(244, 235, 221);      // Nền highlight Bronze nhạt (#F4EBDD)
+        public static readonly Color AccentGold = Color.FromArgb(176, 141, 87);         // Vàng đồng trang trí (#B08D57)
+        public static readonly Color Ink = Color.FromArgb(43, 38, 34);                  // Nền đậm tuỳ chọn (#2B2622)
 
         #endregion
 
         #region 2. Bảng màu trạng thái (Status Colors - Đồng bộ Sơ đồ phòng & Nghiệp vụ)
 
         // Trống / Sẵn sàng / Thành công (Available / Success)
-        public static readonly Color StatusSuccessText = Color.FromArgb(6, 95, 70);     // #065F46
-        public static readonly Color StatusSuccessBg = Color.FromArgb(209, 250, 229);   // #D1FAE5
-        public static readonly Color StatusSuccessBorder = Color.FromArgb(16, 185, 129);// #10B981
+        public static readonly Color StatusSuccessText = Color.FromArgb(62, 107, 79);      // #3E6B4F
+        public static readonly Color StatusSuccessBg = Color.FromArgb(231, 240, 232);      // #E7F0E8
+        public static readonly Color StatusSuccessBorder = Color.FromArgb(143, 181, 154);  // #8FB59A
+        public static readonly Color StatusSuccessSurface = Color.FromArgb(244, 248, 244); // #F4F8F4
 
-        // Đang ở / Bận / Cảnh báo cao / Lỗi (Occupied / Danger / Error)
-        public static readonly Color StatusDangerText = Color.FromArgb(153, 27, 27);    // #991B1B
-        public static readonly Color StatusDangerBg = Color.FromArgb(254, 226, 226);    // #FEE2E2
-        public static readonly Color StatusDangerBorder = Color.FromArgb(239, 68, 68);  // #EF4444
+        // Đang ở / Bận / Lỗi (Occupied / Danger / Error)
+        public static readonly Color StatusDangerText = Color.FromArgb(155, 68, 54);       // #9B4436
+        public static readonly Color StatusDangerBg = Color.FromArgb(247, 231, 226);       // #F7E7E2
+        public static readonly Color StatusDangerBorder = Color.FromArgb(217, 160, 147);   // #D9A093
+        public static readonly Color StatusDangerSurface = Color.FromArgb(251, 244, 242);  // #FBF4F2
 
         // Đang dọn / Cảnh báo / Chờ (Cleaning / Warning / Pending)
-        public static readonly Color StatusWarningText = Color.FromArgb(146, 64, 14);   // #92400E
-        public static readonly Color StatusWarningBg = Color.FromArgb(254, 243, 199);   // #FEF3C7
-        public static readonly Color StatusWarningBorder = Color.FromArgb(245, 158, 11);// #F59E0B
+        public static readonly Color StatusWarningText = Color.FromArgb(138, 90, 27);      // #8A5A1B
+        public static readonly Color StatusWarningBg = Color.FromArgb(250, 240, 218);      // #FAF0DA
+        public static readonly Color StatusWarningBorder = Color.FromArgb(222, 196, 135);  // #DEC487
+        public static readonly Color StatusWarningSurface = Color.FromArgb(252, 248, 239); // #FCF8EF
 
         // Bảo trì / Tạm ngưng / Trung tính (Maintenance / Neutral)
-        public static readonly Color StatusNeutralText = Color.FromArgb(71, 85, 105);   // #475569
-        public static readonly Color StatusNeutralBg = Color.FromArgb(241, 245, 249);   // #F1F5F9
-        public static readonly Color StatusNeutralBorder = Color.FromArgb(148, 163, 184);// #94A3B8
+        public static readonly Color StatusNeutralText = Color.FromArgb(91, 99, 107);      // #5B636B
+        public static readonly Color StatusNeutralBg = Color.FromArgb(236, 237, 238);      // #ECEDEE
+        public static readonly Color StatusNeutralBorder = Color.FromArgb(179, 184, 189);  // #B3B8BD
+        public static readonly Color StatusNeutralSurface = Color.FromArgb(245, 245, 244); // #F5F5F4
 
         #endregion
 
@@ -70,11 +72,11 @@ namespace HotelManagement
 
         public const string DefaultFontFamily = "Segoe UI";
 
-        public static readonly Font FontDisplay = new(DefaultFontFamily, 15f, FontStyle.Bold);
-        public static readonly Font FontHeader = new(DefaultFontFamily, 12f, FontStyle.Bold);
-        public static readonly Font FontSubHeader = new(DefaultFontFamily, 10.5f, FontStyle.Bold);
-        public static readonly Font FontBody = new(DefaultFontFamily, 9.5f, FontStyle.Regular);
-        public static readonly Font FontBodyBold = new(DefaultFontFamily, 9.5f, FontStyle.Bold);
+        public static readonly Font FontDisplay = new(DefaultFontFamily, 18f, FontStyle.Bold);
+        public static readonly Font FontHeader = new(DefaultFontFamily, 14f, FontStyle.Bold);
+        public static readonly Font FontSubHeader = new(DefaultFontFamily, 11f, FontStyle.Bold);
+        public static readonly Font FontBody = new(DefaultFontFamily, 10f, FontStyle.Regular);
+        public static readonly Font FontBodyBold = new(DefaultFontFamily, 10f, FontStyle.Bold);
         public static readonly Font FontSmall = new(DefaultFontFamily, 8.5f, FontStyle.Regular);
         public static readonly Font FontSmallBold = new(DefaultFontFamily, 8.5f, FontStyle.Bold);
         public static readonly Font FontCaption = new(DefaultFontFamily, 8f, FontStyle.Italic);
@@ -225,7 +227,7 @@ namespace HotelManagement
             dgv.RowTemplate.Height = 32;
 
             // Alternating Row Style (Zebra stripe nhẹ)
-            dgv.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(249, 252, 253);
+            dgv.AlternatingRowsDefaultCellStyle.BackColor = SurfaceAlt;
             dgv.AlternatingRowsDefaultCellStyle.ForeColor = TextPrimary;
             dgv.AlternatingRowsDefaultCellStyle.SelectionBackColor = PrimaryLight;
             dgv.AlternatingRowsDefaultCellStyle.SelectionForeColor = TextPrimary;

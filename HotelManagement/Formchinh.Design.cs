@@ -240,7 +240,7 @@ namespace HotelManagement
                 Font = AppTheme.FontHeader,
                 ForeColor = AppTheme.TextPrimary,
                 AutoSize = true,
-                Location = new Point(36, 20)
+                Location = new Point(36, 18)
             };
 
             var lblDashboardSub = new Label
@@ -249,17 +249,26 @@ namespace HotelManagement
                 Font = AppTheme.FontSmall,
                 ForeColor = AppTheme.TextSecondary,
                 AutoSize = true,
-                Location = new Point(36, 48)
+                Location = new Point(36, 52)
             };
 
             _pnlQuickActions = new FlowLayoutPanel
             {
-                Location = new Point(36, 80),
+                Location = new Point(36, 88),
                 Size = new Size(1200, 520),
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left,
                 BackColor = Color.Transparent,
-                AutoScroll = false,
+                AutoScroll = true,
                 WrapContents = true
+            };
+
+            // Co giãn theo bề rộng vùng nội dung; không neo phải để tránh vòng lặp
+            // kích thước với AutoScroll của panel cha.
+            _pnlMainContainer.Resize += (s, e) =>
+            {
+                int width = _pnlMainContainer.ClientSize.Width - 72;
+                if (width > 0 && _pnlQuickActions.Width != width)
+                    _pnlQuickActions.Width = width;
             };
 
             // Tạo các thẻ tác vụ nhanh
@@ -269,7 +278,7 @@ namespace HotelManagement
                 form.ShowDialog(this);
             });
 
-            ThemTheTacVuNhanh("ĐẶT PHÒNG MỚI", "Tạo booking mới cho khách lẻ, khách đoàn với đầy đủ dịch vụ", "Đặt phòng", AppTheme.OceanBlue, () =>
+            ThemTheTacVuNhanh("ĐẶT PHÒNG MỚI", "Tạo booking mới cho khách lẻ, khách đoàn với đầy đủ dịch vụ", "Đặt phòng", AppTheme.AccentGold, () =>
             {
                 using var form = new HotelManagement.Forms.FormDatPhong(_taiKhoanDangNhap);
                 form.ShowDialog(this);

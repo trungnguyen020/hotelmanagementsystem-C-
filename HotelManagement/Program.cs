@@ -45,6 +45,7 @@ internal static class Program
         services.AddScoped<IBaoCaoService, BaoCaoService>();
         services.AddScoped<IBaoCaoExcelService, BaoCaoExcelService>();
         services.AddScoped<IPhongImportService, PhongImportService>();
+        services.AddScoped<IQrCodeService, QrCodeService>();
 
         ServiceProvider = services.BuildServiceProvider();
 

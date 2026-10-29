@@ -10,7 +10,7 @@ namespace HotelManagement.BLL.Services
         Task<List<Phongtrongdto>> TimPhongTrongAsync(
             DateOnly ngayNhan, DateOnly ngayTra, int? idLoaiPhong, int? soKhach);
             
-        Task<(bool Success, string Message)> DatPhongAsync(
+        Task<(bool Success, string Message, string? MaBooking)> DatPhongAsync(
             int idKhachHang, int idNhanSu, DateOnly ngayNhan, DateOnly ngayTra, int soNguoi, List<int> danhSachIdPhong);
 
         /// <summary>

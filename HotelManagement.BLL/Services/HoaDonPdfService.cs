@@ -16,6 +16,7 @@ namespace HotelManagement.BLL.Services
     public class HoaDonPdfService : IHoaDonPdfService
     {
         private readonly IHoaDonService _hoaDonService;
+        private readonly IQrCodeService? _qrCodeService;
 
         static HoaDonPdfService()
         {
@@ -25,9 +26,10 @@ namespace HotelManagement.BLL.Services
             QuestPDF.Settings.ThrowOnMissingFontFamilies = false;
         }
 
-        public HoaDonPdfService(IHoaDonService hoaDonService)
+        public HoaDonPdfService(IHoaDonService hoaDonService, IQrCodeService? qrCodeService = null)
         {
             _hoaDonService = hoaDonService ?? throw new ArgumentNullException(nameof(hoaDonService));
+            _qrCodeService = qrCodeService;
         }
 
         public byte[] SinhPdfTuHoaDon(HoaDonDto hoaDon, HoaDonPdfTheme? theme = null)
@@ -35,7 +37,20 @@ namespace HotelManagement.BLL.Services
             if (hoaDon == null)
                 throw new ArgumentNullException(nameof(hoaDon), "Dữ liệu hóa đơn không được để trống.");
 
-            var document = new HoaDonPdfDocument(hoaDon, theme);
+            byte[]? qrBytes = null;
+            if (_qrCodeService != null && !string.IsNullOrWhiteSpace(hoaDon.MaBooking))
+            {
+                try
+                {
+                    qrBytes = _qrCodeService.SinhMaQrByte(hoaDon.MaBooking.Trim(), 180);
+                }
+                catch
+                {
+                    // Dự phòng an toàn: nếu sinh QR gặp lỗi vẫn xuất hóa đơn PDF bình thường
+                }
+            }
+
+            var document = new HoaDonPdfDocument(hoaDon, theme, qrBytes);
             return document.GeneratePdf();
         }
 
@@ -65,9 +80,7 @@ namespace HotelManagement.BLL.Services
                 Directory.CreateDirectory(thuMuc);
             }
 
-            var document = new HoaDonPdfDocument(hoaDon, theme);
-            byte[] bytes = document.GeneratePdf();
-
+            byte[] bytes = SinhPdfTuHoaDon(hoaDon, theme);
             await File.WriteAllBytesAsync(duongDanTep, bytes);
         }
 

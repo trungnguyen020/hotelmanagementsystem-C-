@@ -63,10 +63,10 @@ namespace HotelManagement
             {
                 Text = "HOTEL MANAGEMENT • RESORT & SUITES",
                 Font = AppTheme.FontSmallBold,
-                ForeColor = AppTheme.OceanBlue,
+                ForeColor = AppTheme.Primary,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Location = new Point(20, 24),
-                Size = new Size(420, 20)
+                Location = new Point(20, 22),
+                Size = new Size(420, 18)
             };
 
             // 2. Tiêu đề chính
@@ -76,16 +76,16 @@ namespace HotelManagement
                 Font = AppTheme.FontDisplay,
                 ForeColor = AppTheme.TextPrimary,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Location = new Point(20, 48),
-                Size = new Size(420, 32)
+                Location = new Point(20, 44),
+                Size = new Size(420, 40)
             };
 
-            // Dải gạch trang trí màu Teal
+            // Dải gạch trang trí màu vàng đồng
             var pnlDivider = new Panel
             {
                 Size = new Size(60, 3),
-                Location = new Point(200, 85),
-                BackColor = AppTheme.Primary
+                Location = new Point(200, 92),
+                BackColor = AppTheme.AccentGold
             };
 
             // 3. Nhập Tên đăng nhập
@@ -94,13 +94,13 @@ namespace HotelManagement
                 Text = "Tên đăng nhập",
                 Font = AppTheme.FontBodyBold,
                 ForeColor = AppTheme.TextPrimary,
-                Location = new Point(40, 108),
+                Location = new Point(40, 118),
                 AutoSize = true
             };
 
             txtTenDangNhap = new TextBox
             {
-                Location = new Point(40, 132),
+                Location = new Point(40, 142),
                 Size = new Size(380, 34),
                 PlaceholderText = "Nhập tài khoản nhân sự..."
             };
@@ -112,13 +112,13 @@ namespace HotelManagement
                 Text = "Mật khẩu",
                 Font = AppTheme.FontBodyBold,
                 ForeColor = AppTheme.TextPrimary,
-                Location = new Point(40, 180),
+                Location = new Point(40, 188),
                 AutoSize = true
             };
 
             txtMatKhau = new TextBox
             {
-                Location = new Point(40, 204),
+                Location = new Point(40, 212),
                 Size = new Size(380, 34),
                 UseSystemPasswordChar = true,
                 PlaceholderText = "Nhập mật khẩu..."
@@ -129,7 +129,7 @@ namespace HotelManagement
             btnDangNhap = new Button
             {
                 Text = "ĐĂNG NHẬP",
-                Location = new Point(40, 258),
+                Location = new Point(40, 268),
                 Size = new Size(380, 42),
                 Cursor = Cursors.Hand
             };
@@ -139,8 +139,8 @@ namespace HotelManagement
             // 6. Label Thông báo lỗi / trạng thái
             lblThongBao = new Label
             {
-                Location = new Point(40, 308),
-                Size = new Size(380, 42),
+                Location = new Point(40, 318),
+                Size = new Size(380, 40),
                 Font = AppTheme.FontSmallBold,
                 ForeColor = AppTheme.StatusDangerText,
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -154,7 +154,7 @@ namespace HotelManagement
                 Font = AppTheme.FontCaption,
                 ForeColor = AppTheme.TextMuted,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Location = new Point(40, 355),
+                Location = new Point(40, 366),
                 Size = new Size(380, 20)
             };
 

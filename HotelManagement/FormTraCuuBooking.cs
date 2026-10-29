@@ -19,6 +19,7 @@ namespace HotelManagement.Forms
     {
         private readonly IServiceScope _scope;
         private readonly IDatPhongService _datPhongService;
+        private readonly IQrCodeService _qrCodeService;
 
         /// <summary>
         /// Mã booking mà nhân viên đã chọn. Null nếu chưa chọn hoặc hủy.
@@ -33,6 +34,7 @@ namespace HotelManagement.Forms
         private ComboBox _cboTrangThai = null!;
         private Button _btnTimKiem = null!;
         private Button _btnXoaBoLoc = null!;
+        private Button _btnQuetQr = null!;
 
         // UI Controls - Kết quả
         private DataGridView _dgvKetQua = null!;
@@ -46,6 +48,7 @@ namespace HotelManagement.Forms
         {
             _scope = Program.ServiceProvider.CreateScope();
             _datPhongService = _scope.ServiceProvider.GetRequiredService<IDatPhongService>();
+            _qrCodeService = _scope.ServiceProvider.GetRequiredService<IQrCodeService>();
 
             InitializeComponent();
 
@@ -131,11 +134,25 @@ namespace HotelManagement.Forms
             {
                 Text = "Xóa bộ lọc",
                 Location = new Point(650, 57),
-                Size = new Size(100, 34),
+                Size = new Size(95, 34),
                 Cursor = Cursors.Hand,
                 Font = fontNormal
             };
             _btnXoaBoLoc.Click += (_, _) => XoaBoLoc();
+
+            _btnQuetQr = new Button
+            {
+                Text = "📷 Quét mã QR",
+                Location = new Point(755, 57),
+                Size = new Size(130, 34),
+                BackColor = AppTheme.Primary,
+                ForeColor = AppTheme.TextOnPrimary,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+            _btnQuetQr.FlatAppearance.BorderSize = 0;
+            _btnQuetQr.Click += async (_, _) => await QuetMaQrAsync();
 
             // Cho phép Enter để tìm kiếm nhanh ở bất kỳ textbox nào
             foreach (var txt in new[] { _txtTenKhach, _txtSdt, _txtCccd, _txtSoPhong })
@@ -157,7 +174,7 @@ namespace HotelManagement.Forms
                 lblCccd, _txtCccd,
                 lblSoPhong, _txtSoPhong,
                 lblTrangThai, _cboTrangThai,
-                _btnTimKiem, _btnXoaBoLoc
+                _btnTimKiem, _btnXoaBoLoc, _btnQuetQr
             });
 
             // ================= 2. DataGridView: Kết quả =================
@@ -400,6 +417,72 @@ namespace HotelManagement.Forms
             _txtSoPhong.Clear();
             _cboTrangThai.SelectedIndex = 0;
             _txtTenKhach.Focus();
+        }
+
+        private async Task QuetMaQrAsync()
+        {
+            using var ofd = new OpenFileDialog
+            {
+                Title = "Chọn ảnh mã QR Booking để tra cứu nhanh",
+                Filter = "Tệp hình ảnh (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp|Tất cả tệp (*.*)|*.*"
+            };
+
+            if (ofd.ShowDialog() != DialogResult.OK) return;
+
+            try
+            {
+                using var bmp = new Bitmap(ofd.FileName);
+                string? maBooking = _qrCodeService.DocMaQrTuBitmap(bmp);
+
+                if (string.IsNullOrWhiteSpace(maBooking))
+                {
+                    MessageBox.Show("Không nhận diện được mã QR hợp lệ từ tệp ảnh này.\nVui lòng đảm bảo ảnh chụp rõ nét mã QR.",
+                        "Không đọc được QR", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                maBooking = maBooking.Trim();
+                _lblSoKetQua.Text = $"Đã quét mã: {maBooking}. Đang kiểm tra hệ thống...";
+                _lblSoKetQua.ForeColor = Color.DarkSlateBlue;
+
+                var bookingChiTiet = await _datPhongService.LayChiTietTheoMaBookingAsync(maBooking);
+                if (bookingChiTiet == null)
+                {
+                    MessageBox.Show($"Mã QR chứa mã booking '{maBooking}' nhưng không tìm thấy thông tin trên hệ thống.",
+                        "Không tìm thấy booking", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                var dto = new BookingTimKiemDto
+                {
+                    IdDatPhong = bookingChiTiet.IdDatPhong,
+                    MaBooking = bookingChiTiet.MaBooking,
+                    TrangThai = bookingChiTiet.TrangThai,
+                    TenKhachHang = bookingChiTiet.TenKhachHang,
+                    SdtKhachHang = bookingChiTiet.SdtKhachHang,
+                    CccdKhachHang = bookingChiTiet.CccdKhachHang,
+                    NgayDat = bookingChiTiet.NgayDat,
+                    NgayNhanDuKien = bookingChiTiet.NgayNhanDuKien,
+                    NgayTraDuKien = bookingChiTiet.NgayTraDuKien,
+                    SoPhong = bookingChiTiet.DanhSachPhong?.Count ?? 0,
+                    DanhSachSoPhong = string.Join(", ", (bookingChiTiet.DanhSachPhong ?? new List<ChiTietPhongDatDto>()).Select(p => p.SoPhong)),
+                    SoNguoi = bookingChiTiet.SoNguoi
+                };
+
+                _dgvKetQua.DataSource = new List<BookingTimKiemDto> { dto };
+                if (_dgvKetQua.Rows.Count > 0)
+                {
+                    _dgvKetQua.Rows[0].Selected = true;
+                    _btnChon.Enabled = true;
+                }
+
+                _lblSoKetQua.Text = $"✓ Quét mã QR thành công! Booking: '{maBooking}' — Khách: {bookingChiTiet.TenKhachHang}";
+                _lblSoKetQua.ForeColor = Color.DarkGreen;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi giải mã QR: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

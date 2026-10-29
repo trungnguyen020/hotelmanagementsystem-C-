@@ -149,7 +149,7 @@ namespace HotelManagement.Forms
 
             var dsIdPhong = _dsPhongChon.Select(p => p.IdPhong).ToList();
 
-            var (success, msg) = await _datPhongService.DatPhongAsync(
+            var (success, msg, maBooking) = await _datPhongService.DatPhongAsync(
                 _khachHangDuocChon.IdKhachHang,
                 _taiKhoanDangNhap.IdNhansu,
                 DateOnly.FromDateTime(_dtpNgayNhan.Value),
@@ -160,7 +160,15 @@ namespace HotelManagement.Forms
 
             if (success)
             {
-                MessageBox.Show(msg, "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (!string.IsNullOrEmpty(maBooking))
+                {
+                    using var frmXacNhan = new FormXacNhanDatPhong(maBooking);
+                    frmXacNhan.ShowDialog(this);
+                }
+                else
+                {
+                    MessageBox.Show(msg, "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
                 Close();
             }
             else

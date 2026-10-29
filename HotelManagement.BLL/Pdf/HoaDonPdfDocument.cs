@@ -14,11 +14,13 @@ namespace HotelManagement.BLL.Pdf
     {
         public HoaDonDto Model { get; }
         public HoaDonPdfTheme Theme { get; }
+        public byte[]? QrCodeBytes { get; }
 
-        public HoaDonPdfDocument(HoaDonDto model, HoaDonPdfTheme? theme = null)
+        public HoaDonPdfDocument(HoaDonDto model, HoaDonPdfTheme? theme = null, byte[]? qrCodeBytes = null)
         {
             Model = model ?? throw new ArgumentNullException(nameof(model));
             Theme = theme ?? HoaDonPdfTheme.MacDinh;
+            QrCodeBytes = qrCodeBytes;
         }
 
         public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
@@ -334,31 +336,47 @@ namespace HotelManagement.BLL.Pdf
         {
             container.Row(row =>
             {
-                // Cột ghi chú & phương thức bên trái
-                row.RelativeItem(5).Column(col =>
+                // Cột ghi chú & phương thức bên trái (kèm mã QR booking nếu có)
+                row.RelativeItem(5).Row(leftRow =>
                 {
-                    col.Item().Text("GHI CHÚ THANH TOÁN").Bold().FontSize(Theme.SmallFontSize).FontColor(Theme.PrimaryColor);
-                    
-                    string phuongThuc = !string.IsNullOrWhiteSpace(Model.PhuongThucThanhtoan)
-                        ? Model.PhuongThucThanhtoan
-                        : "Chưa xác định";
-
-                    col.Item().PaddingTop(2).Text(t =>
+                    leftRow.RelativeItem(7).Column(col =>
                     {
-                        t.Span("Hình thức: ").SemiBold();
-                        t.Span(phuongThuc);
+                        col.Item().Text("GHI CHÚ THANH TOÁN").Bold().FontSize(Theme.SmallFontSize).FontColor(Theme.PrimaryColor);
+                        
+                        string phuongThuc = !string.IsNullOrWhiteSpace(Model.PhuongThucThanhtoan)
+                            ? Model.PhuongThucThanhtoan
+                            : "Chưa xác định";
+
+                        col.Item().PaddingTop(2).Text(t =>
+                        {
+                            t.Span("Hình thức: ").SemiBold();
+                            t.Span(phuongThuc);
+                        });
+
+                        col.Item().Text(t =>
+                        {
+                            t.Span("Trạng thái: ").SemiBold();
+                            t.Span(Model.TrangThaiThanhtoan);
+                        });
+
+                        col.Item().PaddingTop(4).Text("(*) Đã bao gồm phí phục vụ và thuế GTGT.")
+                            .FontSize(Theme.SmallFontSize - 1)
+                            .Italic()
+                            .FontColor(Theme.MutedTextColor);
                     });
 
-                    col.Item().Text(t =>
+                    // Hiển thị mã QR tra cứu booking cho khách
+                    if (QrCodeBytes != null && QrCodeBytes.Length > 0)
                     {
-                        t.Span("Trạng thái: ").SemiBold();
-                        t.Span(Model.TrangThaiThanhtoan);
-                    });
-
-                    col.Item().PaddingTop(5).Text("(*) Hóa đơn đã bao gồm phí phục vụ và thuế GTGT theo quy định.")
-                        .FontSize(Theme.SmallFontSize)
-                        .Italic()
-                        .FontColor(Theme.MutedTextColor);
+                        leftRow.RelativeItem(3).AlignCenter().Column(qrCol =>
+                        {
+                            qrCol.Item().AlignCenter().Width(58).Height(58).Image(QrCodeBytes);
+                            qrCol.Item().PaddingTop(2).AlignCenter().Text("Tra cứu Kiosk")
+                                .FontSize(Theme.SmallFontSize - 1.5f)
+                                .SemiBold()
+                                .FontColor(Theme.PrimaryColor);
+                        });
+                    }
                 });
 
                 // Khối tính tổng chi phí bên phải
