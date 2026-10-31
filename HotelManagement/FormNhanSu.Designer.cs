@@ -95,17 +95,17 @@ namespace HotelManagement.Forms
             var lblHoTen = new Label { Text = "Họ tên:", Location = new Point(12, yNhap), AutoSize = true, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
             _txtHoTen = new TextBox { Location = new Point(lblWidth + 12, yNhap - 3), Width = 250, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
 
-            var lblCccd = new Label { Text = "CCCD:", Location = new Point(400, yNhap), AutoSize = true, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
-            _txtCccd = new TextBox { Location = new Point(460, yNhap - 3), Width = 180, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
+            var lblCccd = new Label { Text = "CCCD:", Location = new Point(420, yNhap), AutoSize = true, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
+            _txtCccd = new TextBox { Location = new Point(530, yNhap - 3), Width = 200, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
 
             var lblSdt = new Label { Text = "Số điện thoại:", Location = new Point(12, yNhap + 35), AutoSize = true, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
             _txtSdt = new TextBox { Location = new Point(lblWidth + 12, yNhap + 32), Width = 180, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
 
-            var lblNgaySinh = new Label { Text = "Ngày sinh:", Location = new Point(400, yNhap + 35), AutoSize = true, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
+            var lblNgaySinh = new Label { Text = "Ngày sinh:", Location = new Point(420, yNhap + 35), AutoSize = true, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
             _dtpNgaySinh = new DateTimePicker
             {
-                Location = new Point(460, yNhap + 32),
-                Width = 160,
+                Location = new Point(530, yNhap + 32),
+                Width = 200,
                 Format = DateTimePickerFormat.Short,
                 Anchor = AnchorStyles.Left | AnchorStyles.Bottom
             };
@@ -152,14 +152,14 @@ namespace HotelManagement.Forms
             _lblMatKhau = new Label
             {
                 Text = "Mật khẩu:",
-                Location = new Point(400, yTaiKhoan + 55),
+                Location = new Point(420, yTaiKhoan + 55),
                 AutoSize = true,
                 Visible = false,
                 Anchor = AnchorStyles.Left | AnchorStyles.Bottom
             };
             _txtMatKhau = new TextBox
             {
-                Location = new Point(460, yTaiKhoan + 52),
+                Location = new Point(530, yTaiKhoan + 52),
                 Width = 200,
                 Visible = false,
                 UseSystemPasswordChar = true,
