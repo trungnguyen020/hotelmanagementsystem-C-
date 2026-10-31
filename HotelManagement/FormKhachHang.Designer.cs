@@ -119,7 +119,8 @@ namespace HotelManagement.Forms
             {
                 Location = new Point(370, yNhap + 67),
                 Width = 160,
-                Format = DateTimePickerFormat.Short,
+                Format = DateTimePickerFormat.Custom,
+                CustomFormat = "dd/MM/yyyy",
                 Enabled = false,
                 Anchor = AnchorStyles.Left | AnchorStyles.Bottom
             };
