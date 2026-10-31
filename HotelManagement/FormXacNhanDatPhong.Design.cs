@@ -29,6 +29,7 @@ namespace HotelManagement.Forms
         private Label _lblSoKhachVal = null!;
         private Label _lblDanhSachPhongVal = null!;
         private Label _lblTrangThaiVal = null!;
+        private Label _lblEmailStatusVal = null!;
 
         // Khu vực mã QR bên phải
         private PictureBox _picQrCode = null!;
@@ -37,6 +38,7 @@ namespace HotelManagement.Forms
         private Button _btnLuuQr = null!;
 
         // Nút hành động đáy
+        private Button _btnGuiEmail = null!;
         private Button _btnDong = null!;
 
         #endregion
@@ -178,6 +180,17 @@ namespace HotelManagement.Forms
                 ForeColor = AppTheme.StatusSuccessText
             };
 
+            topY += stepY - 4;
+            var lblNhanEmail = TaoNhan("Email xác nhận:", topY);
+            _lblEmailStatusVal = new Label
+            {
+                Text = "Đang kiểm tra gửi...",
+                Location = new Point(150, topY),
+                Size = new Size(270, 38),
+                Font = AppTheme.FontSmall,
+                ForeColor = AppTheme.TextSecondary
+            };
+
             pnlThongTin.Controls.AddRange(new Control[]
             {
                 lblTieuDeThongTin,
@@ -187,7 +200,8 @@ namespace HotelManagement.Forms
                 lblNhanThoiGian, _lblThoiGianVal,
                 lblNhanSoKhach, _lblSoKhachVal,
                 lblNhanPhong, _lblDanhSachPhongVal,
-                lblNhanTrangThai, _lblTrangThaiVal
+                lblNhanTrangThai, _lblTrangThaiVal,
+                lblNhanEmail, _lblEmailStatusVal
             });
 
             // --- Card phải: Mã QR Code (Width ~ 300) ---
@@ -264,6 +278,15 @@ namespace HotelManagement.Forms
                 Padding = new Padding(20, 10, 20, 10)
             };
 
+            _btnGuiEmail = new Button
+            {
+                Text = "✉ Gửi lại email xác nhận",
+                Size = new Size(200, 40),
+                Location = new Point(400, 10),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
+            };
+            AppTheme.ApplySecondaryButton(_btnGuiEmail);
+
             _btnDong = new Button
             {
                 Text = "✓ Đóng & Hoàn tất",
@@ -273,7 +296,7 @@ namespace HotelManagement.Forms
             };
             AppTheme.ApplyPrimaryButton(_btnDong);
 
-            pnlBottom.Controls.Add(_btnDong);
+            pnlBottom.Controls.AddRange(new Control[] { _btnGuiEmail, _btnDong });
 
             // ================= Assemble Form =================
             Controls.AddRange(new Control[]

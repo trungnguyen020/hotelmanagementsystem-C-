@@ -9,5 +9,9 @@ public partial class VaiTro
 
     public string TenVaitro { get; set; } = null!;
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
     public virtual ICollection<TaiKhoan> TaiKhoans { get; set; } = new List<TaiKhoan>();
 }

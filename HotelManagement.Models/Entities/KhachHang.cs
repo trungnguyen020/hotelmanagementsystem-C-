@@ -19,5 +19,9 @@ public partial class KhachHang
 
     public string Email { get; set; } = null!;
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
     public virtual ICollection<DatPhong> DatPhongs { get; set; } = new List<DatPhong>();
 }

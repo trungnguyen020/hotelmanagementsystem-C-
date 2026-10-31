@@ -23,5 +23,11 @@ public partial class HoaDon
 
     public string TrangthaiThanhtoan { get; set; } = null!;
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
     public virtual DatPhong IdDatphongNavigation { get; set; } = null!;
+
+    public virtual ICollection<LichSuGuiThongBao> LichSuGuiThongBaos { get; set; } = new List<LichSuGuiThongBao>();
 }

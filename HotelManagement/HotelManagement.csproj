@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\HotelManagement.BLL\HotelManagement.BLL.csproj" />
@@ -29,6 +29,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>950dfa46-eddc-493a-95d7-474355e12436</UserSecretsId>
   </PropertyGroup>
 
 </Project>

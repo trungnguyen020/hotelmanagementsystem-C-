@@ -167,7 +167,16 @@ namespace HotelManagement
             };
             menuChinh.Items.Add(mnuBaoCao);
 
-            // --- 1.7 Đổi mật khẩu ---
+            // --- 1.7 Lịch sử thông báo (DCKLTTQ-82) ---
+            var mnuLichSuThongBao = new ToolStripMenuItem("Lịch sử thông báo");
+            mnuLichSuThongBao.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormLichSuThongBao();
+                form.ShowDialog(this);
+            };
+            menuChinh.Items.Add(mnuLichSuThongBao);
+
+            // --- 1.8 Đổi mật khẩu ---
             mnuDoiMatKhau = new ToolStripMenuItem("Đổi mật khẩu");
             mnuDoiMatKhau.Click += (_, _) =>
             {
@@ -305,6 +314,12 @@ namespace HotelManagement
             ThemTheTacVuNhanh("HỒ SƠ KHÁCH HÀNG", "Tra cứu và quản lý thông tin khách lưu trú, CCCD, số điện thoại", "Khách hàng", AppTheme.TextSecondary, () =>
             {
                 using var form = new HotelManagement.Forms.FormKhachHang();
+                form.ShowDialog(this);
+            });
+
+            ThemTheTacVuNhanh("LỊCH SỬ THÔNG BÁO", "Xem lịch sử và trạng thái gửi email xác nhận đặt phòng và hóa đơn PDF", "Lịch sử thông báo", AppTheme.Primary, () =>
+            {
+                using var form = new HotelManagement.Forms.FormLichSuThongBao();
                 form.ShowDialog(this);
             });
 

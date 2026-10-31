@@ -15,5 +15,9 @@ public partial class LoaiPhong
 
     public string? Mota { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
     public virtual ICollection<Phong> Phongs { get; set; } = new List<Phong>();
 }

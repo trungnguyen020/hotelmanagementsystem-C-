@@ -20,16 +20,19 @@ internal static class Program
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
+            .AddUserSecrets(System.Reflection.Assembly.GetExecutingAssembly(), optional: true)
             .Build();
 
         var services = new ServiceCollection();
 
+        services.AddSingleton<IConfiguration>(configuration);
         services.AddDbContext<HotelManagementDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("HotelManagementDB")));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IDatPhongRepository, DatPhongRepository>();
         services.AddScoped<ITaiKhoanRepository, TaiKhoanRepository>();
+        services.AddScoped<ILichSuGuiThongBaoRepository, LichSuGuiThongBaoRepository>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<HotelManagement.BLL.Services.ILoaiPhongService,
                     HotelManagement.BLL.Services.LoaiPhongService>();
@@ -46,6 +49,7 @@ internal static class Program
         services.AddScoped<IBaoCaoExcelService, BaoCaoExcelService>();
         services.AddScoped<IPhongImportService, PhongImportService>();
         services.AddScoped<IQrCodeService, QrCodeService>();
+        services.AddScoped<IEmailService, EmailService>();
 
         ServiceProvider = services.BuildServiceProvider();
 

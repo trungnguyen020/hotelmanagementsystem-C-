@@ -24,6 +24,8 @@ public partial class HotelManagementDbContext : DbContext
 
     public virtual DbSet<KhachHang> KhachHangs { get; set; }
 
+    public virtual DbSet<LichSuGuiThongBao> LichSuGuiThongBaos { get; set; }
+
     public virtual DbSet<LoaiPhong> LoaiPhongs { get; set; }
 
     public virtual DbSet<NhanSu> NhanSus { get; set; }
@@ -45,11 +47,15 @@ public partial class HotelManagementDbContext : DbContext
             entity.HasIndex(e => new { e.IdDatphong, e.IdPhong }, "UQ_CTDP_DatPhong_Phong").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(sysdatetime())", "DF_ChiTietDatPhong_CreatedAt")
+                .HasColumnName("created_at");
             entity.Property(e => e.Dongia)
                 .HasColumnType("decimal(12, 2)")
                 .HasColumnName("dongia");
             entity.Property(e => e.IdDatphong).HasColumnName("id_datphong");
             entity.Property(e => e.IdPhong).HasColumnName("id_phong");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
 
             entity.HasOne(d => d.IdDatphongNavigation).WithMany(p => p.ChiTietDatPhongs)
                 .HasForeignKey(d => d.IdDatphong)
@@ -66,6 +72,9 @@ public partial class HotelManagementDbContext : DbContext
             entity.ToTable("ChiTietDichVu");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(sysdatetime())", "DF_ChiTietDichVu_CreatedAt")
+                .HasColumnName("created_at");
             entity.Property(e => e.Dongia)
                 .HasColumnType("decimal(12, 2)")
                 .HasColumnName("dongia");
@@ -75,6 +84,7 @@ public partial class HotelManagementDbContext : DbContext
             entity.Property(e => e.Thoigian)
                 .HasDefaultValueSql("(sysdatetime())", "DF_CTDV_ThoiGian")
                 .HasColumnName("thoigian");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
 
             entity.HasOne(d => d.IdDatphongNavigation).WithMany(p => p.ChiTietDichVus)
                 .HasForeignKey(d => d.IdDatphong)
@@ -97,6 +107,9 @@ public partial class HotelManagementDbContext : DbContext
             entity.HasIndex(e => e.Mabooking, "UQ_DatPhong_MaBooking").IsUnique();
 
             entity.Property(e => e.IdDatphong).HasColumnName("id_datphong");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(sysdatetime())", "DF_DatPhong_CreatedAt")
+                .HasColumnName("created_at");
             entity.Property(e => e.IdKhachhang).HasColumnName("id_khachhang");
             entity.Property(e => e.IdNhansu).HasColumnName("id_nhansu");
             entity.Property(e => e.Mabooking)
@@ -115,6 +128,7 @@ public partial class HotelManagementDbContext : DbContext
                 .HasMaxLength(20)
                 .HasDefaultValue("Đã xác nhận", "DF_DatPhong_TrangThai")
                 .HasColumnName("trangthai");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
 
             entity.HasOne(d => d.IdKhachhangNavigation).WithMany(p => p.DatPhongs)
                 .HasForeignKey(d => d.IdKhachhang)
@@ -134,12 +148,16 @@ public partial class HotelManagementDbContext : DbContext
             entity.ToTable("DichVu");
 
             entity.Property(e => e.IdDichvu).HasColumnName("id_dichvu");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(sysdatetime())", "DF_DichVu_CreatedAt")
+                .HasColumnName("created_at");
             entity.Property(e => e.Mucgia)
                 .HasColumnType("decimal(12, 2)")
                 .HasColumnName("mucgia");
             entity.Property(e => e.TenDichvu)
                 .HasMaxLength(100)
                 .HasColumnName("ten_dichvu");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
         });
 
         modelBuilder.Entity<HoaDon>(entity =>
@@ -151,6 +169,9 @@ public partial class HotelManagementDbContext : DbContext
             entity.HasIndex(e => e.IdDatphong, "UQ_HoaDon_DatPhong").IsUnique();
 
             entity.Property(e => e.IdHoadon).HasColumnName("id_hoadon");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(sysdatetime())", "DF_HoaDon_CreatedAt")
+                .HasColumnName("created_at");
             entity.Property(e => e.Giamgia)
                 .HasColumnType("decimal(14, 2)")
                 .HasColumnName("giamgia");
@@ -175,6 +196,7 @@ public partial class HotelManagementDbContext : DbContext
                 .HasMaxLength(20)
                 .HasDefaultValue("Chưa thanh toán", "DF_HoaDon_TrangThai")
                 .HasColumnName("trangthai_thanhtoan");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
 
             entity.HasOne(d => d.IdDatphongNavigation).WithOne(p => p.HoaDon)
                 .HasForeignKey<HoaDon>(d => d.IdDatphong)
@@ -195,6 +217,9 @@ public partial class HotelManagementDbContext : DbContext
                 .HasMaxLength(12)
                 .IsUnicode(false)
                 .HasColumnName("cccd");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(sysdatetime())", "DF_KhachHang_CreatedAt")
+                .HasColumnName("created_at");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .IsUnicode(false)
@@ -210,6 +235,56 @@ public partial class HotelManagementDbContext : DbContext
             entity.Property(e => e.Ten)
                 .HasMaxLength(100)
                 .HasColumnName("ten");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+        });
+
+        modelBuilder.Entity<LichSuGuiThongBao>(entity =>
+        {
+            entity.HasKey(e => e.IdLichsu);
+
+            entity.ToTable("LichSuGuiThongBao");
+
+            entity.HasIndex(e => e.IdDatphong, "IX_LichSuGuiThongBao_DatPhong");
+
+            entity.HasIndex(e => e.IdHoadon, "IX_LichSuGuiThongBao_HoaDon");
+
+            entity.HasIndex(e => e.ThoiGianGui, "IX_LichSuGuiThongBao_ThoiGian").IsDescending();
+
+            entity.Property(e => e.IdLichsu).HasColumnName("id_lichsu");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(sysdatetime())", "DF_LichSuGuiThongBao_CreatedAt")
+                .HasColumnName("created_at");
+            entity.Property(e => e.IdDatphong).HasColumnName("id_datphong");
+            entity.Property(e => e.IdHoadon).HasColumnName("id_hoadon");
+            entity.Property(e => e.LoaiThongbao)
+                .HasMaxLength(50)
+                .HasColumnName("loai_thongbao");
+            entity.Property(e => e.LyDoLoi)
+                .HasMaxLength(500)
+                .HasColumnName("ly_do_loi");
+            entity.Property(e => e.NguoiNhan)
+                .HasMaxLength(100)
+                .HasColumnName("nguoi_nhan");
+            entity.Property(e => e.ThoiGianGui)
+                .HasDefaultValueSql("(sysdatetime())", "DF_LichSuGuiThongBao_ThoiGianGui")
+                .HasColumnName("thoi_gian_gui");
+            entity.Property(e => e.TieuDe)
+                .HasMaxLength(255)
+                .HasColumnName("tieu_de");
+            entity.Property(e => e.TrangThai)
+                .HasMaxLength(20)
+                .HasColumnName("trang_thai");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+
+            entity.HasOne(d => d.IdDatphongNavigation).WithMany(p => p.LichSuGuiThongBaos)
+                .HasForeignKey(d => d.IdDatphong)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_LichSuGuiThongBao_DatPhong");
+
+            entity.HasOne(d => d.IdHoadonNavigation).WithMany(p => p.LichSuGuiThongBaos)
+                .HasForeignKey(d => d.IdHoadon)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_LichSuGuiThongBao_HoaDon");
         });
 
         modelBuilder.Entity<LoaiPhong>(entity =>
@@ -219,6 +294,9 @@ public partial class HotelManagementDbContext : DbContext
             entity.ToTable("LoaiPhong");
 
             entity.Property(e => e.IdLoaiphong).HasColumnName("id_loaiphong");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(sysdatetime())", "DF_LoaiPhong_CreatedAt")
+                .HasColumnName("created_at");
             entity.Property(e => e.Mota)
                 .HasMaxLength(500)
                 .HasColumnName("mota");
@@ -229,6 +307,7 @@ public partial class HotelManagementDbContext : DbContext
             entity.Property(e => e.Ten)
                 .HasMaxLength(100)
                 .HasColumnName("ten");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
         });
 
         modelBuilder.Entity<NhanSu>(entity =>
@@ -244,6 +323,9 @@ public partial class HotelManagementDbContext : DbContext
                 .HasMaxLength(12)
                 .IsUnicode(false)
                 .HasColumnName("cccd");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(sysdatetime())", "DF_NhanSu_CreatedAt")
+                .HasColumnName("created_at");
             entity.Property(e => e.Hoten)
                 .HasMaxLength(100)
                 .HasColumnName("hoten");
@@ -252,6 +334,7 @@ public partial class HotelManagementDbContext : DbContext
                 .HasMaxLength(15)
                 .IsUnicode(false)
                 .HasColumnName("sdt");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
         });
 
         modelBuilder.Entity<NhatKyHoatDong>(entity =>
@@ -263,6 +346,9 @@ public partial class HotelManagementDbContext : DbContext
             entity.HasIndex(e => new { e.IdTaikhoan, e.Thoigian }, "IX_NhatKyHoatDong_TaiKhoan");
 
             entity.Property(e => e.IdNhatky).HasColumnName("id_nhatky");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(sysdatetime())", "DF_NhatKyHoatDong_CreatedAt")
+                .HasColumnName("created_at");
             entity.Property(e => e.Ghichu)
                 .HasMaxLength(255)
                 .HasColumnName("ghichu");
@@ -273,6 +359,7 @@ public partial class HotelManagementDbContext : DbContext
             entity.Property(e => e.Thoigian)
                 .HasDefaultValueSql("(sysdatetime())", "DF_NhatKyHoatDong_ThoiGian")
                 .HasColumnName("thoigian");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
 
             entity.HasOne(d => d.IdTaikhoanNavigation).WithMany(p => p.NhatKyHoatDongs)
                 .HasForeignKey(d => d.IdTaikhoan)
@@ -289,6 +376,9 @@ public partial class HotelManagementDbContext : DbContext
             entity.HasIndex(e => e.Sophong, "UQ_Phong_SoPhong").IsUnique();
 
             entity.Property(e => e.IdPhong).HasColumnName("id_phong");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(sysdatetime())", "DF_Phong_CreatedAt")
+                .HasColumnName("created_at");
             entity.Property(e => e.IdLoaiphong).HasColumnName("id_loaiphong");
             entity.Property(e => e.Sophong)
                 .HasMaxLength(10)
@@ -298,6 +388,7 @@ public partial class HotelManagementDbContext : DbContext
                 .HasMaxLength(20)
                 .HasDefaultValue("Trống", "DF_Phong_TrangThai")
                 .HasColumnName("trangthai");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
 
             entity.HasOne(d => d.IdLoaiphongNavigation).WithMany(p => p.Phongs)
                 .HasForeignKey(d => d.IdLoaiphong)
@@ -316,6 +407,9 @@ public partial class HotelManagementDbContext : DbContext
             entity.HasIndex(e => e.TenDangnhap, "UQ_TaiKhoan_TenDangNhap").IsUnique();
 
             entity.Property(e => e.IdTaikhoan).HasColumnName("id_taikhoan");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(sysdatetime())", "DF_TaiKhoan_CreatedAt")
+                .HasColumnName("created_at");
             entity.Property(e => e.IdNhansu).HasColumnName("id_nhansu");
             entity.Property(e => e.IdVaitro).HasColumnName("id_vaitro");
             entity.Property(e => e.MatkhauHash)
@@ -331,6 +425,7 @@ public partial class HotelManagementDbContext : DbContext
                 .HasMaxLength(20)
                 .HasDefaultValue("Hoạt động", "DF_TaiKhoan_TrangThai")
                 .HasColumnName("trangthai");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
 
             entity.HasOne(d => d.IdNhansuNavigation).WithOne(p => p.TaiKhoan)
                 .HasForeignKey<TaiKhoan>(d => d.IdNhansu)
@@ -352,9 +447,13 @@ public partial class HotelManagementDbContext : DbContext
             entity.HasIndex(e => e.TenVaitro, "UQ_VaiTro_Ten").IsUnique();
 
             entity.Property(e => e.IdVaitro).HasColumnName("id_vaitro");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(sysdatetime())", "DF_VaiTro_CreatedAt")
+                .HasColumnName("created_at");
             entity.Property(e => e.TenVaitro)
                 .HasMaxLength(50)
                 .HasColumnName("ten_vaitro");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
         });
 
         OnModelCreatingPartial(modelBuilder);

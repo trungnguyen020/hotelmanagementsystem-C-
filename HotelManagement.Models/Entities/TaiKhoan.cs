@@ -19,6 +19,10 @@ public partial class TaiKhoan
 
     public int SolanSaimatkhau { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
     public virtual NhanSu IdNhansuNavigation { get; set; } = null!;
 
     public virtual VaiTro IdVaitroNavigation { get; set; } = null!;

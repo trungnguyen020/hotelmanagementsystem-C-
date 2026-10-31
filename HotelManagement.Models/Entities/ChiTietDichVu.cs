@@ -17,6 +17,10 @@ public partial class ChiTietDichVu
 
     public DateTime Thoigian { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
     public virtual DatPhong IdDatphongNavigation { get; set; } = null!;
 
     public virtual DichVu IdDichvuNavigation { get; set; } = null!;

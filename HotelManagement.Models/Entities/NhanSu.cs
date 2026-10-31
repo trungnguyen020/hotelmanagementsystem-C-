@@ -15,6 +15,10 @@ public partial class NhanSu
 
     public string Sdt { get; set; } = null!;
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
     public virtual ICollection<DatPhong> DatPhongs { get; set; } = new List<DatPhong>();
 
     public virtual TaiKhoan? TaiKhoan { get; set; }

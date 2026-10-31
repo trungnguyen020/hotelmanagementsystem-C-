@@ -13,6 +13,10 @@ public partial class ChiTietDatPhong
 
     public decimal Dongia { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
     public virtual DatPhong IdDatphongNavigation { get; set; } = null!;
 
     public virtual Phong IdPhongNavigation { get; set; } = null!;

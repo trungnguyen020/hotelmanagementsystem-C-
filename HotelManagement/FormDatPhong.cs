@@ -21,6 +21,7 @@ namespace HotelManagement.Forms
         private readonly IDatPhongService _datPhongService;
         private readonly IKhachHangService _khachHangService;
         private readonly ILoaiPhongService _loaiPhongService;
+        private readonly IEmailService _emailService;
 
         private KhachHangDto? _khachHangDuocChon;
 
@@ -33,6 +34,7 @@ namespace HotelManagement.Forms
             _datPhongService = _scope.ServiceProvider.GetRequiredService<IDatPhongService>();
             _khachHangService = _scope.ServiceProvider.GetRequiredService<IKhachHangService>();
             _loaiPhongService = _scope.ServiceProvider.GetRequiredService<ILoaiPhongService>();
+            _emailService = _scope.ServiceProvider.GetRequiredService<IEmailService>();
 
             InitializeComponent();
             

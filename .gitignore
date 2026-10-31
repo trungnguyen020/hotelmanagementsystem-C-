@@ -474,6 +474,7 @@ $RECYCLE.BIN/
 *.msix
 *.msm
 *.msp
+*.SQL
 
 # Windows shortcuts
 *.lnk

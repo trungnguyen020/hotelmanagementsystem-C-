@@ -27,6 +27,10 @@ public partial class DatPhong
 
     public string Trangthai { get; set; } = null!;
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
     public virtual ICollection<ChiTietDatPhong> ChiTietDatPhongs { get; set; } = new List<ChiTietDatPhong>();
 
     public virtual ICollection<ChiTietDichVu> ChiTietDichVus { get; set; } = new List<ChiTietDichVu>();
@@ -36,4 +40,6 @@ public partial class DatPhong
     public virtual KhachHang IdKhachhangNavigation { get; set; } = null!;
 
     public virtual NhanSu IdNhansuNavigation { get; set; } = null!;
+
+    public virtual ICollection<LichSuGuiThongBao> LichSuGuiThongBaos { get; set; } = new List<LichSuGuiThongBao>();
 }

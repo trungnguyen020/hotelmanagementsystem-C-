@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using HotelManagement.BLL.DTOs;
 using HotelManagement.BLL.Services;
+using HotelManagement.DAL.Repositories;
+using HotelManagement.Models.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManagement.Forms
@@ -20,6 +22,8 @@ namespace HotelManagement.Forms
         private readonly IServiceScope _scope;
         private readonly IHoaDonService _hoaDonService;
         private readonly IHoaDonPdfService _hoaDonPdfService;
+        private readonly IEmailService _emailService;
+        private readonly IUnitOfWork _unitOfWork;
 
         private HoaDonDto? _hoaDonHienTai;
         private decimal _tongTienSauGiamGia = 0;
@@ -30,6 +34,8 @@ namespace HotelManagement.Forms
             _scope = Program.ServiceProvider.CreateScope();
             _hoaDonService = _scope.ServiceProvider.GetRequiredService<IHoaDonService>();
             _hoaDonPdfService = _scope.ServiceProvider.GetRequiredService<IHoaDonPdfService>();
+            _emailService = _scope.ServiceProvider.GetRequiredService<IEmailService>();
+            _unitOfWork = _scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
             InitializeComponent();
 
@@ -295,11 +301,16 @@ namespace HotelManagement.Forms
                 _btnXacNhan.Text = "Đang xử lý...";
 
                 // 1. Tính toán và lưu hóa đơn (gồm cả giảm giá nếu có)
-                var (successTinh, msgTinh, _) = await _hoaDonService.TinhVaLuuHoaDonAsync(_hoaDonHienTai.MaBooking, _numGiamGia.Value);
+                var (successTinh, msgTinh, dataTinh) = await _hoaDonService.TinhVaLuuHoaDonAsync(_hoaDonHienTai.MaBooking, _numGiamGia.Value);
                 if (!successTinh)
                 {
                     MessageBox.Show(msgTinh, "Lỗi tính hóa đơn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
+                }
+
+                if (dataTinh != null)
+                {
+                    _hoaDonHienTai = dataTinh;
                 }
 
                 // 2. Cập nhật phương thức ("Tiền mặt" hoặc "Chuyển khoản") và trạng thái "Đã thanh toán"
@@ -310,10 +321,21 @@ namespace HotelManagement.Forms
                     return;
                 }
 
+                // 3. Luồng 2 (DCKLTTQ-81): Gửi email kèm hóa đơn PDF đính kèm sau khi thanh toán xong
+                _btnXacNhan.Text = "Đang gửi email...";
+                var emailResult = await _emailService.GuiEmailHoaDonAsync(_hoaDonHienTai.MaBooking);
+
+                // DCKLTTQ-82: Ghi nhận lịch sử gửi thông báo
+                await GhiLichSuThongBaoAsync(emailResult, "HoaDon", _hoaDonHienTai.IdDatPhong, _hoaDonHienTai.IdHoaDon);
+
+                string thongBaoEmail = emailResult.ThanhCong
+                    ? $"\n- Email hóa đơn PDF đã được gửi đến: {emailResult.NguoiNhan}"
+                    : $"\n- (Lưu ý: Không thể gửi email hóa đơn: {emailResult.LyDoLoi})";
+
                 var dialogResult = MessageBox.Show(
                     $"Thanh toán thành công cho booking '{_hoaDonHienTai.MaBooking}'!\n" +
                     $"Hình thức: {phuongThuc}\n" +
-                    $"Hóa đơn đã được lưu trữ và cập nhật trạng thái 'Đã thanh toán'.\n\n" +
+                    $"Hóa đơn đã được lưu trữ và cập nhật trạng thái 'Đã thanh toán'.{thongBaoEmail}\n\n" +
                     "Bạn có muốn xuất hóa đơn PDF ngay bây giờ không?",
                     "Thanh toán thành công",
                     MessageBoxButtons.YesNo,
@@ -410,6 +432,31 @@ namespace HotelManagement.Forms
             {
                 _btnXuatPdf.Enabled = _hoaDonHienTai != null;
                 _btnXuatPdf.Text = "📄 Xuất hóa đơn PDF";
+            }
+        }
+
+        private async Task GhiLichSuThongBaoAsync(EmailResult result, string loaiThongBao, int? idDatPhong, int? idHoaDon)
+        {
+            try
+            {
+                var lichSu = new LichSuGuiThongBao
+                {
+                    IdDatphong = idDatPhong,
+                    IdHoadon = idHoaDon,
+                    LoaiThongbao = loaiThongBao,
+                    NguoiNhan = result.NguoiNhan ?? string.Empty,
+                    TieuDe = result.TieuDe,
+                    TrangThai = result.ThanhCong ? "Thành công" : "Thất bại",
+                    LyDoLoi = result.LyDoLoi,
+                    ThoiGianGui = result.ThoiGianGui ?? DateTime.Now
+                };
+
+                await _unitOfWork.LichSuGuiThongBaoRepository.AddAsync(lichSu);
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch
+            {
+                // DCKLTTQ-82: Ghi log không được phép làm gián đoạn luồng thanh toán nếu xảy ra lỗi
             }
         }
     }
