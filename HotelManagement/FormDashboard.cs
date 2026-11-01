@@ -145,14 +145,14 @@ namespace HotelManagement.Forms
                 {
                     Name = "Tiền phòng",
                     Values = tienPhong,
-                    Fill = new SolidColorPaint(new SKColor(140, 98, 57)), // Bronze
+                    Fill = new SolidColorPaint(new SKColor(140, 98, 57)), // Warm Bronze
                     MaxBarWidth = 26
                 },
                 new ColumnSeries<double>
                 {
                     Name = "Tiền dịch vụ",
                     Values = tienDichVu,
-                    Fill = new SolidColorPaint(new SKColor(176, 141, 87)), // Gold
+                    Fill = new SolidColorPaint(new SKColor(176, 141, 87)), // Accent Gold
                     MaxBarWidth = 26
                 }
             };
@@ -167,11 +167,24 @@ namespace HotelManagement.Forms
                 }
             };
 
+            // Khắc phục lỗi hiển thị "0 đ, -0 đ": Khi doanh thu toàn bộ = 0, đặt MinLimit = 0 và MaxLimit = 1.000.000 đ
+            double maxVal = Math.Max(tienPhong.DefaultIfEmpty(0).Max(), tienDichVu.DefaultIfEmpty(0).Max());
+            double? yMax = maxVal > 0 ? (double?)null : 1_000_000.0;
+            double? yMinStep = maxVal > 0 ? (double?)null : 200_000.0;
+
             _chartDoanhThu.YAxes = new Axis[]
             {
                 new Axis
                 {
-                    Labeler = val => val >= 1_000_000 ? (val / 1_000_000.0).ToString("0.#") + " Tr" : val.ToString("N0") + " đ",
+                    MinLimit = 0,
+                    MaxLimit = yMax,
+                    MinStep = yMinStep ?? 100_000.0,
+                    Labeler = val =>
+                    {
+                        if (val <= 0) return "0 đ";
+                        if (val >= 1_000_000) return (val / 1_000_000.0).ToString("0.#") + " Tr";
+                        return val.ToString("N0") + " đ";
+                    },
                     TextSize = 11
                 }
             };
@@ -240,7 +253,8 @@ namespace HotelManagement.Forms
                 {
                     MinLimit = 0,
                     MaxLimit = 100,
-                    Labeler = val => val.ToString("0") + "%",
+                    MinStep = 20,
+                    Labeler = val => (val <= 0 ? "0" : val.ToString("0")) + "%",
                     TextSize = 11
                 }
             };
@@ -254,7 +268,7 @@ namespace HotelManagement.Forms
             sb.AppendLine($"• Khoảng thời gian: {_dtpTuNgay.Value:dd/MM/yyyy} ➔ {_dtpDenNgay.Value:dd/MM/yyyy} ({(data.Filter.DenNgay - data.Filter.TuNgay).Days + 1} ngày)");
             sb.AppendLine($"• Tổng doanh thu: {data.Kpi.TongDoanhThu:N0} đ (Tiền phòng: {data.Kpi.TongTienPhong:N0} đ | Dịch vụ: {data.Kpi.TongTienDichVu:N0} đ)");
             sb.AppendLine($"• Tỷ lệ lấp đầy bình quân: {data.Kpi.TyLeLapDayTrungBinh:F1}%");
-            sb.AppendLine($"• Số đơn booking hoàn tất: {data.Kpi.TongSoLuotDat} lượt đặt");
+            sb.AppendLine($"• Số đơn booking hợp lệ: {data.Kpi.TongSoLuotDat} lượt đặt");
             sb.AppendLine($"• Tình trạng phòng hiện tại: {data.Kpi.SoPhongDangO} phòng đang có khách, {data.Kpi.SoPhongTrong} phòng trống sẵn sàng.");
 
             // Đánh giá hiệu suất

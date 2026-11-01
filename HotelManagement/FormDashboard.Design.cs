@@ -59,8 +59,8 @@ namespace HotelManagement.Forms
             components = new System.ComponentModel.Container();
 
             Text = "DASHBOARD BIỂU ĐỒ DOANH THU & HIỆU SUẤT PHÒNG";
-            Size = new Size(1300, 850);
-            MinimumSize = new Size(1100, 700);
+            Size = new Size(1320, 860);
+            MinimumSize = new Size(1100, 720);
             StartPosition = FormStartPosition.CenterParent;
             WindowState = FormWindowState.Maximized;
             BackColor = AppTheme.Background;
@@ -72,7 +72,7 @@ namespace HotelManagement.Forms
             _pnlTopBar = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 85,
+                Height = 88,
                 BackColor = AppTheme.SurfaceSecondary,
                 Padding = new Padding(20, 10, 20, 10)
             };
@@ -83,7 +83,8 @@ namespace HotelManagement.Forms
                 Font = AppTheme.FontHeader,
                 ForeColor = AppTheme.Primary,
                 AutoSize = true,
-                Location = new Point(20, 10)
+                UseMnemonic = false,
+                Location = new Point(20, 12)
             };
 
             _lblSubTitle = new Label
@@ -92,7 +93,7 @@ namespace HotelManagement.Forms
                 Font = AppTheme.FontSmall,
                 ForeColor = AppTheme.TextSecondary,
                 AutoSize = true,
-                Location = new Point(20, 42)
+                Location = new Point(20, 46)
             };
 
             // FlowLayoutPanel chứa các nút lọc ngày
@@ -102,7 +103,7 @@ namespace HotelManagement.Forms
                 FlowDirection = FlowDirection.LeftToRight,
                 AutoSize = true,
                 BackColor = Color.Transparent,
-                Padding = new Padding(0, 12, 0, 0),
+                Padding = new Padding(0, 14, 0, 0),
                 WrapContents = false
             };
 
@@ -139,25 +140,26 @@ namespace HotelManagement.Forms
                 CustomFormat = "dd/MM/yyyy",
                 Width = 125,
                 Font = AppTheme.FontBody,
-                Margin = new Padding(0, 4, 12, 4)
+                Margin = new Padding(0, 4, 10, 4)
             };
 
-            _btnHomNay = new Button { Text = "Hôm nay", Size = new Size(80, 32), Margin = new Padding(0, 4, 6, 4) };
+            // Tăng kích thước nút để không bao giờ bị cắt chữ trên màn hình độ phân giải cao / DPI scaling
+            _btnHomNay = new Button { Text = "Hôm nay", Size = new Size(95, 34), Margin = new Padding(0, 4, 5, 4) };
             AppTheme.ApplySecondaryButton(_btnHomNay);
 
-            _btn7Ngay = new Button { Text = "7 ngày", Size = new Size(75, 32), Margin = new Padding(0, 4, 6, 4) };
+            _btn7Ngay = new Button { Text = "7 ngày", Size = new Size(85, 34), Margin = new Padding(0, 4, 5, 4) };
             AppTheme.ApplySecondaryButton(_btn7Ngay);
 
-            _btn30Ngay = new Button { Text = "30 ngày", Size = new Size(80, 32), Margin = new Padding(0, 4, 6, 4) };
+            _btn30Ngay = new Button { Text = "30 ngày", Size = new Size(90, 34), Margin = new Padding(0, 4, 5, 4) };
             AppTheme.ApplySecondaryButton(_btn30Ngay);
 
-            _btnThangNay = new Button { Text = "Tháng này", Size = new Size(90, 32), Margin = new Padding(0, 4, 10, 4) };
+            _btnThangNay = new Button { Text = "Tháng này", Size = new Size(105, 34), Margin = new Padding(0, 4, 10, 4) };
             AppTheme.ApplySecondaryButton(_btnThangNay);
 
-            _btnLoc = new Button { Text = "🔍 Lọc", Size = new Size(85, 32), Margin = new Padding(0, 4, 6, 4) };
+            _btnLoc = new Button { Text = "🔍 Lọc", Size = new Size(95, 34), Margin = new Padding(0, 4, 6, 4) };
             AppTheme.ApplyPrimaryButton(_btnLoc);
 
-            _btnLamMoi = new Button { Text = "🔄 Tải lại", Size = new Size(85, 32), Margin = new Padding(0, 4, 4, 4) };
+            _btnLamMoi = new Button { Text = "🔄 Tải lại", Size = new Size(100, 34), Margin = new Padding(0, 4, 4, 4) };
             AppTheme.ApplySecondaryButton(_btnLamMoi);
 
             flpFilter.Controls.AddRange(new Control[]
@@ -170,10 +172,11 @@ namespace HotelManagement.Forms
             _pnlTopBar.Controls.AddRange(new Control[] { flpFilter, _lblTitle, _lblSubTitle });
 
             // ================= 2. KPI Summary Cards =================
+            // Tăng chiều cao lên 120px để các dòng mô tả phụ không bao giờ bị cắt đáy
             var pnlKpiContainer = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 100,
+                Height = 120,
                 BackColor = AppTheme.Background,
                 Padding = new Padding(20, 10, 20, 8)
             };
@@ -266,6 +269,7 @@ namespace HotelManagement.Forms
                 Font = AppTheme.FontBodyBold,
                 ForeColor = AppTheme.Primary,
                 Dock = DockStyle.Top,
+                UseMnemonic = false,
                 Height = 28
             };
             _lblSummaryNoiDung = new Label
@@ -273,7 +277,8 @@ namespace HotelManagement.Forms
                 Text = "Đang tải dữ liệu...",
                 Font = AppTheme.FontSmall,
                 ForeColor = AppTheme.TextPrimary,
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                UseMnemonic = false
             };
             bodySummary.Controls.Add(_lblSummaryNoiDung);
             bodySummary.Controls.Add(_lblSummaryTieuDe);
@@ -298,7 +303,7 @@ namespace HotelManagement.Forms
             {
                 Dock = DockStyle.Fill,
                 BackColor = AppTheme.Surface,
-                Padding = new Padding(14, 10, 14, 8),
+                Padding = new Padding(14, 10, 14, 10),
                 Margin = new Padding(6)
             };
             AppTheme.ApplyCardPanel(pnl);
@@ -309,7 +314,8 @@ namespace HotelManagement.Forms
                 Font = AppTheme.FontSmallBold,
                 ForeColor = AppTheme.TextSecondary,
                 Dock = DockStyle.Top,
-                Height = 20
+                UseMnemonic = false,
+                Height = 22
             };
 
             lblGiaTri = new Label
@@ -318,7 +324,7 @@ namespace HotelManagement.Forms
                 Font = AppTheme.FontHeader,
                 ForeColor = mauGiaTri,
                 Dock = DockStyle.Top,
-                Height = 32
+                Height = 36
             };
 
             lblPhu = new Label
@@ -326,7 +332,8 @@ namespace HotelManagement.Forms
                 Text = "...",
                 Font = AppTheme.FontSmall,
                 ForeColor = AppTheme.TextMuted,
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                UseMnemonic = false
             };
 
             pnl.Controls.Add(lblPhu);
@@ -353,6 +360,7 @@ namespace HotelManagement.Forms
                 Font = AppTheme.FontSmallBold,
                 ForeColor = AppTheme.Primary,
                 Dock = DockStyle.Top,
+                UseMnemonic = false, // Giữ nguyên ký tự '&' không bị mất
                 Height = 26
             };
 

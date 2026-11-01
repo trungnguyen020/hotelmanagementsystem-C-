@@ -73,3 +73,4 @@ namespace HotelManagement.BLL.DTOs
         public List<TyLeLapDayTheoNgayDto> XuHuongLapDayTheoNgay { get; set; } = new();
     }
 }
+

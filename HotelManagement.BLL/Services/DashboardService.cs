@@ -34,6 +34,7 @@ namespace HotelManagement.BLL.Services
             DateTime endDateTime = denNgay.AddDays(1).AddTicks(-1);
             DateOnly startDateOnly = DateOnly.FromDateTime(tuNgay);
             DateOnly endDateOnly = DateOnly.FromDateTime(denNgay);
+            DateOnly todayDateOnly = DateOnly.FromDateTime(DateTime.Today);
 
             var result = new DashboardDataDto
             {
@@ -100,11 +101,12 @@ namespace HotelManagement.BLL.Services
             result.DoanhThuTheoNgay = doanhThuTheoNgayList;
 
             // 4. Tính toán Tỷ lệ lấp đầy theo từng ngày (Dùng cho Biểu đồ Đường)
-            // Lấy các booking hợp lệ giao nhau với khoảng thời gian lọc
+            // Lấy các booking hợp lệ giao nhau với khoảng thời gian lọc hoặc các booking đang check-in
             var bookingsGiaoKy = (await _unitOfWork.DatPhongRepository.FindAsync(dp =>
-                dp.Trangthai != "Đã hủy" &&
-                dp.NgaynhanDukien <= endDateOnly &&
-                dp.NgaytraDukien >= startDateOnly)).ToList();
+                dp.Trangthai != "Đã hủy" && (
+                    (dp.NgaynhanDukien <= endDateOnly && dp.NgaytraDukien >= startDateOnly) ||
+                    dp.Trangthai == "Đã check-in"
+                ))).ToList();
 
             // Nạp chi tiết đầy đủ để biết số lượng phòng trong mỗi booking
             var bookingsChiTiet = new List<DatPhong>();
@@ -121,11 +123,14 @@ namespace HotelManagement.BLL.Services
             {
                 DateOnly curDateOnly = DateOnly.FromDateTime(d);
 
-                // Khách lưu trú tại ngày d: Ngày nhận <= d < Ngày trả (ngày trả là ngày check-out)
-                // Riêng trường hợp nhận và trả cùng ngày (ở trong ngày) thì tính nếu curDateOnly == NgaynhanDukien
+                // Khách lưu trú tại ngày d:
+                // 1. Ngày nhận <= d < Ngày trả
+                // 2. Nhận và trả cùng ngày
+                // 3. Khách đang ở thực tế (Đã check-in) tính đến ngày hiện tại
                 var bookingsTrongNgay = bookingsChiTiet.Where(dp =>
                     (dp.NgaynhanDukien <= curDateOnly && dp.NgaytraDukien > curDateOnly) ||
-                    (dp.NgaynhanDukien == dp.NgaytraDukien && dp.NgaynhanDukien == curDateOnly)
+                    (dp.NgaynhanDukien == dp.NgaytraDukien && dp.NgaynhanDukien == curDateOnly) ||
+                    (curDateOnly == todayDateOnly && dp.Trangthai == "Đã check-in")
                 ).ToList();
 
                 int soPhongCoKhach = bookingsTrongNgay.Sum(dp => dp.ChiTietDatPhongs.Count);

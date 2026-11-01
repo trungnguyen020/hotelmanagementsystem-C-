@@ -15,3 +15,4 @@ namespace HotelManagement.BLL.Services
         Task<DashboardDataDto> LayDuLieuDashboardAsync(DashboardFilterDto filter);
     }
 }
+
