@@ -28,6 +28,7 @@ namespace HotelManagement
         private ToolStripMenuItem mnuThanhToan = null!;
         private ToolStripMenuItem mnuQuanLyNhanSu = null!;   // chỉ Admin
         private ToolStripMenuItem mnuBaoCao = null!;         // chỉ Admin
+        private ToolStripMenuItem mnuDashboard = null!;      // chỉ Admin
         private ToolStripMenuItem mnuImportPhong = null!;    // chỉ Admin
         private ToolStripMenuItem mnuDoiMatKhau = null!;
         private ToolStripMenuItem mnuDangXuat = null!;
@@ -167,7 +168,16 @@ namespace HotelManagement
             };
             menuChinh.Items.Add(mnuBaoCao);
 
-            // --- 1.7 Lịch sử thông báo (DCKLTTQ-82) ---
+            // --- 1.7 Dashboard biểu đồ LiveCharts2 (Admin - DCKLTTQ-84) ---
+            mnuDashboard = new ToolStripMenuItem("Dashboard thống kê");
+            mnuDashboard.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormDashboard();
+                form.ShowDialog(this);
+            };
+            menuChinh.Items.Add(mnuDashboard);
+
+            // --- 1.8 Lịch sử thông báo (DCKLTTQ-82) ---
             var mnuLichSuThongBao = new ToolStripMenuItem("Lịch sử thông báo");
             mnuLichSuThongBao.Click += (_, _) =>
             {
@@ -322,6 +332,15 @@ namespace HotelManagement
                 using var form = new HotelManagement.Forms.FormLichSuThongBao();
                 form.ShowDialog(this);
             });
+
+            if (_taiKhoanDangNhap.IdVaitroNavigation.TenVaitro == "Admin")
+            {
+                ThemTheTacVuNhanh("DASHBOARD BIỂU ĐỒ", "Xem trực quan 3 loại biểu đồ doanh thu, tỷ lệ lấp đầy và trạng thái phòng (LiveCharts2)", "Dashboard", AppTheme.AccentGold, () =>
+                {
+                    using var form = new HotelManagement.Forms.FormDashboard();
+                    form.ShowDialog(this);
+                });
+            }
 
             _pnlMainContainer.Controls.Add(lblDashboardTitle);
             _pnlMainContainer.Controls.Add(lblDashboardSub);

@@ -50,6 +50,7 @@ internal static class Program
         services.AddScoped<IPhongImportService, PhongImportService>();
         services.AddScoped<IQrCodeService, QrCodeService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IDashboardService, DashboardService>();
 
         ServiceProvider = services.BuildServiceProvider();
 
