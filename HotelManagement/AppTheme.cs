@@ -53,6 +53,8 @@ namespace HotelManagement
         public static readonly Color StatusDangerBg = Color.FromArgb(247, 231, 226);       // #F7E7E2
         public static readonly Color StatusDangerBorder = Color.FromArgb(217, 160, 147);   // #D9A093
         public static readonly Color StatusDangerSurface = Color.FromArgb(251, 244, 242);  // #FBF4F2
+        public static readonly Color StatusErrorText = StatusDangerText;                   // Alias cho lỗi (Error)
+        public static readonly Color StatusErrorBg = StatusDangerBg;                       // Alias cho lỗi (Error)
 
         // Đang dọn / Cảnh báo / Chờ (Cleaning / Warning / Pending)
         public static readonly Color StatusWarningText = Color.FromArgb(138, 90, 27);      // #8A5A1B

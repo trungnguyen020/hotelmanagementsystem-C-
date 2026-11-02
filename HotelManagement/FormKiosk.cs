@@ -273,7 +273,7 @@ namespace HotelManagement.Forms
             {
                 Text = string.Empty,
                 Font = AppTheme.FontCaption,
-                ForeColor = AppTheme.StatusErrorText,
+                ForeColor = AppTheme.StatusDangerText,
                 Location = new Point(24, 85),
                 Size = new Size(356, 36),
                 Visible = false
