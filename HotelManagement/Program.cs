@@ -51,6 +51,7 @@ internal static class Program
         services.AddScoped<IQrCodeService, QrCodeService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IDashboardService, DashboardService>();
+        services.AddScoped<IKioskService, KioskService>();
 
         ServiceProvider = services.BuildServiceProvider();
 

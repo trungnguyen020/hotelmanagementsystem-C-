@@ -33,8 +33,8 @@ namespace HotelManagement
 
             // Cấu hình Form đăng nhập
             this.Text = "Hệ thống quản lý khách sạn — Đăng nhập";
-            this.ClientSize = new Size(540, 480);
-            this.MinimumSize = new Size(540, 480);
+            this.ClientSize = new Size(540, 525);
+            this.MinimumSize = new Size(540, 525);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -52,7 +52,7 @@ namespace HotelManagement
             // Thẻ Card đăng nhập trung tâm
             pnlCard = new Panel
             {
-                Size = new Size(460, 400),
+                Size = new Size(460, 445),
                 Location = new Point(40, 40),
                 BackColor = AppTheme.Surface
             };
@@ -147,14 +147,32 @@ namespace HotelManagement
                 Text = string.Empty
             };
 
-            // 7. Ghi chú chân trang
+            // 7. Nút chuyển sang Chế độ Kiosk tra cứu dành cho sảnh khách sạn (DCKLTTQ-85)
+            var btnKiosk = new Button
+            {
+                Text = "🖥️  Chế độ Kiosk tra cứu (Dành cho khách hàng)",
+                Location = new Point(40, 362),
+                Size = new Size(380, 38),
+                Font = AppTheme.FontSmallBold,
+                Cursor = Cursors.Hand
+            };
+            AppTheme.ApplySecondaryButton(btnKiosk);
+            btnKiosk.Click += (s, e) =>
+            {
+                this.Hide();
+                using var formKiosk = new HotelManagement.Forms.FormKiosk();
+                formKiosk.ShowDialog();
+                this.Show();
+            };
+
+            // 8. Ghi chú chân trang
             var lblFooter = new Label
             {
                 Text = "Phiên bản bảo mật nội bộ — Ban Quản Lý & Lễ Tân",
                 Font = AppTheme.FontCaption,
                 ForeColor = AppTheme.TextMuted,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Location = new Point(40, 366),
+                Location = new Point(40, 410),
                 Size = new Size(380, 20)
             };
 
@@ -170,6 +188,7 @@ namespace HotelManagement
                 txtMatKhau,
                 btnDangNhap,
                 lblThongBao,
+                btnKiosk,
                 lblFooter
             });
 
