@@ -16,3 +16,4 @@ namespace HotelManagement.BLL.Services
         Task<KioskBookingDto?> TraCuuBookingAsync(string maBooking, string sdt);
     }
 }
+

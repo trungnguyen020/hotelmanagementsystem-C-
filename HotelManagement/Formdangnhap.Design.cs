@@ -160,9 +160,15 @@ namespace HotelManagement
             btnKiosk.Click += (s, e) =>
             {
                 this.Hide();
-                using var formKiosk = new HotelManagement.Forms.FormKiosk();
-                formKiosk.ShowDialog();
+                using (var formKiosk = new HotelManagement.Forms.FormKiosk())
+                {
+                    formKiosk.ShowDialog();
+                }
                 this.Show();
+                this.WindowState = FormWindowState.Normal;
+                this.BringToFront();
+                this.Activate();
+                txtTenDangNhap.Focus();
             };
 
             // 8. Ghi chú chân trang

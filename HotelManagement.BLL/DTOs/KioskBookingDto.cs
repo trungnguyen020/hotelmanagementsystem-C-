@@ -31,3 +31,4 @@ namespace HotelManagement.BLL.DTOs
         public decimal TongTien { get; set; }
     }
 }
+

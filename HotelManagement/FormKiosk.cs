@@ -96,15 +96,17 @@ namespace HotelManagement.Forms
             };
 
             // 4. Cơ chế thoát an toàn (Phím tắt Ctrl+Alt+Q hoặc nút icon ổ khóa bí mật)
-            KeyDown += (_, e) =>
+            KeyDown += async (_, e) =>
             {
                 if (e.Control && e.Alt && e.KeyCode == Keys.Q)
                 {
-                    XacThucThoatKiosk();
+                    e.SuppressKeyPress = true;
+                    e.Handled = true;
+                    await XacThucThoatKioskAsync();
                 }
             };
 
-            _btnThoatKiosk.Click += (_, _) => XacThucThoatKiosk();
+            _btnThoatKiosk.Click += async (_, _) => await XacThucThoatKioskAsync();
         }
 
         private async Task ThucHienTraCuuAsync()
@@ -236,22 +238,23 @@ namespace HotelManagement.Forms
         }
 
         /// <summary>
-        /// Yêu cầu mật khẩu Admin để thoát khỏi chế độ Kiosk toàn màn hình.
+        /// Yêu cầu mật khẩu Admin để thoát khỏi chế độ Kiosk toàn màn hình (async, không block UI thread).
         /// </summary>
-        private void XacThucThoatKiosk()
+        private async Task XacThucThoatKioskAsync()
         {
             using var dlg = new Form();
             dlg.Text = "Xác thực Quản trị viên (Admin)";
-            dlg.Size = new Size(380, 200);
-            dlg.StartPosition = FormStartPosition.CenterParent;
+            dlg.Size = new Size(420, 240);
+            dlg.StartPosition = FormStartPosition.CenterScreen;
             dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
             dlg.MaximizeBox = false;
             dlg.MinimizeBox = false;
             dlg.BackColor = AppTheme.Surface;
+            dlg.KeyPreview = true;
 
             var lblPrompt = new Label
             {
-                Text = "Nhập mật khẩu Admin để thoát Kiosk:",
+                Text = "Nhập mật khẩu Admin để thoát chế độ Kiosk:",
                 Font = AppTheme.FontBodyBold,
                 ForeColor = AppTheme.TextPrimary,
                 Location = new Point(24, 18),
@@ -261,17 +264,27 @@ namespace HotelManagement.Forms
             var txtPass = new TextBox
             {
                 Location = new Point(24, 48),
-                Width = 315,
+                Width = 356,
                 Font = new Font("Segoe UI", 12F),
                 UseSystemPasswordChar = true
+            };
+
+            var lblError = new Label
+            {
+                Text = string.Empty,
+                Font = AppTheme.FontCaption,
+                ForeColor = AppTheme.StatusErrorText,
+                Location = new Point(24, 85),
+                Size = new Size(356, 36),
+                Visible = false
             };
 
             var btnOk = new Button
             {
                 Text = "Thoát Kiosk",
-                DialogResult = DialogResult.OK,
-                Location = new Point(135, 98),
-                Size = new Size(100, 36)
+                Location = new Point(155, 135),
+                Size = new Size(120, 38),
+                Cursor = Cursors.Hand
             };
             AppTheme.ApplyPrimaryButton(btnOk);
 
@@ -279,35 +292,72 @@ namespace HotelManagement.Forms
             {
                 Text = "Hủy",
                 DialogResult = DialogResult.Cancel,
-                Location = new Point(245, 98),
-                Size = new Size(95, 36)
+                Location = new Point(285, 135),
+                Size = new Size(95, 38),
+                Cursor = Cursors.Hand
             };
             AppTheme.ApplySecondaryButton(btnCancel);
 
-            dlg.Controls.AddRange(new Control[] { lblPrompt, txtPass, btnOk, btnCancel });
-            dlg.AcceptButton = btnOk;
-            dlg.CancelButton = btnCancel;
+            bool authenticated = false;
 
-            if (dlg.ShowDialog(this) == DialogResult.OK)
+            btnOk.Click += async (s, e) =>
             {
                 string pass = txtPass.Text;
-
-                // Xác thực với tài khoản admin trong hệ thống
-                var authTask = _authService.DangNhapAsync("admin", pass);
-                authTask.Wait();
-                var ketQua = authTask.Result;
-
-                if (ketQua.TrangThai == TrangThaiDangNhap.ThanhCong &&
-                    ketQua.TaiKhoan?.IdVaitroNavigation?.TenVaitro == "Admin")
+                if (string.IsNullOrWhiteSpace(pass))
                 {
-                    Close();
+                    lblError.Text = "Vui lòng nhập mật khẩu Quản trị viên.";
+                    lblError.Visible = true;
+                    txtPass.Focus();
+                    return;
                 }
-                else
+
+                btnOk.Enabled = false;
+                btnCancel.Enabled = false;
+                btnOk.Text = "Đang kiểm tra...";
+
+                try
                 {
-                    MessageBox.Show("Mật khẩu Admin không chính xác. Không thể thoát Kiosk.",
-                        "Từ chối truy cập", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    var ketQua = await _authService.DangNhapAsync("admin", pass);
+                    if (ketQua.TrangThai == TrangThaiDangNhap.ThanhCong &&
+                        ketQua.TaiKhoan?.IdVaitroNavigation?.TenVaitro == "Admin")
+                    {
+                        authenticated = true;
+                        dlg.DialogResult = DialogResult.OK;
+                        dlg.Close();
+                    }
+                    else
+                    {
+                        lblError.Text = "Mật khẩu Admin không đúng hoặc tài khoản bị khóa.";
+                        lblError.Visible = true;
+                        txtPass.Clear();
+                        txtPass.Focus();
+                        btnOk.Enabled = true;
+                        btnCancel.Enabled = true;
+                        btnOk.Text = "Thoát Kiosk";
+                    }
                 }
+                catch (Exception ex)
+                {
+                    lblError.Text = "Lỗi xác thực: " + ex.Message;
+                    lblError.Visible = true;
+                    btnOk.Enabled = true;
+                    btnCancel.Enabled = true;
+                    btnOk.Text = "Thoát Kiosk";
+                }
+            };
+
+            dlg.AcceptButton = btnOk;
+            dlg.CancelButton = btnCancel;
+            dlg.Controls.AddRange(new Control[] { lblPrompt, txtPass, lblError, btnOk, btnCancel });
+
+            dlg.ShowDialog(this);
+
+            if (authenticated)
+            {
+                this.DialogResult = DialogResult.OK;
+                this.Close();
             }
         }
     }
 }
+
