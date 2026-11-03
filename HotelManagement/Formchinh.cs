@@ -1,5 +1,8 @@
+using System;
 using System.Diagnostics;
+using System.Windows.Forms;
 using HotelManagement.BLL.Services;
+using HotelManagement.Localization;
 using HotelManagement.Models.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,6 +23,7 @@ namespace HotelManagement
             _taiKhoanDangNhap = taiKhoanDangNhap;
             InitializeComponent();
             KhoiTaoGiaoDien();
+            CapNhatNgonNgu();
         }
 
         private void KhoiTaoGiaoDien()
@@ -31,13 +35,19 @@ namespace HotelManagement
             mnuImportPhong.Visible = laAdmin;
             mnuDashboard.Visible = laAdmin;
             mnuDoiMatKhau.Visible = !laAdmin; // Không cho Admin đổi mật khẩu
-
-            Text = $"Hệ thống quản lý khách sạn - Xin chào {_taiKhoanDangNhap.IdNhansuNavigation.Hoten} " +
-                   $"({_taiKhoanDangNhap.IdVaitroNavigation.TenVaitro})";
         }
 
         private async void MnuDangXuat_Click(object? sender, EventArgs e)
         {
+            var xacNhan = MessageBox.Show(
+                LanguageManager.GetString("FormChinh_Logout_Confirm"),
+                LanguageManager.GetString("FormChinh_Logout_Title"),
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (xacNhan != DialogResult.Yes)
+                return;
+
             try
             {
                 using var scope = Program.ServiceProvider.CreateScope();

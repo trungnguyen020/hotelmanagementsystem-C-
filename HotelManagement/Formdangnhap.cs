@@ -1,5 +1,8 @@
-﻿using System.Diagnostics;
+using System;
+using System.Diagnostics;
+using System.Windows.Forms;
 using HotelManagement.BLL.Services;
+using HotelManagement.Localization;
 using HotelManagement.Models.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,6 +13,7 @@ namespace HotelManagement
         public Formdangnhap()
         {
             InitializeComponent();
+            CapNhatNgonNgu();
         }
 
         private async void BtnDangNhap_Click(object? sender, EventArgs e)
@@ -35,7 +39,7 @@ namespace HotelManagement
             catch (Exception ex)
             {
                 // TODO: thay bằng cơ chế ghi log lỗi thực tế ở giai đoạn hoàn thiện
-                lblThongBao.Text = "Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.";
+                lblThongBao.Text = LanguageManager.GetString("FormDangNhap_ErrGeneral");
                 Debug.WriteLine(ex);
             }
             finally

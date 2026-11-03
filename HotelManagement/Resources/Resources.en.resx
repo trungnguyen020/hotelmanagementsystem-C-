@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Common -->
+  <data name="Common_AppTitle" xml:space="preserve"><value>Hotel Management System</value></data>
+  <data name="Common_Notification" xml:space="preserve"><value>Notification</value></data>
+  <data name="Common_Error" xml:space="preserve"><value>Error</value></data>
+  <data name="Common_Success" xml:space="preserve"><value>Success</value></data>
+  <data name="Common_Confirm" xml:space="preserve"><value>Confirm</value></data>
+  <data name="Common_Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Common_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Common_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Common_Yes" xml:space="preserve"><value>Yes</value></data>
+  <data name="Common_No" xml:space="preserve"><value>No</value></data>
+  <data name="Common_Language" xml:space="preserve"><value>Language:</value></data>
+  <data name="Common_Lang_Vi" xml:space="preserve"><value>Tiếng Việt</value></data>
+  <data name="Common_Lang_En" xml:space="preserve"><value>English</value></data>
+
+  <!-- FormChinh -->
+  <data name="FormChinh_Title" xml:space="preserve"><value>Hotel Management System</value></data>
+  <data name="FormChinh_HeaderTitle" xml:space="preserve"><value>RESORT &amp; HOTEL MANAGEMENT SYSTEM</value></data>
+  <data name="FormChinh_UserBadge" xml:space="preserve"><value>👤 {0} ({1})</value></data>
+  <data name="FormChinh_StatusReady" xml:space="preserve"><value>System Ready • Active User: {0} ({1})</value></data>
+  <data name="FormChinh_DashboardTitle" xml:space="preserve"><value>DASHBOARD &amp; QUICK ACTIONS</value></data>
+  <data name="FormChinh_DashboardSub" xml:space="preserve"><value>Quick access to daily hotel management operations</value></data>
+  <data name="FormChinh_Menu_QuanLyPhong" xml:space="preserve"><value>Room Management</value></data>
+  <data name="FormChinh_Menu_DanhSachPhong" xml:space="preserve"><value>Room List</value></data>
+  <data name="FormChinh_Menu_LoaiPhong" xml:space="preserve"><value>Room Types</value></data>
+  <data name="FormChinh_Menu_SoDoPhong" xml:space="preserve"><value>Room Matrix</value></data>
+  <data name="FormChinh_Menu_QuanLyDatPhong" xml:space="preserve"><value>Booking Management</value></data>
+  <data name="FormChinh_Menu_DatPhongMoi" xml:space="preserve"><value>New Booking</value></data>
+  <data name="FormChinh_Menu_CheckIn" xml:space="preserve"><value>Check-in</value></data>
+  <data name="FormChinh_Menu_CheckOut" xml:space="preserve"><value>Check-out</value></data>
+  <data name="FormChinh_Menu_ThanhToan" xml:space="preserve"><value>Billing &amp; Payments</value></data>
+  <data name="FormChinh_Menu_KhachHang" xml:space="preserve"><value>Customer Management</value></data>
+  <data name="FormChinh_Menu_NhanSu" xml:space="preserve"><value>Staff Management</value></data>
+  <data name="FormChinh_Menu_BaoCao" xml:space="preserve"><value>Revenue Reports</value></data>
+  <data name="FormChinh_Menu_Dashboard" xml:space="preserve"><value>Analytics Dashboard</value></data>
+  <data name="FormChinh_Menu_LichSuThongBao" xml:space="preserve"><value>Notification Logs</value></data>
+  <data name="FormChinh_Menu_DoiMatKhau" xml:space="preserve"><value>Change Password</value></data>
+  <data name="FormChinh_Menu_DangXuat" xml:space="preserve"><value>Logout</value></data>
+  <data name="FormChinh_Logout_Confirm" xml:space="preserve"><value>Are you sure you want to log out?</value></data>
+  <data name="FormChinh_Logout_Title" xml:space="preserve"><value>Confirm Logout</value></data>
+  <data name="FormChinh_Quick_SoDoPhong_Title" xml:space="preserve"><value>VISUAL ROOM MATRIX</value></data>
+  <data name="FormChinh_Quick_SoDoPhong_Desc" xml:space="preserve"><value>Monitor room status, make bookings and fast check-out on the grid</value></data>
+  <data name="FormChinh_Quick_SoDoPhong_Btn" xml:space="preserve"><value>Open Room Matrix →</value></data>
+  <data name="FormChinh_Quick_DatPhong_Title" xml:space="preserve"><value>NEW BOOKING</value></data>
+  <data name="FormChinh_Quick_DatPhong_Desc" xml:space="preserve"><value>Create new reservations for individual or group guests with full services</value></data>
+  <data name="FormChinh_Quick_DatPhong_Btn" xml:space="preserve"><value>Open New Booking →</value></data>
+  <data name="FormChinh_Quick_CheckIn_Title" xml:space="preserve"><value>CHECK-IN (ROOM ASSIGNMENT)</value></data>
+  <data name="FormChinh_Quick_CheckIn_Desc" xml:space="preserve"><value>Look up bookings by code, name or phone and hand over rooms</value></data>
+  <data name="FormChinh_Quick_CheckIn_Btn" xml:space="preserve"><value>Open Check-in →</value></data>
+  <data name="FormChinh_Quick_CheckOut_Title" xml:space="preserve"><value>CHECK-OUT (DEPARTURE)</value></data>
+  <data name="FormChinh_Quick_CheckOut_Desc" xml:space="preserve"><value>Inspect room, tally incurred service fees and complete checkout</value></data>
+  <data name="FormChinh_Quick_CheckOut_Btn" xml:space="preserve"><value>Open Check-out →</value></data>
+  <data name="FormChinh_Quick_ThanhToan_Title" xml:space="preserve"><value>BILLING &amp; PAYMENT</value></data>
+  <data name="FormChinh_Quick_ThanhToan_Desc" xml:space="preserve"><value>Issue invoice and process payment via cash or VietQR transfer</value></data>
+  <data name="FormChinh_Quick_ThanhToan_Btn" xml:space="preserve"><value>Open Payment →</value></data>
+  <data name="FormChinh_Quick_KhachHang_Title" xml:space="preserve"><value>CUSTOMER PROFILES</value></data>
+  <data name="FormChinh_Quick_KhachHang_Desc" xml:space="preserve"><value>Look up and manage guest profiles, IDs and phone numbers</value></data>
+  <data name="FormChinh_Quick_KhachHang_Btn" xml:space="preserve"><value>Open Customers →</value></data>
+  <data name="FormChinh_Quick_LichSuThongBao_Title" xml:space="preserve"><value>NOTIFICATION LOGS</value></data>
+  <data name="FormChinh_Quick_LichSuThongBao_Desc" xml:space="preserve"><value>View status and history of booking confirmation and invoice emails</value></data>
+  <data name="FormChinh_Quick_LichSuThongBao_Btn" xml:space="preserve"><value>Open Notification Logs →</value></data>
+  <data name="FormChinh_Quick_Dashboard_Title" xml:space="preserve"><value>ANALYTICS DASHBOARD</value></data>
+  <data name="FormChinh_Quick_Dashboard_Desc" xml:space="preserve"><value>Visualize revenue, occupancy rate and room status charts (LiveCharts2)</value></data>
+  <data name="FormChinh_Quick_Dashboard_Btn" xml:space="preserve"><value>Open Dashboard →</value></data>
+  <data name="FormChinh_Quick_NhanSu_Title" xml:space="preserve"><value>STAFF MANAGEMENT</value></data>
+  <data name="FormChinh_Quick_NhanSu_Desc" xml:space="preserve"><value>Manage staff accounts, roles and permission assignments</value></data>
+  <data name="FormChinh_Quick_NhanSu_Btn" xml:space="preserve"><value>Open Staff →</value></data>
+  <data name="FormChinh_Quick_BaoCao_Title" xml:space="preserve"><value>REVENUE REPORTS</value></data>
+  <data name="FormChinh_Quick_BaoCao_Desc" xml:space="preserve"><value>Summarize revenue by date range and export to Excel with ClosedXML</value></data>
+  <data name="FormChinh_Quick_BaoCao_Btn" xml:space="preserve"><value>Open Reports →</value></data>
+  <data name="FormChinh_Quick_Kiosk_Title" xml:space="preserve"><value>KIOSK MODE</value></data>
+  <data name="FormChinh_Quick_Kiosk_Desc" xml:space="preserve"><value>Launch full-screen self-service booking lookup kiosk for lobby guests</value></data>
+  <data name="FormChinh_Quick_Kiosk_Btn" xml:space="preserve"><value>Open Kiosk →</value></data>
+
+  <!-- FormDangNhap -->
+  <data name="FormDangNhap_Title" xml:space="preserve"><value>Hotel Management System — Login</value></data>
+  <data name="FormDangNhap_Brand" xml:space="preserve"><value>HOTEL MANAGEMENT • RESORT &amp; SUITES</value></data>
+  <data name="FormDangNhap_Header" xml:space="preserve"><value>SYSTEM LOGIN</value></data>
+  <data name="FormDangNhap_Username" xml:space="preserve"><value>Username</value></data>
+  <data name="FormDangNhap_UsernamePlaceholder" xml:space="preserve"><value>Enter staff username...</value></data>
+  <data name="FormDangNhap_Password" xml:space="preserve"><value>Password</value></data>
+  <data name="FormDangNhap_PasswordPlaceholder" xml:space="preserve"><value>Enter password...</value></data>
+  <data name="FormDangNhap_BtnLogin" xml:space="preserve"><value>SIGN IN</value></data>
+  <data name="FormDangNhap_BtnKiosk" xml:space="preserve"><value>🖥️  Self-Service Kiosk (For Guests)</value></data>
+  <data name="FormDangNhap_Footer" xml:space="preserve"><value>Internal Secure Edition — Management &amp; Reception</value></data>
+  <data name="FormDangNhap_ErrEmpty" xml:space="preserve"><value>Please enter both username and password.</value></data>
+  <data name="FormDangNhap_ErrGeneral" xml:space="preserve"><value>An error occurred during login. Please try again.</value></data>
+
+  <!-- FormKiosk -->
+  <data name="FormKiosk_Title" xml:space="preserve"><value>RESORT &amp; HOTEL MANAGEMENT - KIOSK</value></data>
+  <data name="FormKiosk_HeaderHotel" xml:space="preserve"><value>🛎️ RESORT &amp; HOTEL MANAGEMENT  •  SELF-SERVICE BOOKING LOOKUP</value></data>
+  <data name="FormKiosk_HeaderSub" xml:space="preserve"><value>Self-service reservation lookup system for our valued guests (Lookup by Booking Code and Phone Number).</value></data>
+  <data name="FormKiosk_SearchTitle" xml:space="preserve"><value>1. VERIFY RESERVATION DETAILS</value></data>
+  <data name="FormKiosk_SearchSub" xml:space="preserve"><value>For your privacy and security, please enter both your Booking Code and registered Phone Number:</value></data>
+  <data name="FormKiosk_MaBookingTitle" xml:space="preserve"><value>BOOKING CODE:</value></data>
+  <data name="FormKiosk_MaBookingPlaceholder" xml:space="preserve"><value>E.g.: BK261030134850</value></data>
+  <data name="FormKiosk_SdtTitle" xml:space="preserve"><value>REGISTERED PHONE NUMBER:</value></data>
+  <data name="FormKiosk_SdtPlaceholder" xml:space="preserve"><value>E.g.: 0987654321</value></data>
+  <data name="FormKiosk_BtnTraCuu" xml:space="preserve"><value>🔍  LOOKUP RESERVATION</value></data>
+  <data name="FormKiosk_BtnXoaTrang" xml:space="preserve"><value>🔄  Clear &amp; Re-enter</value></data>
+  <data name="FormKiosk_ErrEmpty" xml:space="preserve"><value>Please enter both Booking Code and Phone Number.</value></data>
+  <data name="FormKiosk_ErrNotFound" xml:space="preserve"><value>No booking found. Please check your booking code and phone number.</value></data>
+  <data name="FormKiosk_Searching" xml:space="preserve"><value>Looking up booking details...</value></data>
+  <data name="FormKiosk_ResultTitle" xml:space="preserve"><value>2. YOUR RESERVATION DETAILS</value></data>
+  <data name="FormKiosk_PlaceholderText" xml:space="preserve"><value>Please enter your Booking Code and Phone Number on the left, then click 'LOOKUP RESERVATION'.&#xD;&#xA;&#xD;&#xA;🔒 For data security, details are only displayed when both entries match exactly.</value></data>
+  <data name="FormKiosk_Res_MaBooking" xml:space="preserve"><value>Booking Code:</value></data>
+  <data name="FormKiosk_Res_TrangThai" xml:space="preserve"><value>Status:</value></data>
+  <data name="FormKiosk_Res_KhachHang" xml:space="preserve"><value>Guest Name:</value></data>
+  <data name="FormKiosk_Res_ThoiGian" xml:space="preserve"><value>Dates:</value></data>
+  <data name="FormKiosk_Res_SoKhach" xml:space="preserve"><value>Guests:</value></data>
+  <data name="FormKiosk_Res_ThanhToan" xml:space="preserve"><value>Payment:</value></data>
+  <data name="FormKiosk_Res_DichVu" xml:space="preserve"><value>Services:</value></data>
+  <data name="FormKiosk_Res_TongTien" xml:space="preserve"><value>Total Amount:</value></data>
+  <data name="FormKiosk_Res_None" xml:space="preserve"><value>(None)</value></data>
+  <data name="FormKiosk_Res_Paid" xml:space="preserve"><value>Fully Paid</value></data>
+  <data name="FormKiosk_Res_Unpaid" xml:space="preserve"><value>Unpaid / Pending</value></data>
+  <data name="FormKiosk_BtnXoaKetQua" xml:space="preserve"><value>🧹  Done / Clear Result</value></data>
+  <data name="FormKiosk_AutoClearCount" xml:space="preserve"><value>⏱️ Auto-clears in: {0}s</value></data>
+  <data name="FormKiosk_HelpText" xml:space="preserve"><value>📞 Need early check-in or assistance? Please contact our Front Desk at the main lobby.</value></data>
+  <data name="FormKiosk_Exit_Title" xml:space="preserve"><value>Admin Authentication</value></data>
+  <data name="FormKiosk_Exit_Prompt" xml:space="preserve"><value>Enter Admin password to exit Kiosk mode:</value></data>
+  <data name="FormKiosk_Exit_BtnOk" xml:space="preserve"><value>Exit Kiosk</value></data>
+  <data name="FormKiosk_Exit_BtnCancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="FormKiosk_Exit_ErrEmpty" xml:space="preserve"><value>Please enter Admin password.</value></data>
+  <data name="FormKiosk_Exit_ErrWrong" xml:space="preserve"><value>Incorrect Admin password or account locked.</value></data>
+  <data name="FormKiosk_Exit_Checking" xml:space="preserve"><value>Verifying...</value></data>
+</root>
+

@@ -23,6 +23,8 @@ namespace HotelManagement.Forms
         private Label _lblHeaderHotel = null!;
         private Label _lblHeaderSub = null!;
         private Label _lblClock = null!;
+        private Button _btnLangVi = null!;
+        private Button _btnLangEn = null!;
 
         // Main Layout Container
         private TableLayoutPanel _tlpMain = null!;
@@ -111,16 +113,42 @@ namespace HotelManagement.Forms
                 Text = "00:00:00",
                 Font = AppTheme.FontSubHeader,
                 ForeColor = AppTheme.Primary,
-                AutoSize = true,
-                Anchor = AnchorStyles.Top | AnchorStyles.Right
-            };
-            _lblClock.Location = new Point(_pnlHeader.Width - 280, 28);
-            _pnlHeader.Resize += (s, e) =>
-            {
-                _lblClock.Location = new Point(_pnlHeader.ClientSize.Width - _lblClock.Width - 36, 28);
+                AutoSize = true
             };
 
-            _pnlHeader.Controls.AddRange(new Control[] { _lblHeaderHotel, _lblHeaderSub, _lblClock });
+            // Nút chuyển đổi ngôn ngữ Việt / Anh ngay trên banner Kiosk (DCKLTTQ-86)
+            _btnLangVi = new Button
+            {
+                Text = "🇻🇳 Tiếng Việt",
+                Size = new Size(110, 36),
+                Font = AppTheme.FontSmallBold,
+                Cursor = Cursors.Hand
+            };
+            AppTheme.ApplyPrimaryButton(_btnLangVi);
+            _btnLangVi.Click += (s, e) => HotelManagement.Localization.LanguageManager.SetLanguage(HotelManagement.Localization.AppLanguage.Vietnamese);
+
+            _btnLangEn = new Button
+            {
+                Text = "🇬🇧 English",
+                Size = new Size(100, 36),
+                Font = AppTheme.FontSmallBold,
+                Cursor = Cursors.Hand
+            };
+            AppTheme.ApplySecondaryButton(_btnLangEn);
+            _btnLangEn.Click += (s, e) => HotelManagement.Localization.LanguageManager.SetLanguage(HotelManagement.Localization.AppLanguage.English);
+
+            void CanChinhHeaderKiosk()
+            {
+                int right = _pnlHeader.ClientSize.Width - 36;
+                _btnLangEn.Location = new Point(right - _btnLangEn.Width, 24);
+                _btnLangVi.Location = new Point(_btnLangEn.Left - _btnLangVi.Width - 10, 24);
+                _lblClock.Location = new Point(_btnLangVi.Left - _lblClock.Width - 28, 30);
+            }
+
+            _pnlHeader.Resize += (s, e) => CanChinhHeaderKiosk();
+            CanChinhHeaderKiosk();
+
+            _pnlHeader.Controls.AddRange(new Control[] { _lblHeaderHotel, _lblHeaderSub, _lblClock, _btnLangVi, _btnLangEn });
 
             // ================= 2. Bottom Footer Banner =================
             _pnlFooter = new Panel

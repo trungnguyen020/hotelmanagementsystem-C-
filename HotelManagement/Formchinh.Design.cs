@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using HotelManagement.Localization;
 
 namespace HotelManagement
 {
@@ -21,15 +22,21 @@ namespace HotelManagement
         #region Windows Form Designer generated code
 
         private MenuStrip menuChinh = null!;
+        private ToolStripMenuItem mnuQuanLyPhong = null!;
+        private ToolStripMenuItem mnuPhong = null!;
+        private ToolStripMenuItem mnuLoaiPhong = null!;
+        private ToolStripMenuItem mnuSoDoPhongTop = null!;
         private ToolStripMenuItem mnuQuanLyDatPhong = null!;
         private ToolStripMenuItem mnuDatPhong = null!;
         private ToolStripMenuItem mnuCheckIn = null!;
         private ToolStripMenuItem mnuCheckOut = null!;
         private ToolStripMenuItem mnuThanhToan = null!;
+        private ToolStripMenuItem mnuKhachHang = null!;
         private ToolStripMenuItem mnuQuanLyNhanSu = null!;   // chỉ Admin
         private ToolStripMenuItem mnuBaoCao = null!;         // chỉ Admin
         private ToolStripMenuItem mnuDashboard = null!;      // chỉ Admin
         private ToolStripMenuItem mnuImportPhong = null!;    // chỉ Admin
+        private ToolStripMenuItem mnuLichSuThongBao = null!;
         private ToolStripMenuItem mnuDoiMatKhau = null!;
         private ToolStripMenuItem mnuDangXuat = null!;
 
@@ -37,7 +44,10 @@ namespace HotelManagement
         private Panel _pnlTopBar = null!;
         private Label _lblHotelTitle = null!;
         private Label _lblUserInfoBadge = null!;
+        private ComboBox _cboLanguage = null!;
         private Panel _pnlMainContainer = null!;
+        private Label _lblDashboardTitle = null!;
+        private Label _lblDashboardSub = null!;
         private FlowLayoutPanel _pnlQuickActions = null!;
         private StatusStrip _statusStrip = null!;
         private ToolStripStatusLabel _lblStatusUser = null!;
@@ -67,9 +77,9 @@ namespace HotelManagement
             };
 
             // --- 1.1 Quản lý phòng ---
-            var mnuQuanLyPhong = new ToolStripMenuItem("Quản lý phòng");
+            mnuQuanLyPhong = new ToolStripMenuItem("Quản lý phòng");
             
-            var mnuPhong = new ToolStripMenuItem("Danh sách phòng");
+            mnuPhong = new ToolStripMenuItem("Danh sách phòng");
             mnuPhong.Click += (_, _) =>
             {
                 using var form = new HotelManagement.Forms.FormPhong(_taiKhoanDangNhap);
@@ -77,7 +87,7 @@ namespace HotelManagement
             };
             mnuQuanLyPhong.DropDownItems.Add(mnuPhong);
 
-            var mnuLoaiPhong = new ToolStripMenuItem("Loại phòng");
+            mnuLoaiPhong = new ToolStripMenuItem("Loại phòng");
             mnuLoaiPhong.Click += (_, _) =>
             {
                 using var form = new HotelManagement.Forms.FormLoaiPhong();
@@ -96,7 +106,7 @@ namespace HotelManagement
             menuChinh.Items.Add(mnuQuanLyPhong);
 
             // --- 1.2 Sơ đồ phòng ---
-            var mnuSoDoPhongTop = new ToolStripMenuItem("Sơ đồ phòng");
+            mnuSoDoPhongTop = new ToolStripMenuItem("Sơ đồ phòng");
             mnuSoDoPhongTop.Click += (_, _) =>
             {
                 using var form = new HotelManagement.Forms.FormSoDoPhong(_taiKhoanDangNhap);
@@ -142,7 +152,7 @@ namespace HotelManagement
             menuChinh.Items.Add(mnuQuanLyDatPhong);
 
             // --- 1.4 Quản lý khách hàng ---
-            var mnuKhachHang = new ToolStripMenuItem("Quản lý khách hàng");
+            mnuKhachHang = new ToolStripMenuItem("Quản lý khách hàng");
             mnuKhachHang.Click += (_, _) =>
             {
                 using var form = new HotelManagement.Forms.FormKhachHang();
@@ -178,7 +188,7 @@ namespace HotelManagement
             menuChinh.Items.Add(mnuDashboard);
 
             // --- 1.8 Lịch sử thông báo (DCKLTTQ-82) ---
-            var mnuLichSuThongBao = new ToolStripMenuItem("Lịch sử thông báo");
+            mnuLichSuThongBao = new ToolStripMenuItem("Lịch sử thông báo");
             mnuLichSuThongBao.Click += (_, _) =>
             {
                 using var form = new HotelManagement.Forms.FormLichSuThongBao();
@@ -235,14 +245,40 @@ namespace HotelManagement
                 AutoSize = true,
                 Anchor = AnchorStyles.Top | AnchorStyles.Right
             };
-            _lblUserInfoBadge.Location = new Point(_pnlTopBar.Width - 320, 16);
-            _pnlTopBar.Resize += (s, e) =>
+
+            _cboLanguage = new ComboBox
             {
-                _lblUserInfoBadge.Location = new Point(_pnlTopBar.ClientSize.Width - _lblUserInfoBadge.Width - 24, 16);
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Width = 145,
+                Font = AppTheme.FontSmallBold,
+                BackColor = AppTheme.Surface,
+                ForeColor = AppTheme.TextPrimary,
+                Cursor = Cursors.Hand
+            };
+            _cboLanguage.Items.AddRange(new object[] { "🇻🇳  Tiếng Việt", "🇬🇧  English" });
+            _cboLanguage.SelectedIndex = LanguageManager.CurrentLanguage == AppLanguage.English ? 1 : 0;
+            _cboLanguage.SelectedIndexChanged += (s, e) =>
+            {
+                if (!_isUpdatingLanguage)
+                {
+                    var targetLang = _cboLanguage.SelectedIndex == 1 ? AppLanguage.English : AppLanguage.Vietnamese;
+                    LanguageManager.SetLanguage(targetLang);
+                }
             };
 
             _pnlTopBar.Controls.Add(_lblHotelTitle);
             _pnlTopBar.Controls.Add(_lblUserInfoBadge);
+            _pnlTopBar.Controls.Add(_cboLanguage);
+
+            void CanChinhTopBar()
+            {
+                if (_pnlTopBar == null || _cboLanguage == null || _lblUserInfoBadge == null) return;
+                _cboLanguage.Location = new Point(_pnlTopBar.ClientSize.Width - _cboLanguage.Width - 24, 18);
+                _lblUserInfoBadge.Location = new Point(_cboLanguage.Left - _lblUserInfoBadge.Width - 16, 16);
+            }
+
+            _pnlTopBar.Resize += (s, e) => CanChinhTopBar();
+            CanChinhTopBar();
 
             // ================= 3. Main Dashboard: Các thẻ thao tác nhanh =================
             _pnlMainContainer = new Panel
@@ -253,7 +289,7 @@ namespace HotelManagement
                 Padding = new Padding(36, 28, 36, 28)
             };
 
-            var lblDashboardTitle = new Label
+            _lblDashboardTitle = new Label
             {
                 Text = "BẢNG ĐIỀU KHIỂN & TÁC VỤ NHANH",
                 Font = AppTheme.FontHeader,
@@ -262,7 +298,7 @@ namespace HotelManagement
                 Location = new Point(36, 18)
             };
 
-            var lblDashboardSub = new Label
+            _lblDashboardSub = new Label
             {
                 Text = "Chọn nhanh các phân hệ nghiệp vụ khách sạn thường dùng hàng ngày",
                 Font = AppTheme.FontSmall,
@@ -290,60 +326,10 @@ namespace HotelManagement
                     _pnlQuickActions.Width = width;
             };
 
-            // Tạo các thẻ tác vụ nhanh
-            ThemTheTacVuNhanh("SƠ ĐỒ PHÒNG TRỰC QUAN", "Theo dõi trạng thái phòng, đặt phòng và check-out nhanh theo sơ đồ", "Sơ đồ phòng", AppTheme.Primary, () =>
-            {
-                using var form = new HotelManagement.Forms.FormSoDoPhong(_taiKhoanDangNhap);
-                form.ShowDialog(this);
-            });
+            TaiLaiTheTacVuNhanh();
 
-            ThemTheTacVuNhanh("ĐẶT PHÒNG MỚI", "Tạo booking mới cho khách lẻ, khách đoàn với đầy đủ dịch vụ", "Đặt phòng", AppTheme.AccentGold, () =>
-            {
-                using var form = new HotelManagement.Forms.FormDatPhong(_taiKhoanDangNhap);
-                form.ShowDialog(this);
-            });
-
-            ThemTheTacVuNhanh("CHECK-IN (NHẬN PHÒNG)", "Tra cứu booking theo mã hoặc tên/SĐT và bàn giao phòng cho khách", "Check-in", AppTheme.StatusSuccessText, () =>
-            {
-                using var form = new HotelManagement.Forms.FormCheckIn(_taiKhoanDangNhap);
-                form.ShowDialog(this);
-            });
-
-            ThemTheTacVuNhanh("CHECK-OUT (TRẢ PHÒNG)", "Kiểm tra phòng, tổng hợp phí dịch vụ phát sinh và thực hiện trả phòng", "Check-out", AppTheme.StatusWarningText, () =>
-            {
-                using var form = new HotelManagement.Forms.FormCheckOut(_taiKhoanDangNhap);
-                form.ShowDialog(this);
-            });
-
-            ThemTheTacVuNhanh("THANH TOÁN HÓA ĐƠN", "Lập hóa đơn thanh toán tiền mặt hoặc chuyển khoản QR ngân hàng", "Thanh toán", AppTheme.Primary, () =>
-            {
-                using var form = new HotelManagement.Forms.FormThanhToan();
-                form.ShowDialog(this);
-            });
-
-            ThemTheTacVuNhanh("HỒ SƠ KHÁCH HÀNG", "Tra cứu và quản lý thông tin khách lưu trú, CCCD, số điện thoại", "Khách hàng", AppTheme.TextSecondary, () =>
-            {
-                using var form = new HotelManagement.Forms.FormKhachHang();
-                form.ShowDialog(this);
-            });
-
-            ThemTheTacVuNhanh("LỊCH SỬ THÔNG BÁO", "Xem lịch sử và trạng thái gửi email xác nhận đặt phòng và hóa đơn PDF", "Lịch sử thông báo", AppTheme.Primary, () =>
-            {
-                using var form = new HotelManagement.Forms.FormLichSuThongBao();
-                form.ShowDialog(this);
-            });
-
-            if (_taiKhoanDangNhap.IdVaitroNavigation.TenVaitro == "Admin")
-            {
-                ThemTheTacVuNhanh("DASHBOARD BIỂU ĐỒ", "Xem trực quan 3 loại biểu đồ doanh thu, tỷ lệ lấp đầy và trạng thái phòng (LiveCharts2)", "Dashboard", AppTheme.AccentGold, () =>
-                {
-                    using var form = new HotelManagement.Forms.FormDashboard();
-                    form.ShowDialog(this);
-                });
-            }
-
-            _pnlMainContainer.Controls.Add(lblDashboardTitle);
-            _pnlMainContainer.Controls.Add(lblDashboardSub);
+            _pnlMainContainer.Controls.Add(_lblDashboardTitle);
+            _pnlMainContainer.Controls.Add(_lblDashboardSub);
             _pnlMainContainer.Controls.Add(_pnlQuickActions);
 
             // ================= 4. Bottom StatusStrip =================
@@ -375,6 +361,106 @@ namespace HotelManagement
             this.Controls.Add(_pnlTopBar);
             this.Controls.Add(menuChinh);
             this.Controls.Add(_statusStrip);
+        }
+
+        private void TaiLaiTheTacVuNhanh()
+        {
+            if (_pnlQuickActions == null) return;
+            _pnlQuickActions.SuspendLayout();
+            _pnlQuickActions.Controls.Clear();
+
+            // 1. Sơ đồ phòng
+            ThemTheTacVuNhanh(
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_SoDoPhong_Title"),
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_SoDoPhong_Desc"),
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_SoDoPhong_Btn"),
+                AppTheme.Primary, () =>
+            {
+                using var form = new HotelManagement.Forms.FormSoDoPhong(_taiKhoanDangNhap);
+                form.ShowDialog(this);
+            });
+
+            // 2. Đặt phòng mới
+            ThemTheTacVuNhanh(
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_DatPhong_Title"),
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_DatPhong_Desc"),
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_DatPhong_Btn"),
+                AppTheme.AccentGold, () =>
+            {
+                using var form = new HotelManagement.Forms.FormDatPhong(_taiKhoanDangNhap);
+                form.ShowDialog(this);
+            });
+
+            // 3. Check-in
+            ThemTheTacVuNhanh(
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_CheckIn_Title"),
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_CheckIn_Desc"),
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_CheckIn_Btn"),
+                AppTheme.StatusSuccessText, () =>
+            {
+                using var form = new HotelManagement.Forms.FormCheckIn(_taiKhoanDangNhap);
+                form.ShowDialog(this);
+            });
+
+            // 4. Check-out
+            ThemTheTacVuNhanh(
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_CheckOut_Title"),
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_CheckOut_Desc"),
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_CheckOut_Btn"),
+                AppTheme.StatusWarningText, () =>
+            {
+                using var form = new HotelManagement.Forms.FormCheckOut(_taiKhoanDangNhap);
+                form.ShowDialog(this);
+            });
+
+            // 5. Thanh toán
+            ThemTheTacVuNhanh(
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_ThanhToan_Title"),
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_ThanhToan_Desc"),
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_ThanhToan_Btn"),
+                AppTheme.Primary, () =>
+            {
+                using var form = new HotelManagement.Forms.FormThanhToan();
+                form.ShowDialog(this);
+            });
+
+            // 6. Khách hàng
+            ThemTheTacVuNhanh(
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_KhachHang_Title"),
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_KhachHang_Desc"),
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_KhachHang_Btn"),
+                AppTheme.TextSecondary, () =>
+            {
+                using var form = new HotelManagement.Forms.FormKhachHang();
+                form.ShowDialog(this);
+            });
+
+            // 7. Lịch sử thông báo
+            ThemTheTacVuNhanh(
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_LichSuThongBao_Title"),
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_LichSuThongBao_Desc"),
+                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_LichSuThongBao_Btn"),
+                AppTheme.Primary, () =>
+            {
+                using var form = new HotelManagement.Forms.FormLichSuThongBao();
+                form.ShowDialog(this);
+            });
+
+            // 8. Dashboard (Admin)
+            if (_taiKhoanDangNhap.IdVaitroNavigation.TenVaitro == "Admin")
+            {
+                ThemTheTacVuNhanh(
+                    HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_Dashboard_Title"),
+                    HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_Dashboard_Desc"),
+                    HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_Dashboard_Btn"),
+                    AppTheme.AccentGold, () =>
+                {
+                    using var form = new HotelManagement.Forms.FormDashboard();
+                    form.ShowDialog(this);
+                });
+            }
+
+            _pnlQuickActions.ResumeLayout();
         }
 
         private void ThemTheTacVuNhanh(string title, string desc, string btnText, Color accentColor, Action action)
@@ -416,9 +502,9 @@ namespace HotelManagement
 
             var btn = new Button
             {
-                Text = $"Mở {btnText} →",
+                Text = btnText,
                 Location = new Point(18, 112),
-                Size = new Size(180, 36),
+                Size = new Size(190, 36),
                 Cursor = Cursors.Hand
             };
             AppTheme.ApplySecondaryButton(btn);

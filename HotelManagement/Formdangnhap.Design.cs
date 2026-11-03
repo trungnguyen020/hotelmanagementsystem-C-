@@ -1,6 +1,7 @@
+using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using HotelManagement.Localization;
 
 namespace HotelManagement
 {
@@ -25,6 +26,15 @@ namespace HotelManagement
         private TextBox txtMatKhau = null!;
         private Button btnDangNhap = null!;
         private Label lblThongBao = null!;
+
+        private Label _lblBrand = null!;
+        private Label _lblTieuDe = null!;
+        private Label _lblTenDangNhap = null!;
+        private Label _lblMatKhau = null!;
+        private Button _btnKiosk = null!;
+        private Label _lblFooter = null!;
+        private Button _btnLangVi = null!;
+        private Button _btnLangEn = null!;
 
         private void InitializeComponent()
         {
@@ -58,26 +68,49 @@ namespace HotelManagement
             };
             AppTheme.ApplyCardPanel(pnlCard);
 
+            // Nút chọn ngôn ngữ góc trên bên phải của Card đăng nhập (DCKLTTQ-86)
+            _btnLangVi = new Button
+            {
+                Text = "🇻🇳 VN",
+                Size = new Size(54, 26),
+                Location = new Point(338, 16),
+                Font = AppTheme.FontCaption,
+                Cursor = Cursors.Hand
+            };
+            AppTheme.ApplyPrimaryButton(_btnLangVi);
+            _btnLangVi.Click += (s, e) => LanguageManager.SetLanguage(AppLanguage.Vietnamese);
+
+            _btnLangEn = new Button
+            {
+                Text = "🇬🇧 EN",
+                Size = new Size(54, 26),
+                Location = new Point(396, 16),
+                Font = AppTheme.FontCaption,
+                Cursor = Cursors.Hand
+            };
+            AppTheme.ApplySecondaryButton(_btnLangEn);
+            _btnLangEn.Click += (s, e) => LanguageManager.SetLanguage(AppLanguage.English);
+
             // 1. Nhãn thương hiệu nhỏ phía trên
-            var lblBrand = new Label
+            _lblBrand = new Label
             {
                 Text = "HOTEL MANAGEMENT • RESORT & SUITES",
                 Font = AppTheme.FontSmallBold,
                 ForeColor = AppTheme.Primary,
-                TextAlign = ContentAlignment.MiddleCenter,
-                Location = new Point(20, 22),
-                Size = new Size(420, 18)
+                TextAlign = ContentAlignment.MiddleLeft,
+                Location = new Point(40, 20),
+                Size = new Size(290, 18)
             };
 
             // 2. Tiêu đề chính
-            var lblTieuDe = new Label
+            _lblTieuDe = new Label
             {
                 Text = "ĐĂNG NHẬP HỆ THỐNG",
                 Font = AppTheme.FontDisplay,
                 ForeColor = AppTheme.TextPrimary,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Location = new Point(20, 44),
-                Size = new Size(420, 40)
+                Location = new Point(20, 46),
+                Size = new Size(420, 38)
             };
 
             // Dải gạch trang trí màu vàng đồng
@@ -89,7 +122,7 @@ namespace HotelManagement
             };
 
             // 3. Nhập Tên đăng nhập
-            var lblTenDangNhap = new Label
+            _lblTenDangNhap = new Label
             {
                 Text = "Tên đăng nhập",
                 Font = AppTheme.FontBodyBold,
@@ -107,7 +140,7 @@ namespace HotelManagement
             AppTheme.ApplyTextBox(txtTenDangNhap);
 
             // 4. Nhập Mật khẩu
-            var lblMatKhau = new Label
+            _lblMatKhau = new Label
             {
                 Text = "Mật khẩu",
                 Font = AppTheme.FontBodyBold,
@@ -148,7 +181,7 @@ namespace HotelManagement
             };
 
             // 7. Nút chuyển sang Chế độ Kiosk tra cứu dành cho sảnh khách sạn (DCKLTTQ-85)
-            var btnKiosk = new Button
+            _btnKiosk = new Button
             {
                 Text = "🖥️  Chế độ Kiosk tra cứu (Dành cho khách hàng)",
                 Location = new Point(40, 362),
@@ -156,8 +189,8 @@ namespace HotelManagement
                 Font = AppTheme.FontSmallBold,
                 Cursor = Cursors.Hand
             };
-            AppTheme.ApplySecondaryButton(btnKiosk);
-            btnKiosk.Click += (s, e) =>
+            AppTheme.ApplySecondaryButton(_btnKiosk);
+            _btnKiosk.Click += (s, e) =>
             {
                 this.Hide();
                 using (var formKiosk = new HotelManagement.Forms.FormKiosk())
@@ -172,7 +205,7 @@ namespace HotelManagement
             };
 
             // 8. Ghi chú chân trang
-            var lblFooter = new Label
+            _lblFooter = new Label
             {
                 Text = "Phiên bản bảo mật nội bộ — Ban Quản Lý & Lễ Tân",
                 Font = AppTheme.FontCaption,
@@ -185,31 +218,25 @@ namespace HotelManagement
             // Thêm controls vào Card
             pnlCard.Controls.AddRange(new Control[]
             {
-                lblBrand,
-                lblTieuDe,
+                _btnLangVi,
+                _btnLangEn,
+                _lblBrand,
+                _lblTieuDe,
                 pnlDivider,
-                lblTenDangNhap,
+                _lblTenDangNhap,
                 txtTenDangNhap,
-                lblMatKhau,
+                _lblMatKhau,
                 txtMatKhau,
                 btnDangNhap,
                 lblThongBao,
-                btnKiosk,
-                lblFooter
+                _btnKiosk,
+                _lblFooter
             });
 
             pnlBackground.Controls.Add(pnlCard);
             this.Controls.Add(pnlBackground);
 
-            // Canh giữa card khi resize nếu có
-            this.Resize += (s, e) =>
-            {
-                pnlCard.Location = new Point(
-                    Math.Max(10, (pnlBackground.ClientSize.Width - pnlCard.Width) / 2),
-                    Math.Max(10, (pnlBackground.ClientSize.Height - pnlCard.Height) / 2)
-                );
-            };
-
+            // Phím tắt bàn phím tiện ích
             this.AcceptButton = btnDangNhap;
         }
 

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Common -->
+  <data name="Common_AppTitle" xml:space="preserve"><value>Hệ thống quản lý khách sạn</value></data>
+  <data name="Common_Notification" xml:space="preserve"><value>Thông báo</value></data>
+  <data name="Common_Error" xml:space="preserve"><value>Lỗi</value></data>
+  <data name="Common_Success" xml:space="preserve"><value>Thành công</value></data>
+  <data name="Common_Confirm" xml:space="preserve"><value>Xác nhận</value></data>
+  <data name="Common_Close" xml:space="preserve"><value>Đóng</value></data>
+  <data name="Common_Save" xml:space="preserve"><value>Lưu</value></data>
+  <data name="Common_Cancel" xml:space="preserve"><value>Hủy</value></data>
+  <data name="Common_Yes" xml:space="preserve"><value>Có</value></data>
+  <data name="Common_No" xml:space="preserve"><value>Không</value></data>
+  <data name="Common_Language" xml:space="preserve"><value>Ngôn ngữ:</value></data>
+  <data name="Common_Lang_Vi" xml:space="preserve"><value>Tiếng Việt</value></data>
+  <data name="Common_Lang_En" xml:space="preserve"><value>English</value></data>
+
+  <!-- FormChinh -->
+  <data name="FormChinh_Title" xml:space="preserve"><value>Hệ thống quản lý khách sạn</value></data>
+  <data name="FormChinh_HeaderTitle" xml:space="preserve"><value>RESORT &amp; HOTEL MANAGEMENT SYSTEM</value></data>
+  <data name="FormChinh_UserBadge" xml:space="preserve"><value>👤 {0} ({1})</value></data>
+  <data name="FormChinh_StatusReady" xml:space="preserve"><value>Hệ thống đang hoạt động • Người dùng: {0} ({1})</value></data>
+  <data name="FormChinh_DashboardTitle" xml:space="preserve"><value>BẢNG ĐIỀU KHIỂN &amp; TÁC VỤ NHANH</value></data>
+  <data name="FormChinh_DashboardSub" xml:space="preserve"><value>Chọn nhanh các phân hệ nghiệp vụ khách sạn thường dùng hàng ngày</value></data>
+  <data name="FormChinh_Menu_QuanLyPhong" xml:space="preserve"><value>Quản lý phòng</value></data>
+  <data name="FormChinh_Menu_DanhSachPhong" xml:space="preserve"><value>Danh sách phòng</value></data>
+  <data name="FormChinh_Menu_LoaiPhong" xml:space="preserve"><value>Loại phòng</value></data>
+  <data name="FormChinh_Menu_SoDoPhong" xml:space="preserve"><value>Sơ đồ phòng</value></data>
+  <data name="FormChinh_Menu_QuanLyDatPhong" xml:space="preserve"><value>Quản lý đặt phòng</value></data>
+  <data name="FormChinh_Menu_DatPhongMoi" xml:space="preserve"><value>Đặt phòng mới</value></data>
+  <data name="FormChinh_Menu_CheckIn" xml:space="preserve"><value>Check-in (Nhận phòng)</value></data>
+  <data name="FormChinh_Menu_CheckOut" xml:space="preserve"><value>Check-out (Trả phòng)</value></data>
+  <data name="FormChinh_Menu_ThanhToan" xml:space="preserve"><value>Thanh toán hóa đơn</value></data>
+  <data name="FormChinh_Menu_KhachHang" xml:space="preserve"><value>Quản lý khách hàng</value></data>
+  <data name="FormChinh_Menu_NhanSu" xml:space="preserve"><value>Quản lý nhân sự</value></data>
+  <data name="FormChinh_Menu_BaoCao" xml:space="preserve"><value>Báo cáo doanh thu</value></data>
+  <data name="FormChinh_Menu_Dashboard" xml:space="preserve"><value>Dashboard thống kê</value></data>
+  <data name="FormChinh_Menu_LichSuThongBao" xml:space="preserve"><value>Lịch sử thông báo</value></data>
+  <data name="FormChinh_Menu_DoiMatKhau" xml:space="preserve"><value>Đổi mật khẩu</value></data>
+  <data name="FormChinh_Menu_DangXuat" xml:space="preserve"><value>Đăng xuất</value></data>
+  <data name="FormChinh_Logout_Confirm" xml:space="preserve"><value>Bạn có chắc chắn muốn đăng xuất không?</value></data>
+  <data name="FormChinh_Logout_Title" xml:space="preserve"><value>Xác nhận đăng xuất</value></data>
+  <data name="FormChinh_Quick_SoDoPhong_Title" xml:space="preserve"><value>SƠ ĐỒ PHÒNG TRỰC QUAN</value></data>
+  <data name="FormChinh_Quick_SoDoPhong_Desc" xml:space="preserve"><value>Theo dõi trạng thái phòng, đặt phòng và check-out nhanh theo sơ đồ</value></data>
+  <data name="FormChinh_Quick_SoDoPhong_Btn" xml:space="preserve"><value>Mở Sơ đồ phòng →</value></data>
+  <data name="FormChinh_Quick_DatPhong_Title" xml:space="preserve"><value>ĐẶT PHÒNG MỚI</value></data>
+  <data name="FormChinh_Quick_DatPhong_Desc" xml:space="preserve"><value>Tạo booking mới cho khách lẻ, khách đoàn với đầy đủ dịch vụ</value></data>
+  <data name="FormChinh_Quick_DatPhong_Btn" xml:space="preserve"><value>Mở Đặt phòng →</value></data>
+  <data name="FormChinh_Quick_CheckIn_Title" xml:space="preserve"><value>CHECK-IN (NHẬN PHÒNG)</value></data>
+  <data name="FormChinh_Quick_CheckIn_Desc" xml:space="preserve"><value>Tra cứu booking theo mã hoặc tên/SĐT và bàn giao phòng cho khách</value></data>
+  <data name="FormChinh_Quick_CheckIn_Btn" xml:space="preserve"><value>Mở Check-in →</value></data>
+  <data name="FormChinh_Quick_CheckOut_Title" xml:space="preserve"><value>CHECK-OUT (TRẢ PHÒNG)</value></data>
+  <data name="FormChinh_Quick_CheckOut_Desc" xml:space="preserve"><value>Kiểm tra phòng, tổng hợp phí dịch vụ phát sinh và thực hiện trả phòng</value></data>
+  <data name="FormChinh_Quick_CheckOut_Btn" xml:space="preserve"><value>Mở Check-out →</value></data>
+  <data name="FormChinh_Quick_ThanhToan_Title" xml:space="preserve"><value>THANH TOÁN HÓA ĐƠN</value></data>
+  <data name="FormChinh_Quick_ThanhToan_Desc" xml:space="preserve"><value>Lập hóa đơn thanh toán tiền mặt hoặc chuyển khoản QR ngân hàng</value></data>
+  <data name="FormChinh_Quick_ThanhToan_Btn" xml:space="preserve"><value>Mở Thanh toán →</value></data>
+  <data name="FormChinh_Quick_KhachHang_Title" xml:space="preserve"><value>HỒ SƠ KHÁCH HÀNG</value></data>
+  <data name="FormChinh_Quick_KhachHang_Desc" xml:space="preserve"><value>Tra cứu và quản lý thông tin khách lưu trú, CCCD, số điện thoại</value></data>
+  <data name="FormChinh_Quick_KhachHang_Btn" xml:space="preserve"><value>Mở Khách hàng →</value></data>
+  <data name="FormChinh_Quick_LichSuThongBao_Title" xml:space="preserve"><value>LỊCH SỬ THÔNG BÁO</value></data>
+  <data name="FormChinh_Quick_LichSuThongBao_Desc" xml:space="preserve"><value>Xem lịch sử và trạng thái gửi email xác nhận đặt phòng và hóa đơn PDF</value></data>
+  <data name="FormChinh_Quick_LichSuThongBao_Btn" xml:space="preserve"><value>Mở Lịch sử thông báo →</value></data>
+  <data name="FormChinh_Quick_Dashboard_Title" xml:space="preserve"><value>DASHBOARD BIỂU ĐỒ</value></data>
+  <data name="FormChinh_Quick_Dashboard_Desc" xml:space="preserve"><value>Xem trực quan 3 loại biểu đồ doanh thu, tỷ lệ lấp đầy và trạng thái phòng (LiveCharts2)</value></data>
+  <data name="FormChinh_Quick_Dashboard_Btn" xml:space="preserve"><value>Mở Dashboard →</value></data>
+  <data name="FormChinh_Quick_NhanSu_Title" xml:space="preserve"><value>QUẢN LÝ NHÂN SỰ</value></data>
+  <data name="FormChinh_Quick_NhanSu_Desc" xml:space="preserve"><value>Thêm, cập nhật danh sách nhân viên và cấp phát tài khoản phần mềm</value></data>
+  <data name="FormChinh_Quick_NhanSu_Btn" xml:space="preserve"><value>Mở Nhân sự →</value></data>
+  <data name="FormChinh_Quick_BaoCao_Title" xml:space="preserve"><value>BÁO CÁO DOANH THU</value></data>
+  <data name="FormChinh_Quick_BaoCao_Desc" xml:space="preserve"><value>Thống kê doanh thu theo kỳ, xuất file Excel chuyên nghiệp với ClosedXML</value></data>
+  <data name="FormChinh_Quick_BaoCao_Btn" xml:space="preserve"><value>Mở Báo cáo →</value></data>
+  <data name="FormChinh_Quick_Kiosk_Title" xml:space="preserve"><value>CHẾ ĐỘ KIOSK</value></data>
+  <data name="FormChinh_Quick_Kiosk_Desc" xml:space="preserve"><value>Khởi động chế độ Kiosk tra cứu tự phục vụ dành cho khách tại sảnh</value></data>
+  <data name="FormChinh_Quick_Kiosk_Btn" xml:space="preserve"><value>Mở Kiosk →</value></data>
+
+  <!-- FormDangNhap -->
+  <data name="FormDangNhap_Title" xml:space="preserve"><value>Hệ thống quản lý khách sạn — Đăng nhập</value></data>
+  <data name="FormDangNhap_Brand" xml:space="preserve"><value>HOTEL MANAGEMENT • RESORT &amp; SUITES</value></data>
+  <data name="FormDangNhap_Header" xml:space="preserve"><value>ĐĂNG NHẬP HỆ THỐNG</value></data>
+  <data name="FormDangNhap_Username" xml:space="preserve"><value>Tên đăng nhập</value></data>
+  <data name="FormDangNhap_UsernamePlaceholder" xml:space="preserve"><value>Nhập tài khoản nhân sự...</value></data>
+  <data name="FormDangNhap_Password" xml:space="preserve"><value>Mật khẩu</value></data>
+  <data name="FormDangNhap_PasswordPlaceholder" xml:space="preserve"><value>Nhập mật khẩu...</value></data>
+  <data name="FormDangNhap_BtnLogin" xml:space="preserve"><value>ĐĂNG NHẬP</value></data>
+  <data name="FormDangNhap_BtnKiosk" xml:space="preserve"><value>🖥️  Chế độ Kiosk tra cứu (Dành cho khách hàng)</value></data>
+  <data name="FormDangNhap_Footer" xml:space="preserve"><value>Phiên bản bảo mật nội bộ — Ban Quản Lý &amp; Lễ Tân</value></data>
+  <data name="FormDangNhap_ErrEmpty" xml:space="preserve"><value>Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.</value></data>
+  <data name="FormDangNhap_ErrGeneral" xml:space="preserve"><value>Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.</value></data>
+
+  <!-- FormKiosk -->
+  <data name="FormKiosk_Title" xml:space="preserve"><value>RESORT &amp; HOTEL MANAGEMENT - KIOSK</value></data>
+  <data name="FormKiosk_HeaderHotel" xml:space="preserve"><value>🛎️ RESORT &amp; HOTEL MANAGEMENT  •  KIOSK TRA CỨU ĐẶT PHÒNG</value></data>
+  <data name="FormKiosk_HeaderSub" xml:space="preserve"><value>Hệ thống tự phục vụ dành cho Quý khách hàng (Tra cứu thông tin nhận phòng bằng Mã Booking và Số điện thoại).</value></data>
+  <data name="FormKiosk_SearchTitle" xml:space="preserve"><value>1. XÁC THỰC THÔNG TIN ĐẶT PHÒNG</value></data>
+  <data name="FormKiosk_SearchSub" xml:space="preserve"><value>Vì lý do bảo mật quyền riêng tư của Quý khách, vui lòng nhập chính xác cả Mã Booking và Số điện thoại đăng ký:</value></data>
+  <data name="FormKiosk_MaBookingTitle" xml:space="preserve"><value>MÃ ĐẶT PHÒNG (BOOKING CODE):</value></data>
+  <data name="FormKiosk_MaBookingPlaceholder" xml:space="preserve"><value>VD: BK261030134850</value></data>
+  <data name="FormKiosk_SdtTitle" xml:space="preserve"><value>SỐ ĐIỆN THOẠI ĐẶT PHÒNG:</value></data>
+  <data name="FormKiosk_SdtPlaceholder" xml:space="preserve"><value>VD: 0987654321</value></data>
+  <data name="FormKiosk_BtnTraCuu" xml:space="preserve"><value>🔍  TRA CỨU THÔNG TIN PHÒNG</value></data>
+  <data name="FormKiosk_BtnXoaTrang" xml:space="preserve"><value>🔄  Nhập lại thông tin</value></data>
+  <data name="FormKiosk_ErrEmpty" xml:space="preserve"><value>Vui lòng nhập đầy đủ cả Mã Booking và Số điện thoại.</value></data>
+  <data name="FormKiosk_ErrNotFound" xml:space="preserve"><value>Không tìm thấy thông tin đặt phòng. Vui lòng kiểm tra lại mã booking và số điện thoại.</value></data>
+  <data name="FormKiosk_Searching" xml:space="preserve"><value>Đang tra cứu dữ liệu...</value></data>
+  <data name="FormKiosk_ResultTitle" xml:space="preserve"><value>2. THÔNG TIN PHÒNG NGHỈ CỦA BẠN</value></data>
+  <data name="FormKiosk_PlaceholderText" xml:space="preserve"><value>Vui lòng nhập Mã Booking và Số điện thoại bên trái rồi bấm nút 'TRA CỨU THÔNG TIN PHÒNG'.&#xD;&#xA;&#xD;&#xA;🔒 Vì an toàn thông tin, hệ thống chỉ hiển thị chi tiết khi cả hai thông tin trùng khớp hoàn toàn.</value></data>
+  <data name="FormKiosk_Res_MaBooking" xml:space="preserve"><value>Mã booking:</value></data>
+  <data name="FormKiosk_Res_TrangThai" xml:space="preserve"><value>Trạng thái:</value></data>
+  <data name="FormKiosk_Res_KhachHang" xml:space="preserve"><value>Khách hàng:</value></data>
+  <data name="FormKiosk_Res_ThoiGian" xml:space="preserve"><value>Thời gian:</value></data>
+  <data name="FormKiosk_Res_SoKhach" xml:space="preserve"><value>Số khách:</value></data>
+  <data name="FormKiosk_Res_ThanhToan" xml:space="preserve"><value>Thanh toán:</value></data>
+  <data name="FormKiosk_Res_DichVu" xml:space="preserve"><value>Dịch vụ:</value></data>
+  <data name="FormKiosk_Res_TongTien" xml:space="preserve"><value>Tổng tiền:</value></data>
+  <data name="FormKiosk_Res_None" xml:space="preserve"><value>(Không có)</value></data>
+  <data name="FormKiosk_Res_Paid" xml:space="preserve"><value>Đã thanh toán đủ</value></data>
+  <data name="FormKiosk_Res_Unpaid" xml:space="preserve"><value>Chưa thanh toán đủ</value></data>
+  <data name="FormKiosk_BtnXoaKetQua" xml:space="preserve"><value>🧹  Xong / Xóa kết quả</value></data>
+  <data name="FormKiosk_AutoClearCount" xml:space="preserve"><value>⏱️ Tự động xóa sau: {0}s</value></data>
+  <data name="FormKiosk_HelpText" xml:space="preserve"><value>📞 Quý khách cần hỗ trợ nhận phòng / check-in sớm? Vui lòng liên hệ trực tiếp quầy Lễ tân sảnh chính để được phục vụ chu đáo.</value></data>
+  <data name="FormKiosk_Exit_Title" xml:space="preserve"><value>Xác thực Quản trị viên (Admin)</value></data>
+  <data name="FormKiosk_Exit_Prompt" xml:space="preserve"><value>Nhập mật khẩu Admin để thoát chế độ Kiosk:</value></data>
+  <data name="FormKiosk_Exit_BtnOk" xml:space="preserve"><value>Thoát Kiosk</value></data>
+  <data name="FormKiosk_Exit_BtnCancel" xml:space="preserve"><value>Hủy</value></data>
+  <data name="FormKiosk_Exit_ErrEmpty" xml:space="preserve"><value>Vui lòng nhập mật khẩu Quản trị viên.</value></data>
+  <data name="FormKiosk_Exit_ErrWrong" xml:space="preserve"><value>Mật khẩu Admin không đúng hoặc tài khoản bị khóa.</value></data>
+  <data name="FormKiosk_Exit_Checking" xml:space="preserve"><value>Đang kiểm tra...</value></data>
+</root>
+

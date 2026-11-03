@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using HotelManagement.BLL.DTOs;
 using HotelManagement.BLL.Services;
+using HotelManagement.Localization;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManagement.Forms
@@ -13,6 +14,7 @@ namespace HotelManagement.Forms
     /// Màn hình Kiosk tra cứu thông tin đặt phòng tự phục vụ tại sảnh khách sạn (DCKLTTQ-85).
     /// Chạy ở chế độ Toàn màn hình (Full-screen, không thanh tiêu đề, không menu quản trị).
     /// Bắt buộc nhập đồng thời Mã Booking và Số điện thoại để bảo mật thông tin khách hàng.
+    /// Hỗ trợ đa ngôn ngữ Việt / Anh tức thì (DCKLTTQ-86).
     /// </summary>
     public partial class FormKiosk : Form
     {
@@ -23,6 +25,7 @@ namespace HotelManagement.Forms
         private System.Windows.Forms.Timer? _clockTimer;
         private System.Windows.Forms.Timer? _autoClearTimer;
         private int _secondsRemaining = 60;
+        private KioskBookingDto? _currentBooking;
 
         public FormKiosk()
         {
@@ -33,6 +36,7 @@ namespace HotelManagement.Forms
             InitializeComponent();
 
             KhoiTaoSuKienVaDongHo();
+            CapNhatNgonNgu();
         }
 
         private void KhoiTaoSuKienVaDongHo()
@@ -67,7 +71,7 @@ namespace HotelManagement.Forms
                 }
                 else
                 {
-                    _lblAutoClearCount.Text = $"⏱️ Tự động xóa sau: {_secondsRemaining}s";
+                    _lblAutoClearCount.Text = string.Format(LanguageManager.GetString("FormKiosk_AutoClearCount"), _secondsRemaining);
                 }
             };
 
@@ -117,14 +121,14 @@ namespace HotelManagement.Forms
             // Validate cả 2 trường bắt buộc
             if (string.IsNullOrEmpty(maBooking) || string.IsNullOrEmpty(sdt))
             {
-                HienThiThongBaoLoi("Vui lòng nhập đầy đủ cả Mã đặt phòng và Số điện thoại.");
+                HienThiThongBaoLoi(LanguageManager.GetString("FormKiosk_ErrEmpty"));
                 return;
             }
 
             try
             {
                 _btnTraCuu.Enabled = false;
-                _btnTraCuu.Text = "⏳  ĐANG TRA CỨU HỆ THỐNG...";
+                _btnTraCuu.Text = "⏳  " + LanguageManager.GetString("FormKiosk_Searching");
 
                 // Gọi tầng BLL xác thực cả 2 yếu tố
                 var booking = await _kioskService.TraCuuBookingAsync(maBooking, sdt);
@@ -132,23 +136,24 @@ namespace HotelManagement.Forms
                 if (booking == null)
                 {
                     // Thông báo chung chung để tránh dò thông tin khách khác
-                    HienThiThongBaoLoi("Không tìm thấy thông tin đặt phòng.\nVui lòng kiểm tra lại mã booking và số điện thoại.");
+                    HienThiThongBaoLoi(LanguageManager.GetString("FormKiosk_ErrNotFound"));
                     HienThiTrangThaiCho();
                 }
                 else
                 {
                     AnThongBaoLoi();
+                    _currentBooking = booking;
                     HienThiKetQuaBooking(booking);
                 }
             }
             catch (Exception ex)
             {
-                HienThiThongBaoLoi("Hệ thống tạm thời bận. Vui lòng liên hệ nhân viên lễ tân: " + ex.Message);
+                HienThiThongBaoLoi(ex.Message);
             }
             finally
             {
                 _btnTraCuu.Enabled = true;
-                _btnTraCuu.Text = "🔍  TRA CỨU THÔNG TIN PHÒNG";
+                _btnTraCuu.Text = LanguageManager.GetString("FormKiosk_BtnTraCuu");
             }
         }
 
@@ -157,7 +162,7 @@ namespace HotelManagement.Forms
             _pnlResultPlaceholder.Visible = false;
             _pnlResultContent.Visible = true;
 
-            _lblResMaBooking.Text = $"MÃ BOOKING: {res.MaBooking}";
+            _lblResMaBooking.Text = $"{LanguageManager.GetString("FormKiosk_Res_MaBooking")} {res.MaBooking}";
             _lblResTrangThai.Text = res.TrangThaiBooking.ToUpperInvariant();
 
             // Màu badge trạng thái
@@ -173,38 +178,49 @@ namespace HotelManagement.Forms
                 _lblResTrangThai.ForeColor = AppTheme.StatusWarningText;
             }
 
-            _lblResKhachHang.Text = $"Quý khách: {res.TenKhachHang}";
-            _lblResThoiGian.Text = $"Thời gian lưu trú: {res.NgayNhanDuKien:dd/MM/yyyy}  ➔  {res.NgayTraDuKien:dd/MM/yyyy}  ({res.SoDem} đêm)";
-            _lblResSoKhach.Text = $"Số lượng khách: {res.SoNguoi} khách";
+            string nightWord = LanguageManager.CurrentLanguage == AppLanguage.English ? "nights" : "đêm";
+            string guestWord = LanguageManager.CurrentLanguage == AppLanguage.English ? "guests" : "khách";
+
+            _lblResKhachHang.Text = $"{LanguageManager.GetString("FormKiosk_Res_KhachHang")} {res.TenKhachHang}";
+            _lblResThoiGian.Text = $"{LanguageManager.GetString("FormKiosk_Res_ThoiGian")} {res.NgayNhanDuKien:dd/MM/yyyy}  ➔  {res.NgayTraDuKien:dd/MM/yyyy}  ({res.SoDem} {nightWord})";
+            _lblResSoKhach.Text = $"{LanguageManager.GetString("FormKiosk_Res_SoKhach")} {res.SoNguoi} {guestWord}";
 
             // Danh sách phòng
             _lstPhong.Items.Clear();
             if (res.DanhSachPhong != null && res.DanhSachPhong.Any())
             {
+                string roomWord = LanguageManager.CurrentLanguage == AppLanguage.English ? "Room" : "Phòng";
                 foreach (var p in res.DanhSachPhong)
                 {
-                    _lstPhong.Items.Add($"  🏠 Phòng {p.SoPhong}  •  {p.TenLoaiPhong}");
+                    _lstPhong.Items.Add($"  🏠 {roomWord} {p.SoPhong}  •  {p.TenLoaiPhong}");
                 }
             }
             else
             {
-                _lstPhong.Items.Add("  (Chưa chỉ định phòng cụ thể)");
+                _lstPhong.Items.Add(LanguageManager.CurrentLanguage == AppLanguage.English
+                    ? "  (No specific room assigned yet)"
+                    : "  (Chưa chỉ định phòng cụ thể)");
             }
 
             // Dịch vụ
-            _lblResDichVu.Text = res.DanhSachDichVu != null && res.DanhSachDichVu.Any()
-                ? "Dịch vụ đi kèm: " + string.Join(", ", res.DanhSachDichVu)
-                : "Dịch vụ đi kèm: (Không có)";
+            string dichVuText = res.DanhSachDichVu != null && res.DanhSachDichVu.Any()
+                ? string.Join(", ", res.DanhSachDichVu)
+                : LanguageManager.GetString("FormKiosk_Res_None");
+            _lblResDichVu.Text = $"{LanguageManager.GetString("FormKiosk_Res_DichVu")} {dichVuText}";
 
             // Thanh toán
-            _lblResThanhToan.Text = $"Thanh toán: {res.TrangThaiThanhToan} (Tổng cộng: {res.TongTien:N0} đ)";
+            string paymentStatus = res.TrangThaiThanhToan.Contains("Đã thanh toán", StringComparison.OrdinalIgnoreCase)
+                ? LanguageManager.GetString("FormKiosk_Res_Paid")
+                : LanguageManager.GetString("FormKiosk_Res_Unpaid");
+
+            _lblResThanhToan.Text = $"{LanguageManager.GetString("FormKiosk_Res_ThanhToan")} {paymentStatus} ({LanguageManager.GetString("FormKiosk_Res_TongTien")} {res.TongTien:N0} đ)";
             _lblResThanhToan.ForeColor = res.TrangThaiThanhToan.Contains("Đã thanh toán", StringComparison.OrdinalIgnoreCase)
                 ? AppTheme.StatusSuccessText
                 : AppTheme.StatusWarningText;
 
             // Khởi động bộ đếm 60 giây tự động xóa
             _secondsRemaining = 60;
-            _lblAutoClearCount.Text = "⏱️ Tự động xóa sau: 60s";
+            _lblAutoClearCount.Text = string.Format(LanguageManager.GetString("FormKiosk_AutoClearCount"), 60);
             _autoClearTimer?.Stop();
             _autoClearTimer?.Start();
         }
@@ -218,6 +234,7 @@ namespace HotelManagement.Forms
 
         private void XoaTrangTatCa()
         {
+            _currentBooking = null;
             _txtMaBooking.Clear();
             _txtSdt.Clear();
             AnThongBaoLoi();
@@ -243,7 +260,7 @@ namespace HotelManagement.Forms
         private async Task XacThucThoatKioskAsync()
         {
             using var dlg = new Form();
-            dlg.Text = "Xác thực Quản trị viên (Admin)";
+            dlg.Text = LanguageManager.GetString("FormKiosk_Exit_Title");
             dlg.Size = new Size(420, 240);
             dlg.StartPosition = FormStartPosition.CenterScreen;
             dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -254,7 +271,7 @@ namespace HotelManagement.Forms
 
             var lblPrompt = new Label
             {
-                Text = "Nhập mật khẩu Admin để thoát chế độ Kiosk:",
+                Text = LanguageManager.GetString("FormKiosk_Exit_Prompt"),
                 Font = AppTheme.FontBodyBold,
                 ForeColor = AppTheme.TextPrimary,
                 Location = new Point(24, 18),
@@ -281,7 +298,7 @@ namespace HotelManagement.Forms
 
             var btnOk = new Button
             {
-                Text = "Thoát Kiosk",
+                Text = LanguageManager.GetString("FormKiosk_Exit_BtnOk"),
                 Location = new Point(155, 135),
                 Size = new Size(120, 38),
                 Cursor = Cursors.Hand
@@ -290,7 +307,7 @@ namespace HotelManagement.Forms
 
             var btnCancel = new Button
             {
-                Text = "Hủy",
+                Text = LanguageManager.GetString("FormKiosk_Exit_BtnCancel"),
                 DialogResult = DialogResult.Cancel,
                 Location = new Point(285, 135),
                 Size = new Size(95, 38),
@@ -305,7 +322,7 @@ namespace HotelManagement.Forms
                 string pass = txtPass.Text;
                 if (string.IsNullOrWhiteSpace(pass))
                 {
-                    lblError.Text = "Vui lòng nhập mật khẩu Quản trị viên.";
+                    lblError.Text = LanguageManager.GetString("FormKiosk_Exit_ErrEmpty");
                     lblError.Visible = true;
                     txtPass.Focus();
                     return;
@@ -313,7 +330,7 @@ namespace HotelManagement.Forms
 
                 btnOk.Enabled = false;
                 btnCancel.Enabled = false;
-                btnOk.Text = "Đang kiểm tra...";
+                btnOk.Text = LanguageManager.GetString("FormKiosk_Exit_Checking");
 
                 try
                 {
@@ -327,22 +344,22 @@ namespace HotelManagement.Forms
                     }
                     else
                     {
-                        lblError.Text = "Mật khẩu Admin không đúng hoặc tài khoản bị khóa.";
+                        lblError.Text = LanguageManager.GetString("FormKiosk_Exit_ErrWrong");
                         lblError.Visible = true;
                         txtPass.Clear();
                         txtPass.Focus();
                         btnOk.Enabled = true;
                         btnCancel.Enabled = true;
-                        btnOk.Text = "Thoát Kiosk";
+                        btnOk.Text = LanguageManager.GetString("FormKiosk_Exit_BtnOk");
                     }
                 }
                 catch (Exception ex)
                 {
-                    lblError.Text = "Lỗi xác thực: " + ex.Message;
+                    lblError.Text = ex.Message;
                     lblError.Visible = true;
                     btnOk.Enabled = true;
                     btnCancel.Enabled = true;
-                    btnOk.Text = "Thoát Kiosk";
+                    btnOk.Text = LanguageManager.GetString("FormKiosk_Exit_BtnOk");
                 }
             };
 
@@ -360,4 +377,3 @@ namespace HotelManagement.Forms
         }
     }
 }
-
