@@ -119,8 +119,8 @@ namespace HotelManagement.Forms
             // Nút chuyển đổi ngôn ngữ Việt / Anh ngay trên banner Kiosk (DCKLTTQ-86)
             _btnLangVi = new Button
             {
-                Text = "🇻🇳 Tiếng Việt",
-                Size = new Size(110, 36),
+                Text = "Tiếng Việt",
+                Size = new Size(100, 36),
                 Font = AppTheme.FontSmallBold,
                 Cursor = Cursors.Hand
             };
@@ -129,8 +129,8 @@ namespace HotelManagement.Forms
 
             _btnLangEn = new Button
             {
-                Text = "🇬🇧 English",
-                Size = new Size(100, 36),
+                Text = "English",
+                Size = new Size(90, 36),
                 Font = AppTheme.FontSmallBold,
                 Cursor = Cursors.Hand
             };

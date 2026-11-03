@@ -255,14 +255,14 @@ namespace HotelManagement
                 ForeColor = AppTheme.TextPrimary,
                 Cursor = Cursors.Hand
             };
-            _cboLanguage.Items.AddRange(new object[] { "🇻🇳  Tiếng Việt", "🇬🇧  English" });
-            _cboLanguage.SelectedIndex = LanguageManager.CurrentLanguage == AppLanguage.English ? 1 : 0;
+            _cboLanguage.Items.AddRange(new object[] { "Tiếng Việt (VI)", "English (EN)" });
+            _cboLanguage.SelectedIndex = HotelManagement.Localization.LanguageManager.CurrentLanguage == HotelManagement.Localization.AppLanguage.English ? 1 : 0;
             _cboLanguage.SelectedIndexChanged += (s, e) =>
             {
                 if (!_isUpdatingLanguage)
                 {
-                    var targetLang = _cboLanguage.SelectedIndex == 1 ? AppLanguage.English : AppLanguage.Vietnamese;
-                    LanguageManager.SetLanguage(targetLang);
+                    var targetLang = _cboLanguage.SelectedIndex == 1 ? HotelManagement.Localization.AppLanguage.English : HotelManagement.Localization.AppLanguage.Vietnamese;
+                    HotelManagement.Localization.LanguageManager.SetLanguage(targetLang);
                 }
             };
 
