@@ -136,34 +136,39 @@ namespace HotelManagement.Forms
             _dgvPhong.AutoGenerateColumns = false;
             _dgvPhong.DataSource = dto.DanhSachPhong;
 
-            // Xử lý nút Check-in theo trạng thái
+            // Xử lý nút Check-in và Hủy đặt phòng theo trạng thái
             if (dto.TrangThai == "Đã xác nhận")
             {
                 _btnCheckIn.Enabled = true;
-                _lblThongBao.Text = "Booking hợp lệ ở trạng thái 'Đã xác nhận'. Nhấn 'Xác nhận Check-in' để hoàn tất nhận phòng.";
+                _btnHuyDatPhong.Enabled = true;
+                _lblThongBao.Text = "Booking hợp lệ ở trạng thái 'Đã xác nhận'. Nhấn 'Xác nhận Check-in' để nhận phòng hoặc 'Hủy đặt phòng' nếu khách yêu cầu hủy.";
                 _lblThongBao.ForeColor = Color.DarkGreen;
             }
             else if (dto.TrangThai == "Đã check-in")
             {
                 _btnCheckIn.Enabled = false;
+                _btnHuyDatPhong.Enabled = false;
                 _lblThongBao.Text = $"Booking này đã hoàn tất check-in vào lúc {dto.NgayNhanThucTe:dd/MM/yyyy HH:mm}.";
                 _lblThongBao.ForeColor = Color.Navy;
             }
             else if (dto.TrangThai == "Đã check-out")
             {
                 _btnCheckIn.Enabled = false;
+                _btnHuyDatPhong.Enabled = false;
                 _lblThongBao.Text = "Booking này đã hoàn tất check-out.";
                 _lblThongBao.ForeColor = Color.Gray;
             }
             else if (dto.TrangThai == "Đã hủy")
             {
                 _btnCheckIn.Enabled = false;
+                _btnHuyDatPhong.Enabled = false;
                 _lblThongBao.Text = "Booking này đã bị hủy, không thể thực hiện check-in.";
                 _lblThongBao.ForeColor = Color.Crimson;
             }
             else
             {
                 _btnCheckIn.Enabled = false;
+                _btnHuyDatPhong.Enabled = false;
                 _lblThongBao.Text = $"Trạng thái booking '{dto.TrangThai}' không hỗ trợ check-in.";
                 _lblThongBao.ForeColor = Color.Crimson;
             }
@@ -239,6 +244,55 @@ namespace HotelManagement.Forms
             }
         }
 
+        private async Task ThucHienHuyDatPhongAsync()
+        {
+            if (_currentBooking == null) return;
+
+            string ma = _currentBooking.MaBooking;
+            string tenKhach = _currentBooking.TenKhachHang;
+
+            var confirmResult = MessageBox.Show(
+                $"Quý khách/Lễ tân có chắc chắn muốn HỦY đơn đặt phòng {ma} của khách hàng '{tenKhach}' không?\n\n" +
+                $"Lưu ý: Thao tác này sẽ giải phóng toàn bộ {_currentBooking.DanhSachPhong.Count} phòng đã giữ và không thể hoàn tác.",
+                "Xác nhận Hủy Đặt Phòng",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (confirmResult != DialogResult.Yes)
+                return;
+
+            try
+            {
+                _btnHuyDatPhong.Enabled = false;
+                _btnCheckIn.Enabled = false;
+                _btnHuyDatPhong.Text = "Đang hủy...";
+
+                var result = await _datPhongService.HuyDatPhongAsync(ma);
+                if (result.Success)
+                {
+                    MessageBox.Show(result.Message, "Thông báo thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    // Tải lại chi tiết booking sau khi hủy
+                    await TraCuuBookingAsync();
+                }
+                else
+                {
+                    MessageBox.Show(result.Message, "Không thể hủy đặt phòng", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    _btnHuyDatPhong.Enabled = true;
+                    _btnCheckIn.Enabled = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi thực hiện hủy đặt phòng: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _btnHuyDatPhong.Enabled = true;
+                _btnCheckIn.Enabled = true;
+            }
+            finally
+            {
+                _btnHuyDatPhong.Text = "❌ Hủy đặt phòng";
+            }
+        }
+
         private void XoaTrangForm()
         {
             _txtMaBooking.Clear();
@@ -265,6 +319,7 @@ namespace HotelManagement.Forms
             _lblSoNguoiVal.Text = "-";
             _dgvPhong.DataSource = null;
             _btnCheckIn.Enabled = false;
+            _btnHuyDatPhong.Enabled = false;
         }
     }
 }

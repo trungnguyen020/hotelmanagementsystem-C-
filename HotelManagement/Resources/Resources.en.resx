@@ -185,5 +185,18 @@
   <data name="FormKiosk_Exit_ErrEmpty" xml:space="preserve"><value>Please enter Admin password.</value></data>
   <data name="FormKiosk_Exit_ErrWrong" xml:space="preserve"><value>Incorrect Admin password or account locked.</value></data>
   <data name="FormKiosk_Exit_Checking" xml:space="preserve"><value>Verifying...</value></data>
+  <!-- FormKiosk Chatbot (DCKLTTQ-88) -->
+  <data name="FormKiosk_BtnMoChatbot" xml:space="preserve"><value>💬  AI Assistant (Room Advice)</value></data>
+  <data name="FormKiosk_ChatTitle" xml:space="preserve"><value>KIOSK VIRTUAL ASSISTANT</value></data>
+  <data name="FormKiosk_ChatSub" xml:space="preserve"><value>Room advice &amp; hotel policies</value></data>
+  <data name="FormKiosk_ChatReset" xml:space="preserve"><value>🔄 Reset</value></data>
+  <data name="FormKiosk_ChatPlaceholder" xml:space="preserve"><value>Type your question here...</value></data>
+  <data name="FormKiosk_ChatSend" xml:space="preserve"><value>Send ➤</value></data>
+  <data name="FormKiosk_ChatThinking" xml:space="preserve"><value>⏳ Assistant is replying...</value></data>
+  <data name="FormKiosk_ChatWelcome" xml:space="preserve"><value>Hello! 🛎️ I am your hotel virtual assistant. I can advise you on room types, rates, today's room availability, and check-in/out policies. How may I assist you today?</value></data>
+  <data name="FormKiosk_ChipGiaPhong" xml:space="preserve"><value>💰 Room rates</value></data>
+  <data name="FormKiosk_ChipCheckIn" xml:space="preserve"><value>⏰ Check-in/out hours</value></data>
+  <data name="FormKiosk_ChipPhongTrong" xml:space="preserve"><value>📅 Any rooms available today?</value></data>
+  <data name="FormKiosk_ChipChinhSachHuy" xml:space="preserve"><value>❌ Cancellation policy</value></data>
 </root>
 

@@ -185,5 +185,18 @@
   <data name="FormKiosk_Exit_ErrEmpty" xml:space="preserve"><value>Vui lòng nhập mật khẩu Quản trị viên.</value></data>
   <data name="FormKiosk_Exit_ErrWrong" xml:space="preserve"><value>Mật khẩu Admin không đúng hoặc tài khoản bị khóa.</value></data>
   <data name="FormKiosk_Exit_Checking" xml:space="preserve"><value>Đang kiểm tra...</value></data>
+  <!-- FormKiosk Chatbot (DCKLTTQ-88) -->
+  <data name="FormKiosk_BtnMoChatbot" xml:space="preserve"><value>💬  Trợ lý ảo tư vấn phòng</value></data>
+  <data name="FormKiosk_ChatTitle" xml:space="preserve"><value>TRỢ LÝ ẢO KIOSK</value></data>
+  <data name="FormKiosk_ChatSub" xml:space="preserve"><value>Tư vấn phòng &amp; chính sách khách sạn</value></data>
+  <data name="FormKiosk_ChatReset" xml:space="preserve"><value>🔄 Làm mới</value></data>
+  <data name="FormKiosk_ChatPlaceholder" xml:space="preserve"><value>Nhập câu hỏi của quý khách...</value></data>
+  <data name="FormKiosk_ChatSend" xml:space="preserve"><value>Gửi ➤</value></data>
+  <data name="FormKiosk_ChatThinking" xml:space="preserve"><value>⏳ Trợ lý ảo đang phản hồi...</value></data>
+  <data name="FormKiosk_ChatWelcome" xml:space="preserve"><value>Xin chào Quý khách! 🛎️ Em là trợ lý ảo của khách sạn. Em có thể giải đáp cho Quý khách về các loại phòng, mức giá, số phòng trống hôm nay và chính sách nhận/trả phòng. Quý khách cần em tư vấn thông tin gì ạ?</value></data>
+  <data name="FormKiosk_ChipGiaPhong" xml:space="preserve"><value>💰 Giá các loại phòng</value></data>
+  <data name="FormKiosk_ChipCheckIn" xml:space="preserve"><value>⏰ Giờ check-in/out</value></data>
+  <data name="FormKiosk_ChipPhongTrong" xml:space="preserve"><value>📅 Hôm nay còn phòng không?</value></data>
+  <data name="FormKiosk_ChipChinhSachHuy" xml:space="preserve"><value>❌ Chính sách hủy phòng</value></data>
 </root>
 

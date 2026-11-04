@@ -52,6 +52,7 @@ internal static class Program
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IKioskService, KioskService>();
+        services.AddScoped<IChatbotService, ChatbotService>();
 
         ServiceProvider = services.BuildServiceProvider();
 

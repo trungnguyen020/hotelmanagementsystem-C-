@@ -50,6 +50,7 @@ namespace HotelManagement.Forms
 
         // UI Controls - Thao tác
         private Label _lblThongBao = null!;
+        private Button _btnHuyDatPhong = null!;
         private Button _btnCheckIn = null!;
         private Button _btnDong = null!;
 
@@ -277,6 +278,22 @@ namespace HotelManagement.Forms
                 Font = new Font(Font, FontStyle.Italic)
             };
 
+            _btnHuyDatPhong = new Button
+            {
+                Text = "❌ Hủy đặt phòng",
+                Location = new Point(730, 10),
+                Size = new Size(150, 40),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                BackColor = Color.FromArgb(192, 57, 43),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10f, FontStyle.Bold),
+                Cursor = Cursors.Hand,
+                Enabled = false
+            };
+            _btnHuyDatPhong.FlatAppearance.BorderSize = 0;
+            _btnHuyDatPhong.Click += async (_, _) => await ThucHienHuyDatPhongAsync();
+
             _btnCheckIn = new Button
             {
                 Text = "Xác nhận Check-in",
@@ -303,7 +320,7 @@ namespace HotelManagement.Forms
             };
             _btnDong.Click += (_, _) => Close();
 
-            pnlBottom.Controls.AddRange(new Control[] { _lblThongBao, _btnCheckIn, _btnDong });
+            pnlBottom.Controls.AddRange(new Control[] { _lblThongBao, _btnHuyDatPhong, _btnCheckIn, _btnDong });
 
             // Thêm tất cả vào Form
             Controls.AddRange(new Control[] { grpTraCuu, grpThongTin, grpDanhSachPhong, pnlBottom });

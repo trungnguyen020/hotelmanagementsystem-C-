@@ -25,6 +25,12 @@ namespace HotelManagement.BLL.Services
         Task<(bool Success, string Message)> CheckInAsync(string maBooking);
 
         /// <summary>
+        /// Thực hiện hủy đơn đặt phòng khi khách có yêu cầu hoặc không đến (No-show).
+        /// Chỉ cho phép hủy booking đang ở trạng thái "Đã xác nhận", cập nhật trạng thái sang "Đã hủy" và giải phóng phòng trong transaction.
+        /// </summary>
+        Task<(bool Success, string Message)> HuyDatPhongAsync(string maBooking, string? lyDoHuy = null);
+
+        /// <summary>
         /// Lấy danh mục dịch vụ phục vụ chọn dịch vụ phát sinh (DCKLTTQ-72).
         /// </summary>
         Task<List<DichVuDto>> LayDanhSachDichVuAsync();

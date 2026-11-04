@@ -55,8 +55,21 @@ namespace HotelManagement.Forms
 
             // 5. Bottom Footer
             if (_lblHelpText != null) _lblHelpText.Text = LanguageManager.GetString("FormKiosk_HelpText");
+            if (_btnMoChatbot != null) _btnMoChatbot.Text = LanguageManager.GetString("FormKiosk_BtnMoChatbot", "💬  Trợ lý ảo tư vấn phòng");
 
-            // 6. Nếu đang có kết quả hiển thị, cập nhật lại nhãn kết quả
+            // 6. Chatbot Drawer Controls (DCKLTTQ-88)
+            if (_lblChatBotTitle != null) _lblChatBotTitle.Text = LanguageManager.GetString("FormKiosk_ChatTitle", "TRỢ LÝ ẢO KIOSK");
+            if (_lblChatBotSub != null) _lblChatBotSub.Text = LanguageManager.GetString("FormKiosk_ChatSub", "Tư vấn phòng & chính sách khách sạn");
+            if (_btnChatReset != null) _btnChatReset.Text = LanguageManager.GetString("FormKiosk_ChatReset", "🔄 Làm mới");
+            if (_txtChatInput != null) _txtChatInput.PlaceholderText = LanguageManager.GetString("FormKiosk_ChatPlaceholder", "Nhập câu hỏi của quý khách...");
+            if (_btnChatSend != null) _btnChatSend.Text = LanguageManager.GetString("FormKiosk_ChatSend", "Gửi ➤");
+            if (_lblChatStatus != null) _lblChatStatus.Text = LanguageManager.GetString("FormKiosk_ChatThinking", "⏳ Trợ lý ảo đang phản hồi...");
+            if (_btnChipGiaPhong != null) _btnChipGiaPhong.Text = LanguageManager.GetString("FormKiosk_ChipGiaPhong", "💰 Giá các loại phòng");
+            if (_btnChipCheckIn != null) _btnChipCheckIn.Text = LanguageManager.GetString("FormKiosk_ChipCheckIn", "⏰ Giờ check-in/out");
+            if (_btnChipPhongTrong != null) _btnChipPhongTrong.Text = LanguageManager.GetString("FormKiosk_ChipPhongTrong", "📅 Còn phòng không?");
+            if (_btnChipChinhSachHuy != null) _btnChipChinhSachHuy.Text = LanguageManager.GetString("FormKiosk_ChipChinhSachHuy", "❌ Chính sách hủy phòng");
+
+            // 7. Nếu đang có kết quả hiển thị, cập nhật lại nhãn kết quả
             if (_currentBooking != null)
             {
                 HienThiKetQuaBooking(_currentBooking);

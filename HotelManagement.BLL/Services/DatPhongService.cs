@@ -250,6 +250,50 @@ namespace HotelManagement.BLL.Services
             }
         }
 
+        public async Task<(bool Success, string Message)> HuyDatPhongAsync(string maBooking, string? lyDoHuy = null)
+        {
+            if (string.IsNullOrWhiteSpace(maBooking))
+                return (false, "Mã booking không được để trống.");
+
+            var dp = await _unitOfWork.DatPhongRepository.GetByMaBookingAsync(maBooking.Trim());
+            if (dp is null)
+                return (false, $"Không tìm thấy đơn đặt phòng với mã booking '{maBooking}'.");
+
+            var datPhong = await _unitOfWork.DatPhongRepository.GetChiTietDayDuAsync(dp.IdDatphong);
+            if (datPhong is null)
+                return (false, $"Không thể lấy chi tiết đặt phòng cho mã booking '{maBooking}'.");
+
+            if (datPhong.Trangthai == "Đã hủy")
+                return (false, "Đơn đặt phòng này đã bị hủy trước đó.");
+
+            if (datPhong.Trangthai == "Đã check-in")
+                return (false, "Khách hàng đã nhận phòng (Đã check-in), không thể thực hiện hủy phòng. Vui lòng thực hiện quy trình Check-out.");
+
+            if (datPhong.Trangthai == "Đã check-out")
+                return (false, "Đơn đặt phòng này đã hoàn tất check-out, không thể hủy.");
+
+            if (datPhong.Trangthai != "Đã xác nhận")
+                return (false, $"Trạng thái booking ({datPhong.Trangthai}) không hợp lệ để hủy đặt phòng.");
+
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+
+                // Cập nhật trạng thái đặt phòng sang 'Đã hủy'
+                datPhong.Trangthai = "Đã hủy";
+                datPhong.UpdatedAt = DateTime.Now;
+                _unitOfWork.DatPhongRepository.Update(datPhong);
+
+                await _unitOfWork.CommitTransactionAsync();
+                return (true, $"Đã hủy thành công đơn đặt phòng {datPhong.Mabooking}!");
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return (false, "Có lỗi xảy ra khi thực hiện hủy đặt phòng: " + ex.Message);
+            }
+        }
+
         public async Task<List<DichVuDto>> LayDanhSachDichVuAsync()
         {
             var ds = await _unitOfWork.DichVuRepository.GetAllAsync();

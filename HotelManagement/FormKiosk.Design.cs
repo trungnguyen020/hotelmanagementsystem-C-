@@ -64,7 +64,28 @@ namespace HotelManagement.Forms
         // Bottom Footer
         private Panel _pnlFooter = null!;
         private Label _lblHelpText = null!;
+        private Button _btnMoChatbot = null!;
         private Button _btnThoatKiosk = null!;
+
+        // Chatbot Panel Controls (DCKLTTQ-88)
+        private Panel _pnlChatDrawer = null!;
+        private Panel _pnlChatHeader = null!;
+        private Label _lblChatBotIcon = null!;
+        private Label _lblChatBotTitle = null!;
+        private Label _lblChatBotSub = null!;
+        private Button _btnChatReset = null!;
+        private Button _btnChatClose = null!;
+        private FlowLayoutPanel _flpChatMessages = null!;
+        private Panel _pnlChatBottom = null!;
+        private Label _lblChatStatus = null!;
+        private FlowLayoutPanel _flpSuggestions = null!;
+        private Button _btnChipGiaPhong = null!;
+        private Button _btnChipCheckIn = null!;
+        private Button _btnChipPhongTrong = null!;
+        private Button _btnChipChinhSachHuy = null!;
+        private Panel _pnlChatInputRow = null!;
+        private TextBox _txtChatInput = null!;
+        private Button _btnChatSend = null!;
 
         #endregion
 
@@ -182,12 +203,25 @@ namespace HotelManagement.Forms
             };
             _btnThoatKiosk.FlatAppearance.BorderSize = 0;
             _btnThoatKiosk.Location = new Point(_pnlFooter.Width - 60, 11);
-            _pnlFooter.Resize += (s, e) =>
+            _btnMoChatbot = new Button
+            {
+                Text = "💬  Trợ lý ảo tư vấn phòng",
+                Size = new Size(250, 40),
+                Font = AppTheme.FontBodyBold,
+                Cursor = Cursors.Hand
+            };
+            AppTheme.ApplyPrimaryButton(_btnMoChatbot);
+
+            void CanChinhFooter()
             {
                 _btnThoatKiosk.Location = new Point(_pnlFooter.ClientSize.Width - 60, 11);
-            };
+                _btnMoChatbot.Location = new Point(_btnThoatKiosk.Left - _btnMoChatbot.Width - 16, 10);
+            }
 
-            _pnlFooter.Controls.AddRange(new Control[] { _lblHelpText, _btnThoatKiosk });
+            _pnlFooter.Resize += (s, e) => CanChinhFooter();
+            CanChinhFooter();
+
+            _pnlFooter.Controls.AddRange(new Control[] { _lblHelpText, _btnMoChatbot, _btnThoatKiosk });
 
             // ================= 3. Main Center Area (TableLayoutPanel 2 Columns) =================
             var pnlContainer = new Panel
@@ -505,7 +539,206 @@ namespace HotelManagement.Forms
             // Ghép 2 cột vào TableLayoutPanel
             _tlpMain.Controls.Add(_pnlSearchCard, 0, 0);
             _tlpMain.Controls.Add(_pnlResultCard, 1, 0);
+
+            // ================= 4. Khung Chatbot AI Drawer (DCKLTTQ-88) =================
+            _pnlChatDrawer = new Panel
+            {
+                Width = 470,
+                Dock = DockStyle.Right,
+                Visible = false,
+                BackColor = AppTheme.Surface,
+                Padding = new Padding(16, 12, 16, 12)
+            };
+            AppTheme.ApplyCardPanel(_pnlChatDrawer);
+
+            // 4.1 Header của Drawer
+            _pnlChatHeader = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 58,
+                BackColor = Color.Transparent
+            };
+
+            _lblChatBotIcon = new Label
+            {
+                Text = "🤖",
+                Font = new Font("Segoe UI Emoji", 16F, FontStyle.Regular),
+                Location = new Point(4, 8),
+                AutoSize = true
+            };
+
+            _lblChatBotTitle = new Label
+            {
+                Text = "TRỢ LÝ ẢO KIOSK",
+                Font = AppTheme.FontSubHeader,
+                ForeColor = AppTheme.Primary,
+                Location = new Point(44, 8),
+                AutoSize = true
+            };
+
+            _lblChatBotSub = new Label
+            {
+                Text = "Tư vấn phòng & chính sách khách sạn",
+                Font = AppTheme.FontSmall,
+                ForeColor = AppTheme.TextSecondary,
+                Location = new Point(45, 30),
+                AutoSize = true
+            };
+
+            _btnChatReset = new Button
+            {
+                Text = "🔄 Làm mới",
+                Size = new Size(96, 32),
+                Font = AppTheme.FontSmallBold,
+                Cursor = Cursors.Hand
+            };
+            AppTheme.ApplySecondaryButton(_btnChatReset);
+
+            _btnChatClose = new Button
+            {
+                Text = "✕",
+                Size = new Size(36, 32),
+                Font = new Font("Segoe UI", 11F, FontStyle.Bold),
+                ForeColor = AppTheme.TextSecondary,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
+            };
+            _btnChatClose.FlatAppearance.BorderSize = 0;
+
+            void CanChinhChatHeader()
+            {
+                _btnChatClose.Location = new Point(_pnlChatHeader.ClientSize.Width - 40, 10);
+                _btnChatReset.Location = new Point(_btnChatClose.Left - 104, 10);
+            }
+            _pnlChatHeader.Resize += (s, e) => CanChinhChatHeader();
+            CanChinhChatHeader();
+
+            _pnlChatHeader.Controls.AddRange(new Control[]
+            {
+                _lblChatBotIcon, _lblChatBotTitle, _lblChatBotSub,
+                _btnChatReset, _btnChatClose
+            });
+
+            // 4.2 Bottom Input & Gợi ý câu hỏi nhanh
+            _pnlChatBottom = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 142,
+                BackColor = Color.Transparent
+            };
+
+            _lblChatStatus = new Label
+            {
+                Text = "⏳ Trợ lý ảo đang phản hồi...",
+                Dock = DockStyle.Top,
+                Height = 20,
+                Font = AppTheme.FontCaption,
+                ForeColor = AppTheme.Primary,
+                Visible = false
+            };
+
+            _flpSuggestions = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Top,
+                Height = 66,
+                WrapContents = true,
+                FlowDirection = FlowDirection.LeftToRight,
+                Padding = new Padding(0, 4, 0, 4),
+                BackColor = Color.Transparent
+            };
+
+            Button TaoChip(string text)
+            {
+                var btn = new Button
+                {
+                    Text = text,
+                    Height = 28,
+                    AutoSize = true,
+                    Font = AppTheme.FontSmall,
+                    Cursor = Cursors.Hand,
+                    FlatStyle = FlatStyle.Flat,
+                    BackColor = AppTheme.SurfaceSecondary,
+                    ForeColor = AppTheme.TextPrimary,
+                    Margin = new Padding(0, 0, 6, 4)
+                };
+                btn.FlatAppearance.BorderColor = AppTheme.Border;
+                btn.FlatAppearance.BorderSize = 1;
+                return btn;
+            }
+
+            _btnChipGiaPhong = TaoChip("💰 Giá phòng");
+            _btnChipCheckIn = TaoChip("⏰ Giờ check-in/out");
+            _btnChipPhongTrong = TaoChip("📅 Còn phòng không?");
+            _btnChipChinhSachHuy = TaoChip("❌ Chính sách hủy");
+
+            _flpSuggestions.Controls.AddRange(new Control[]
+            {
+                _btnChipGiaPhong, _btnChipCheckIn,
+                _btnChipPhongTrong, _btnChipChinhSachHuy
+            });
+
+            _pnlChatInputRow = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 44,
+                BackColor = Color.Transparent
+            };
+
+            _txtChatInput = new TextBox
+            {
+                Font = AppTheme.FontBody,
+                PlaceholderText = "Nhập câu hỏi của quý khách...",
+                Location = new Point(0, 4),
+                Width = 350,
+                Height = 36,
+                Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top
+            };
+
+            _btnChatSend = new Button
+            {
+                Text = "Gửi ➤",
+                Size = new Size(82, 34),
+                Font = AppTheme.FontSmallBold,
+                Location = new Point(356, 4),
+                Anchor = AnchorStyles.Right | AnchorStyles.Top,
+                Cursor = Cursors.Hand
+            };
+            AppTheme.ApplyPrimaryButton(_btnChatSend);
+
+            void CanChinhInputRow()
+            {
+                _btnChatSend.Location = new Point(_pnlChatInputRow.ClientSize.Width - 84, 4);
+                _txtChatInput.Width = _btnChatSend.Left - 8;
+            }
+            _pnlChatInputRow.Resize += (s, e) => CanChinhInputRow();
+            CanChinhInputRow();
+
+            _pnlChatInputRow.Controls.AddRange(new Control[] { _txtChatInput, _btnChatSend });
+
+            _pnlChatBottom.Controls.AddRange(new Control[]
+            {
+                _pnlChatInputRow,
+                _flpSuggestions,
+                _lblChatStatus
+            });
+
+            // 4.3 Khung cuộn tin nhắn
+            _flpChatMessages = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                AutoScroll = true,
+                BackColor = Color.FromArgb(250, 248, 245),
+                Padding = new Padding(8, 8, 8, 8)
+            };
+
+            _pnlChatDrawer.Controls.Add(_flpChatMessages);
+            _pnlChatDrawer.Controls.Add(_pnlChatBottom);
+            _pnlChatDrawer.Controls.Add(_pnlChatHeader);
+
             pnlContainer.Controls.Add(_tlpMain);
+            pnlContainer.Controls.Add(_pnlChatDrawer);
 
             // ================= Ráp toàn bộ Form =================
             Controls.AddRange(new Control[]
