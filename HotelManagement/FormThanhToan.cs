@@ -27,6 +27,7 @@ namespace HotelManagement.Forms
 
         private HoaDonDto? _hoaDonHienTai;
         private decimal _tongTienSauGiamGia = 0;
+        private CancellationTokenSource? _ctsPdf;
 
         public FormThanhToan(string? maBooking = null)
         {
@@ -39,7 +40,19 @@ namespace HotelManagement.Forms
 
             InitializeComponent();
 
-            FormClosed += (_, _) => _scope.Dispose();
+            _btnHuyPdf.Click += (_, _) =>
+            {
+                _btnHuyPdf.Enabled = false;
+                _btnHuyPdf.Text = "Đang hủy...";
+                _ctsPdf?.Cancel();
+            };
+
+            FormClosed += (_, _) =>
+            {
+                _ctsPdf?.Cancel();
+                _ctsPdf?.Dispose();
+                _scope.Dispose();
+            };
             Load += async (_, _) =>
             {
                 TaiAnhQrTinh();
@@ -322,8 +335,8 @@ namespace HotelManagement.Forms
                 }
 
                 // 3. Luồng 2 (DCKLTTQ-81): Gửi email kèm hóa đơn PDF đính kèm sau khi thanh toán xong
-                _btnXacNhan.Text = "Đang gửi email...";
-                var emailResult = await _emailService.GuiEmailHoaDonAsync(_hoaDonHienTai.MaBooking);
+                var progressEmail = new Progress<string>(s => _btnXacNhan.Text = s.Length > 20 ? s[..20] + "..." : s);
+                var emailResult = await _emailService.GuiEmailHoaDonAsync(_hoaDonHienTai.MaBooking, progressEmail);
 
                 // DCKLTTQ-82: Ghi nhận lịch sử gửi thông báo
                 await GhiLichSuThongBaoAsync(emailResult, "HoaDon", _hoaDonHienTai.IdDatPhong, _hoaDonHienTai.IdHoaDon);
@@ -400,13 +413,25 @@ namespace HotelManagement.Forms
 
                 if (sfd.ShowDialog(this) == DialogResult.OK)
                 {
+                    _ctsPdf?.Dispose();
+                    _ctsPdf = new CancellationTokenSource();
+
+                    var progress = new Progress<string>(msg =>
+                    {
+                        _btnXuatPdf.Text = msg.Length > 20 ? msg[..20] + "..." : msg;
+                    });
+
                     _btnXuatPdf.Enabled = false;
-                    _btnXuatPdf.Text = "Đang xuất PDF...";
+                    _btnXacNhan.Enabled = false;
+                    _btnHuy.Enabled = false;
+                    _btnHuyPdf.Visible = true;
+                    _btnHuyPdf.Enabled = true;
+                    _btnHuyPdf.Text = "⛔ Hủy";
 
                     // Nạp lại dữ liệu hóa đơn mới nhất từ DB để đảm bảo tính nhất quán
                     var hoaDonMoiNhat = await _hoaDonService.LayHoaDonTheoMaBookingAsync(_hoaDonHienTai.MaBooking) ?? _hoaDonHienTai;
 
-                    await _hoaDonPdfService.XuatFilePdfAsync(hoaDonMoiNhat, sfd.FileName);
+                    await _hoaDonPdfService.XuatFilePdfAsync(hoaDonMoiNhat, sfd.FileName, null, progress, _ctsPdf.Token);
 
                     var xemNgay = MessageBox.Show(
                         $"Xuất hóa đơn PDF thành công!\n\nĐường dẫn: {sfd.FileName}\n\nBạn có muốn mở xem hóa đơn ngay bây giờ không?",
@@ -424,14 +449,21 @@ namespace HotelManagement.Forms
                     }
                 }
             }
+            catch (OperationCanceledException)
+            {
+                MessageBox.Show("Đã hủy thao tác xuất hóa đơn PDF theo yêu cầu của bạn.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
             catch (Exception ex)
             {
                 MessageBox.Show("Có lỗi xảy ra khi xuất hóa đơn PDF: " + ex.Message, "Lỗi xuất PDF", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
+                _btnHuyPdf.Visible = false;
                 _btnXuatPdf.Enabled = _hoaDonHienTai != null;
                 _btnXuatPdf.Text = "📄 Xuất hóa đơn PDF";
+                _btnXacNhan.Enabled = _hoaDonHienTai != null && _hoaDonHienTai.TrangThaiThanhtoan != "Đã thanh toán";
+                _btnHuy.Enabled = true;
             }
         }
 

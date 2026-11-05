@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
 using HotelManagement.BLL.DTOs;
@@ -8,6 +9,7 @@ namespace HotelManagement.BLL.Services
 {
     /// <summary>
     /// Triển khai dịch vụ xuất báo cáo doanh thu Excel bằng ClosedXML (DCKLTTQ-78).
+    /// Áp dụng mô hình chuẩn Task, IProgress, CancellationToken cho tác vụ nặng (DCKLTTQ-93).
     /// </summary>
     public class BaoCaoExcelService : IBaoCaoExcelService
     {
@@ -352,7 +354,11 @@ namespace HotelManagement.BLL.Services
             return memoryStream.ToArray();
         }
 
-        public async Task XuatFileExcelAsync(BaoCaoDoanhThuDto baoCao, string duongDanTep)
+        public async Task XuatFileExcelAsync(
+            BaoCaoDoanhThuDto baoCao,
+            string duongDanTep,
+            IProgress<(int PhanTram, string ThongDiep)>? progress = null,
+            CancellationToken cancellationToken = default)
         {
             if (baoCao == null)
                 throw new ArgumentNullException(nameof(baoCao), "Dữ liệu báo cáo không được để trống.");
@@ -360,14 +366,38 @@ namespace HotelManagement.BLL.Services
             if (string.IsNullOrWhiteSpace(duongDanTep))
                 throw new ArgumentException("Đường dẫn lưu tệp không được để trống.", nameof(duongDanTep));
 
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report((10, "Đang khởi tạo cấu trúc tệp báo cáo Excel..."));
+
             string? thuMuc = Path.GetDirectoryName(duongDanTep);
             if (!string.IsNullOrEmpty(thuMuc) && !Directory.Exists(thuMuc))
             {
                 Directory.CreateDirectory(thuMuc);
             }
 
-            byte[] bytes = SinhBaoCaoExcel(baoCao);
-            await File.WriteAllBytesAsync(duongDanTep, bytes);
+            // Sinh workbook trên thread nền bằng Task.Run (CPU-bound ClosedXML rendering)
+            byte[] bytes = await Task.Run(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                progress?.Report((25, "Đang tổng hợp dữ liệu và thiết lập tiêu đề báo cáo..."));
+
+                cancellationToken.ThrowIfCancellationRequested();
+                progress?.Report((50, "Đang xuất bảng chỉ số KPI và danh sách hóa đơn..."));
+
+                var result = SinhBaoCaoExcel(baoCao);
+
+                cancellationToken.ThrowIfCancellationRequested();
+                progress?.Report((85, "Đang định dạng bảng tính và hoàn tất giao diện Excel..."));
+
+                return result;
+            }, cancellationToken);
+
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report((95, "Đang ghi tệp Excel xuống ổ đĩa..."));
+
+            await File.WriteAllBytesAsync(duongDanTep, bytes, cancellationToken);
+
+            progress?.Report((100, "Xuất báo cáo Excel thành công!"));
         }
     }
 }

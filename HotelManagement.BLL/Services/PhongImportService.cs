@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
 using HotelManagement.BLL.DTOs;
@@ -12,6 +13,7 @@ namespace HotelManagement.BLL.Services
 {
     /// <summary>
     /// Triển khai dịch vụ Import phòng từ file Excel bằng ClosedXML (DCKLTTQ-79).
+    /// Áp dụng mô hình chuẩn Task, IProgress, CancellationToken cho tác vụ nặng (DCKLTTQ-93).
     /// Tuân thủ quy trình 3 bước: Đọc file -> Validate toàn bộ danh sách (gom lỗi theo dòng) -> Lưu trong 1 transaction.
     /// </summary>
     public class PhongImportService : IPhongImportService
@@ -28,7 +30,10 @@ namespace HotelManagement.BLL.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<List<PhongImportDto>> DocVaValidateAsync(string duongDanFile)
+        public async Task<List<PhongImportDto>> DocVaValidateAsync(
+            string duongDanFile,
+            IProgress<(int PhanTram, string ThongDiep)>? progress = null,
+            CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(duongDanFile))
                 throw new ArgumentException("Đường dẫn file Excel không được để trống.", nameof(duongDanFile));
@@ -36,19 +41,31 @@ namespace HotelManagement.BLL.Services
             if (!File.Exists(duongDanFile))
                 throw new FileNotFoundException($"Không tìm thấy file Excel tại đường dẫn: {duongDanFile}");
 
-            using var stream = new FileStream(duongDanFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            return await DocVaValidateAsync(stream);
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report((5, "Đang mở tệp Excel..."));
+
+            await using var stream = new FileStream(duongDanFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            return await DocVaValidateAsync(stream, progress, cancellationToken);
         }
 
-        public async Task<List<PhongImportDto>> DocVaValidateAsync(Stream stream)
+        public async Task<List<PhongImportDto>> DocVaValidateAsync(
+            Stream stream,
+            IProgress<(int PhanTram, string ThongDiep)>? progress = null,
+            CancellationToken cancellationToken = default)
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), "Dữ liệu file không được để trống.");
 
-            var danhSachTho = new List<PhongImportDto>();
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report((10, "Đang phân tích cấu trúc bảng tính Excel..."));
 
-            using (var workbook = new XLWorkbook(stream))
+            // Đọc và phân tích cấu trúc bảng tính Excel bằng Task.Run (CPU-bound)
+            var danhSachTho = await Task.Run(() =>
             {
+                cancellationToken.ThrowIfCancellationRequested();
+                var list = new List<PhongImportDto>();
+
+                using var workbook = new XLWorkbook(stream);
                 var worksheet = workbook.Worksheets.FirstOrDefault();
                 if (worksheet == null)
                     throw new InvalidOperationException("File Excel không chứa bất kỳ trang tính (worksheet) nào.");
@@ -59,10 +76,10 @@ namespace HotelManagement.BLL.Services
                 int colLoaiPhong = -1;
                 int colTrangThai = -1;
 
-                // Quét tối đa 10 dòng đầu để tìm dòng chứa tiêu đề
                 int maxScanRow = Math.Min(10, worksheet.LastRowUsed()?.RowNumber() ?? 1);
                 for (int r = 1; r <= maxScanRow; r++)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     var row = worksheet.Row(r);
                     if (row.IsEmpty()) continue;
 
@@ -80,8 +97,6 @@ namespace HotelManagement.BLL.Services
                     }
                 }
 
-                // Nếu không tự động nhận diện được tên cột qua từ khóa, dùng thứ tự mặc định:
-                // Cột 1: STT hoặc Số phòng; nếu có cột STT thì Cột 2: Số phòng, Cột 3: Loại phòng, Cột 4: Trạng thái
                 if (colSoPhong <= 0 || colLoaiPhong <= 0 || colTrangThai <= 0)
                 {
                     int lastColUsed = worksheet.LastColumnUsed()?.ColumnNumber() ?? 3;
@@ -101,8 +116,12 @@ namespace HotelManagement.BLL.Services
 
                 // 2. Đọc từng dòng dữ liệu từ dòng kế tiếp của header
                 int lastRowNumber = worksheet.LastRowUsed()?.RowNumber() ?? 0;
+                int totalRows = Math.Max(1, lastRowNumber - headerRowIndex);
+
                 for (int r = headerRowIndex + 1; r <= lastRowNumber; r++)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     var row = worksheet.Row(r);
                     if (row.IsEmpty()) continue;
 
@@ -110,7 +129,6 @@ namespace HotelManagement.BLL.Services
                     string loaiPhongVal = LayGiaTriO(row.Cell(colLoaiPhong));
                     string trangThaiVal = LayGiaTriO(row.Cell(colTrangThai));
 
-                    // Nếu cả 3 ô chính đều rỗng thì bỏ qua dòng này (tránh dòng trắng ở cuối file)
                     if (string.IsNullOrWhiteSpace(soPhongVal) &&
                         string.IsNullOrWhiteSpace(loaiPhongVal) &&
                         string.IsNullOrWhiteSpace(trangThaiVal))
@@ -118,23 +136,37 @@ namespace HotelManagement.BLL.Services
                         continue;
                     }
 
-                    danhSachTho.Add(new PhongImportDto
+                    list.Add(new PhongImportDto
                     {
                         DongThuTu = r,
                         SoPhong = soPhongVal,
                         TenLoaiPhong = loaiPhongVal,
                         TrangThai = trangThaiVal
                     });
+
+                    int percent = 10 + (int)((r - headerRowIndex) * 40.0 / totalRows);
+                    progress?.Report((percent, $"Đang đọc dòng {r}/{lastRowNumber} trong file Excel..."));
                 }
-            }
+
+                return list;
+            }, cancellationToken);
+
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report((50, $"Đã đọc {danhSachTho.Count} dòng dữ liệu. Đang chuẩn bị kiểm tra với cơ sở dữ liệu..."));
 
             // 3. Thực hiện Validate toàn diện danh sách và gom lỗi theo dòng
-            await ValidateDanhSachPhongAsync(danhSachTho);
+            await ValidateDanhSachPhongAsync(danhSachTho, progress, cancellationToken);
+
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report((100, $"Đã hoàn tất kiểm tra {danhSachTho.Count} dòng dữ liệu!"));
 
             return danhSachTho;
         }
 
-        public async Task<int> LuuDanhSachHopLeAsync(IEnumerable<PhongImportDto> danhSach)
+        public async Task<int> LuuDanhSachHopLeAsync(
+            IEnumerable<PhongImportDto> danhSach,
+            IProgress<(int PhanTram, string ThongDiep)>? progress = null,
+            CancellationToken cancellationToken = default)
         {
             if (danhSach == null)
                 throw new ArgumentNullException(nameof(danhSach), "Danh sách dữ liệu không được null.");
@@ -143,11 +175,17 @@ namespace HotelManagement.BLL.Services
             if (danhSachHopLe.Count == 0)
                 return 0;
 
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report((5, $"Bắt đầu mở transaction lưu {danhSachHopLe.Count} phòng vào cơ sở dữ liệu..."));
+
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                foreach (var item in danhSachHopLe)
+                for (int i = 0; i < danhSachHopLe.Count; i++)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var item = danhSachHopLe[i];
                     var phong = new Phong
                     {
                         Sophong = item.SoPhong.Trim(),
@@ -156,10 +194,23 @@ namespace HotelManagement.BLL.Services
                     };
 
                     await _unitOfWork.PhongRepository.AddAsync(phong);
+
+                    int percent = 5 + (int)((i + 1) * 85.0 / danhSachHopLe.Count);
+                    progress?.Report((percent, $"Đang lưu phòng '{phong.Sophong}' ({i + 1}/{danhSachHopLe.Count})..."));
                 }
 
+                cancellationToken.ThrowIfCancellationRequested();
+                progress?.Report((95, "Đang hoàn tất xác nhận transaction vào cơ sở dữ liệu..."));
+
                 await _unitOfWork.CommitTransactionAsync();
+
+                progress?.Report((100, $"Đã lưu thành công toàn bộ {danhSachHopLe.Count} phòng!"));
                 return danhSachHopLe.Count;
+            }
+            catch (OperationCanceledException)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
             }
             catch
             {
@@ -293,9 +344,15 @@ namespace HotelManagement.BLL.Services
             return memStream.ToArray();
         }
 
-        private async Task ValidateDanhSachPhongAsync(List<PhongImportDto> danhSach)
+        private async Task ValidateDanhSachPhongAsync(
+            List<PhongImportDto> danhSach,
+            IProgress<(int PhanTram, string ThongDiep)>? progress = null,
+            CancellationToken cancellationToken = default)
         {
             if (danhSach.Count == 0) return;
+
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report((52, "Đang tải danh mục Loại phòng từ cơ sở dữ liệu..."));
 
             // Tải danh mục Loại phòng từ cơ sở dữ liệu
             var dsLoaiPhong = await _unitOfWork.LoaiPhongRepository.GetAllAsync();
@@ -304,11 +361,17 @@ namespace HotelManagement.BLL.Services
                 lp => lp,
                 StringComparer.OrdinalIgnoreCase);
 
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report((56, "Đang kiểm tra danh sách phòng đã tồn tại trong cơ sở dữ liệu..."));
+
             // Tải danh sách phòng hiện có trong cơ sở dữ liệu để kiểm tra trùng
             var dsPhongHienCo = await _unitOfWork.PhongRepository.GetAllAsync();
             var setSoPhongDb = new HashSet<string>(
                 dsPhongHienCo.Select(p => p.Sophong.Trim()),
                 StringComparer.OrdinalIgnoreCase);
+
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report((60, "Đang kiểm tra trùng lặp trong nội bộ file Excel..."));
 
             // Kiểm tra trùng lặp số phòng trong chính file Excel
             var nhomTrungTrongFile = danhSach
@@ -321,8 +384,10 @@ namespace HotelManagement.BLL.Services
                     StringComparer.OrdinalIgnoreCase);
 
             // Validate từng dòng (gom toàn bộ lỗi, không ngắt giữa chừng)
-            foreach (var item in danhSach)
+            for (int i = 0; i < danhSach.Count; i++)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+                var item = danhSach[i];
                 var loi = new List<string>();
 
                 // 1. Kiểm tra Số phòng
@@ -389,6 +454,9 @@ namespace HotelManagement.BLL.Services
 
                 item.DanhSachLoi = loi;
                 item.HopLe = (loi.Count == 0);
+
+                int percent = 60 + (int)((i + 1) * 38.0 / danhSach.Count);
+                progress?.Report((percent, $"Đang kiểm tra tính hợp lệ dòng {item.DongThuTu}/{danhSach.Count}..."));
             }
         }
 

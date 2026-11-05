@@ -39,6 +39,8 @@ namespace HotelManagement.Forms
 
         // Trạng thái và điều khiển
         private Label _lblTrangThai = null!;
+        private ProgressBar _prgTienTrinh = null!;
+        private Button _btnHuyThaoTac = null!;
         private Button _btnDong = null!;
 
         private void InitializeComponent()
@@ -268,7 +270,33 @@ namespace HotelManagement.Forms
             _btnDong.FlatAppearance.BorderColor = Color.FromArgb(206, 212, 218);
             _btnDong.Click += (_, _) => Close();
 
+            _btnHuyThaoTac = new Button
+            {
+                Text = "⛔  Hủy",
+                Width = 100,
+                Dock = DockStyle.Right,
+                BackColor = Color.FromArgb(239, 68, 68),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand,
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                Visible = false
+            };
+            _btnHuyThaoTac.FlatAppearance.BorderSize = 0;
+
+            _prgTienTrinh = new ProgressBar
+            {
+                Width = 160,
+                Dock = DockStyle.Right,
+                Minimum = 0,
+                Maximum = 100,
+                Value = 0,
+                Visible = false
+            };
+
             pnlBottom.Controls.Add(_lblTrangThai);
+            pnlBottom.Controls.Add(_prgTienTrinh);
+            pnlBottom.Controls.Add(_btnHuyThaoTac);
             pnlBottom.Controls.Add(_btnDong);
 
             // 4. TabControl chứa danh sách chi tiết (Center Area)

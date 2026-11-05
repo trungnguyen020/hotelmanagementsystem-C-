@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using HotelManagement.BLL.DTOs;
@@ -16,6 +17,7 @@ namespace HotelManagement.Forms
     /// <summary>
     /// Màn hình Xác nhận Đặt phòng thành công kèm mã QR (DCKLTTQ-80).
     /// Hiển thị mã QR chứa mã booking sinh bằng ZXing.Net phục vụ khách quét tra cứu nhanh tại Kiosk.
+    /// Áp dụng mô hình chuẩn Task, IProgress, CancellationToken cho tác vụ nặng (DCKLTTQ-93).
     /// Tái sử dụng dữ liệu từ IDatPhongRepository.GetByMaBookingAsync thông qua IDatPhongService.
     /// </summary>
     public partial class FormXacNhanDatPhong : Form
@@ -29,6 +31,7 @@ namespace HotelManagement.Forms
 
         private Bitmap? _qrBitmap;
         private int? _idDatPhong;
+        private CancellationTokenSource? _cts;
 
         public FormXacNhanDatPhong(string maBooking)
         {
@@ -44,8 +47,17 @@ namespace HotelManagement.Forms
 
             InitializeComponent();
 
+            _btnHuyGuiEmail.Click += (_, _) =>
+            {
+                _btnHuyGuiEmail.Enabled = false;
+                _btnHuyGuiEmail.Text = "Đang hủy...";
+                _cts?.Cancel();
+            };
+
             FormClosed += (_, _) =>
             {
+                _cts?.Cancel();
+                _cts?.Dispose();
                 _qrBitmap?.Dispose();
                 _scope.Dispose();
             };
@@ -162,18 +174,37 @@ namespace HotelManagement.Forms
         {
             try
             {
-                _lblEmailStatusVal.Text = "Đang gửi email xác nhận...";
-                _lblEmailStatusVal.ForeColor = AppTheme.TextSecondary;
+                _cts?.Dispose();
+                _cts = new CancellationTokenSource();
 
-                var result = await _emailService.GuiEmailXacNhanDatPhongAsync(_maBooking);
+                var progress = new Progress<string>(msg =>
+                {
+                    _lblEmailStatusVal.Text = msg;
+                    _lblEmailStatusVal.ForeColor = AppTheme.TextSecondary;
+                });
+
+                _btnHuyGuiEmail.Visible = true;
+                _btnHuyGuiEmail.Enabled = true;
+                _btnHuyGuiEmail.Text = "⛔ Hủy gửi";
+
+                var result = await _emailService.GuiEmailXacNhanDatPhongAsync(_maBooking, progress, _cts.Token);
                 CapNhatTrangThaiEmail(result);
 
                 // DCKLTTQ-82: Ghi nhận lịch sử gửi thông báo
                 await GhiLichSuThongBaoAsync(result, "XacNhanBooking", _idDatPhong, null);
             }
+            catch (OperationCanceledException)
+            {
+                _lblEmailStatusVal.Text = "Đã hủy gửi email xác nhận.";
+                _lblEmailStatusVal.ForeColor = AppTheme.StatusWarningText;
+            }
             catch
             {
                 // Bảo vệ không ném lỗi
+            }
+            finally
+            {
+                _btnHuyGuiEmail.Visible = false;
             }
         }
 
@@ -195,12 +226,22 @@ namespace HotelManagement.Forms
         {
             try
             {
+                _cts?.Dispose();
+                _cts = new CancellationTokenSource();
+
+                var progress = new Progress<string>(msg =>
+                {
+                    _lblEmailStatusVal.Text = msg;
+                    _lblEmailStatusVal.ForeColor = AppTheme.TextSecondary;
+                });
+
                 _btnGuiEmail.Enabled = false;
                 _btnGuiEmail.Text = "Đang gửi email...";
-                _lblEmailStatusVal.Text = "Đang gửi email xác nhận...";
-                _lblEmailStatusVal.ForeColor = AppTheme.TextSecondary;
+                _btnHuyGuiEmail.Visible = true;
+                _btnHuyGuiEmail.Enabled = true;
+                _btnHuyGuiEmail.Text = "⛔ Hủy gửi";
 
-                var result = await _emailService.GuiEmailXacNhanDatPhongAsync(_maBooking);
+                var result = await _emailService.GuiEmailXacNhanDatPhongAsync(_maBooking, progress, _cts.Token);
                 CapNhatTrangThaiEmail(result);
 
                 // DCKLTTQ-82: Ghi nhận lịch sử gửi thông báo
@@ -214,6 +255,10 @@ namespace HotelManagement.Forms
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
                 }
+                else if (result.LyDoLoi != null && result.LyDoLoi.Contains("hủy"))
+                {
+                    // Người dùng chủ động bấm hủy
+                }
                 else
                 {
                     MessageBox.Show(
@@ -223,12 +268,18 @@ namespace HotelManagement.Forms
                         MessageBoxIcon.Warning);
                 }
             }
+            catch (OperationCanceledException)
+            {
+                _lblEmailStatusVal.Text = "Đã hủy gửi email xác nhận theo yêu cầu.";
+                _lblEmailStatusVal.ForeColor = AppTheme.StatusWarningText;
+            }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
+                _btnHuyGuiEmail.Visible = false;
                 _btnGuiEmail.Enabled = true;
                 _btnGuiEmail.Text = "✉ Gửi lại email xác nhận";
             }

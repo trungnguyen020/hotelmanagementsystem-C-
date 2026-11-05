@@ -53,6 +53,7 @@ namespace HotelManagement.Forms
 
         // UI Controls - Thao tác
         private Button _btnXuatPdf = null!;
+        private Button _btnHuyPdf = null!;
         private Button _btnXacNhan = null!;
         private Button _btnHuy = null!;
 
@@ -524,7 +525,21 @@ namespace HotelManagement.Forms
             };
             _btnHuy.Click += (_, _) => Close();
 
-            pnlActions.Controls.AddRange(new Control[] { _btnXuatPdf, _btnXacNhan, _btnHuy });
+            _btnHuyPdf = new Button
+            {
+                Text = "⛔ Hủy",
+                Location = new Point(105, 8),
+                Size = new Size(105, 44),
+                BackColor = Color.FromArgb(239, 68, 68),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10f, FontStyle.Bold),
+                Cursor = Cursors.Hand,
+                Visible = false
+            };
+            _btnHuyPdf.FlatAppearance.BorderSize = 0;
+
+            pnlActions.Controls.AddRange(new Control[] { _btnHuyPdf, _btnXuatPdf, _btnXacNhan, _btnHuy });
 
             Controls.AddRange(new Control[] { grpTraCuu, grpThongTin, grpChiPhi, grpHinhThuc, pnlActions });
         }

@@ -32,6 +32,8 @@ namespace HotelManagement.Forms
         private Button _btnThangNay = null!;
         private Button _btnLoc = null!;
         private Button _btnLamMoi = null!;
+        private Button _btnHuy = null!;
+        private ProgressBar _prgTienTrinh = null!;
 
         // KPI Summary Cards
         private Label _lblValDoanhThu = null!;
@@ -162,11 +164,33 @@ namespace HotelManagement.Forms
             _btnLamMoi = new Button { Text = "🔄 Tải lại", Size = new Size(100, 34), Margin = new Padding(0, 4, 4, 4) };
             AppTheme.ApplySecondaryButton(_btnLamMoi);
 
+            _btnHuy = new Button
+            {
+                Text = "⛔ Hủy",
+                Size = new Size(80, 34),
+                Margin = new Padding(0, 4, 4, 4),
+                Visible = false,
+                BackColor = Color.FromArgb(239, 68, 68),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = AppTheme.FontBodyBold
+            };
+            _btnHuy.FlatAppearance.BorderSize = 0;
+
+            _prgTienTrinh = new ProgressBar
+            {
+                Size = new Size(110, 26),
+                Margin = new Padding(0, 8, 4, 4),
+                Style = ProgressBarStyle.Marquee,
+                MarqueeAnimationSpeed = 30,
+                Visible = false
+            };
+
             flpFilter.Controls.AddRange(new Control[]
             {
                 lblTu, _dtpTuNgay, lblDen, _dtpDenNgay,
                 _btnHomNay, _btn7Ngay, _btn30Ngay, _btnThangNay,
-                _btnLoc, _btnLamMoi
+                _btnLoc, _btnLamMoi, _prgTienTrinh, _btnHuy
             });
 
             _pnlTopBar.Controls.AddRange(new Control[] { flpFilter, _lblTitle, _lblSubTitle });

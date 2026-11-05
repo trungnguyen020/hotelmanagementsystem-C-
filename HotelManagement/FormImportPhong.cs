@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using HotelManagement.BLL.DTOs;
@@ -14,6 +15,7 @@ namespace HotelManagement.Forms
 {
     /// <summary>
     /// Màn hình Import danh sách phòng từ file Excel có validate toàn diện (DCKLTTQ-79).
+    /// Áp dụng mô hình chuẩn Task, IProgress, CancellationToken cho tác vụ nặng (DCKLTTQ-93).
     /// Chỉ dành cho vai trò Quản trị viên (Admin).
     /// </summary>
     public partial class FormImportPhong : Form
@@ -23,6 +25,7 @@ namespace HotelManagement.Forms
 
         private List<PhongImportDto> _danhSachKetQua = new();
         private string? _duongDanFileHienTai;
+        private CancellationTokenSource? _cts;
 
         public FormImportPhong()
         {
@@ -35,7 +38,12 @@ namespace HotelManagement.Forms
 
         private void DangKySuKien()
         {
-            FormClosed += (_, _) => _scope.Dispose();
+            FormClosed += (_, _) =>
+            {
+                _cts?.Cancel();
+                _cts?.Dispose();
+                _scope.Dispose();
+            };
 
             _btnChonFile.Click += async (_, _) => await ChonFileVaKiemTraAsync();
             _btnKiemTra.Click += async (_, _) => await KiemTraFileHienTaiAsync();
@@ -43,6 +51,12 @@ namespace HotelManagement.Forms
             _chkChiHienThiLoi.CheckedChanged += (_, _) => CapNhatDuLieuLuoi();
             _dgvKetQua.CellFormatting += DgvKetQua_CellFormatting;
             _btnImport.Click += async (_, _) => await ThucHienImportAsync();
+            _btnHuyThaoTac.Click += (_, _) =>
+            {
+                _btnHuyThaoTac.Enabled = false;
+                _btnHuyThaoTac.Text = "Đang hủy...";
+                _cts?.Cancel();
+            };
             _btnDong.Click += (_, _) => Close();
         }
 
@@ -79,11 +93,20 @@ namespace HotelManagement.Forms
 
         private async Task KiemTraVaHienThiDuLieuAsync(string duongDanFile)
         {
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+
+            var progress = new Progress<(int PhanTram, string ThongDiep)>(p =>
+            {
+                _prgTienTrinh.Value = Math.Clamp(p.PhanTram, 0, 100);
+                _lblTrangThaiXuLy.Text = p.ThongDiep;
+            });
+
             BậtTrạngTháiĐangTải(true, "Đang đọc và kiểm tra dữ liệu từ file Excel...");
 
             try
             {
-                _danhSachKetQua = await _phongImportService.DocVaValidateAsync(duongDanFile);
+                _danhSachKetQua = await _phongImportService.DocVaValidateAsync(duongDanFile, progress, _cts.Token);
 
                 int tongSo = _danhSachKetQua.Count;
                 int soHopLe = _danhSachKetQua.Count(x => x.HopLe);
@@ -115,6 +138,11 @@ namespace HotelManagement.Forms
                     _lblTrangThaiXuLy.Text = $"Kiểm tra xong: Có {soHopLe} dòng hợp lệ, {soLoi} dòng bị lỗi cần chỉnh sửa.";
                     _lblTrangThaiXuLy.ForeColor = Color.FromArgb(180, 83, 9);
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                _lblTrangThaiXuLy.Text = "Đã hủy thao tác kiểm tra file theo yêu cầu của bạn.";
+                _lblTrangThaiXuLy.ForeColor = Color.FromArgb(180, 83, 9);
             }
             catch (Exception ex)
             {
@@ -205,11 +233,20 @@ namespace HotelManagement.Forms
 
             if (xacNhan != DialogResult.Yes) return;
 
-            BậtTrạngTháiĐangTải(true, $"Đang lưu {dsHopLe.Count} phòng vào cơ sở dữ liệu qua transaction...");
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+
+            var progress = new Progress<(int PhanTram, string ThongDiep)>(p =>
+            {
+                _prgTienTrinh.Value = Math.Clamp(p.PhanTram, 0, 100);
+                _lblTrangThaiXuLy.Text = p.ThongDiep;
+            });
+
+            BậtTrạngTháiĐangTải(true, $"Đang chuẩn bị lưu {dsHopLe.Count} phòng vào cơ sở dữ liệu...");
 
             try
             {
-                int soLuongDaLuu = await _phongImportService.LuuDanhSachHopLeAsync(_danhSachKetQua);
+                int soLuongDaLuu = await _phongImportService.LuuDanhSachHopLeAsync(_danhSachKetQua, progress, _cts.Token);
 
                 MessageBox.Show(
                     $"Import thành công {soLuongDaLuu} phòng vào hệ thống!",
@@ -222,12 +259,15 @@ namespace HotelManagement.Forms
                 _lblTrangThaiXuLy.Text = $"Đã lưu thành công {soLuongDaLuu} phòng vào cơ sở dữ liệu.";
                 _lblTrangThaiXuLy.ForeColor = Color.FromArgb(22, 101, 52);
 
-                // Sau khi lưu xong, nếu người dùng muốn kiểm tra lại chính file này,
-                // các phòng vừa lưu sẽ tự động bị đánh dấu là "đã tồn tại trong DB"
                 if (!string.IsNullOrEmpty(_duongDanFileHienTai))
                 {
                     await KiemTraVaHienThiDuLieuAsync(_duongDanFileHienTai);
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                _lblTrangThaiXuLy.Text = "Đã hủy thao tác import phòng. Dữ liệu đã được hoàn tác an toàn.";
+                _lblTrangThaiXuLy.ForeColor = Color.FromArgb(180, 83, 9);
             }
             catch (Exception ex)
             {
@@ -293,8 +333,14 @@ namespace HotelManagement.Forms
             _btnTaiMau.Enabled = !dangTai;
             _btnDong.Enabled = !dangTai;
 
+            _btnHuyThaoTac.Visible = dangTai;
+            _btnHuyThaoTac.Enabled = dangTai;
+            _btnHuyThaoTac.Text = "⛔  Hủy thao tác";
+
+            _prgTienTrinh.Visible = dangTai;
             if (dangTai)
             {
+                _prgTienTrinh.Value = 0;
                 _btnImport.Enabled = false;
                 if (!string.IsNullOrEmpty(thongBao))
                 {
@@ -302,7 +348,6 @@ namespace HotelManagement.Forms
                     _lblTrangThaiXuLy.ForeColor = Color.FromArgb(30, 95, 138);
                 }
             }
-            Application.DoEvents();
         }
     }
 }

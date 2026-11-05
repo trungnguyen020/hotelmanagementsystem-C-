@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using HotelManagement.BLL.DTOs;
@@ -14,6 +15,7 @@ namespace HotelManagement.Forms
 {
     /// <summary>
     /// Màn hình Báo cáo doanh thu & Hiệu suất hoạt động phòng (DCKLTTQ-78).
+    /// Áp dụng mô hình chuẩn Task, IProgress, CancellationToken cho tác vụ nặng (DCKLTTQ-93).
     /// Hỗ trợ lọc theo khoảng ngày, lọc theo loại phòng, xem trước trên DataGridView và xuất file Excel bằng ClosedXML.
     /// Dựng control hoàn toàn bằng code trong constructor, tuân thủ DI scope.
     /// </summary>
@@ -25,6 +27,7 @@ namespace HotelManagement.Forms
         private readonly TaiKhoan? _taiKhoanDangNhap;
 
         private BaoCaoDoanhThuDto? _baoCaoHienTai;
+        private CancellationTokenSource? _cts;
 
         private class ComboBoxItem
         {
@@ -62,7 +65,19 @@ namespace HotelManagement.Forms
 
             _btnXemBaoCao.Click += async (_, _) => await TaiBaoCaoAsync();
             _btnXuatExcel.Click += async (_, _) => await XuatExcelAsync();
-            FormClosed += (_, _) => _scope.Dispose();
+            _btnHuyThaoTac.Click += (_, _) =>
+            {
+                _btnHuyThaoTac.Enabled = false;
+                _btnHuyThaoTac.Text = "Đang hủy...";
+                _cts?.Cancel();
+            };
+
+            FormClosed += (_, _) =>
+            {
+                _cts?.Cancel();
+                _cts?.Dispose();
+                _scope.Dispose();
+            };
         }
 
         private async Task NapDanhMucLoaiPhongAsync()
@@ -99,13 +114,13 @@ namespace HotelManagement.Forms
                 return;
             }
 
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+
+            BatTrangThaiDangXuLy(true, "Đang tổng hợp dữ liệu báo cáo từ cơ sở dữ liệu...");
+
             try
             {
-                _btnXemBaoCao.Enabled = false;
-                _btnXuatExcel.Enabled = false;
-                _lblTrangThai.Text = "Đang tổng hợp dữ liệu báo cáo từ cơ sở dữ liệu...";
-                Cursor = Cursors.WaitCursor;
-
                 int? idLoaiPhongChon = null;
                 string? tenLoaiPhongChon = null;
 
@@ -125,6 +140,8 @@ namespace HotelManagement.Forms
 
                 string nguoiLap = _taiKhoanDangNhap?.IdNhansuNavigation?.Hoten ?? "Admin";
                 _baoCaoHienTai = await _baoCaoService.LayBaoCaoDoanhThuAsync(filter, nguoiLap);
+
+                _cts.Token.ThrowIfCancellationRequested();
 
                 // Cập nhật giá trị các thẻ KPI
                 _lblTongDoanhThuVal.Text = $"{_baoCaoHienTai.TongDoanhThu:N0} đ";
@@ -152,6 +169,10 @@ namespace HotelManagement.Forms
                 _btnXuatExcel.Enabled = true;
                 _lblTrangThai.Text = $"Đã tải {_baoCaoHienTai.DanhSachHoaDon.Count} hóa đơn. Tổng doanh thu thực: {_baoCaoHienTai.TongDoanhThu:N0} đ | Tỷ lệ lấp đầy: {_baoCaoHienTai.TyLeLapDayPhanTram:F1}%.";
             }
+            catch (OperationCanceledException)
+            {
+                _lblTrangThai.Text = "Đã hủy tổng hợp báo cáo theo yêu cầu của bạn.";
+            }
             catch (Exception ex)
             {
                 MessageBox.Show("Có lỗi xảy ra khi tổng hợp báo cáo: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -159,8 +180,7 @@ namespace HotelManagement.Forms
             }
             finally
             {
-                _btnXemBaoCao.Enabled = true;
-                Cursor = Cursors.Default;
+                BatTrangThaiDangXuLy(false);
             }
         }
 
@@ -298,14 +318,20 @@ namespace HotelManagement.Forms
 
             if (sfd.ShowDialog(this) == DialogResult.OK)
             {
+                _cts?.Dispose();
+                _cts = new CancellationTokenSource();
+
+                var progress = new Progress<(int PhanTram, string ThongDiep)>(p =>
+                {
+                    _prgTienTrinh.Value = Math.Clamp(p.PhanTram, 0, 100);
+                    _lblTrangThai.Text = p.ThongDiep;
+                });
+
+                BatTrangThaiDangXuLy(true, "Đang khởi tạo tệp Excel theo định dạng chuẩn...");
+
                 try
                 {
-                    _btnXuatExcel.Enabled = false;
-                    _btnXuatExcel.Text = "Đang xuất Excel...";
-                    _lblTrangThai.Text = "Đang tạo tệp Excel theo định dạng chuẩn...";
-                    Cursor = Cursors.WaitCursor;
-
-                    await _baoCaoExcelService.XuatFileExcelAsync(_baoCaoHienTai, sfd.FileName);
+                    await _baoCaoExcelService.XuatFileExcelAsync(_baoCaoHienTai, sfd.FileName, progress, _cts.Token);
 
                     _lblTrangThai.Text = $"Xuất file Excel thành công lúc {DateTime.Now:HH:mm:ss}!";
 
@@ -320,6 +346,10 @@ namespace HotelManagement.Forms
                         Process.Start(new ProcessStartInfo(sfd.FileName) { UseShellExecute = true });
                     }
                 }
+                catch (OperationCanceledException)
+                {
+                    _lblTrangThai.Text = "Đã hủy thao tác xuất báo cáo Excel theo yêu cầu của bạn.";
+                }
                 catch (Exception ex)
                 {
                     MessageBox.Show("Có lỗi xảy ra khi xuất file Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -327,9 +357,32 @@ namespace HotelManagement.Forms
                 }
                 finally
                 {
-                    _btnXuatExcel.Enabled = true;
-                    _btnXuatExcel.Text = "📊 Xuất Excel (.xlsx)";
-                    Cursor = Cursors.Default;
+                    BatTrangThaiDangXuLy(false);
+                }
+            }
+        }
+
+        private void BatTrangThaiDangXuLy(bool dangXuLy, string? thongBao = null)
+        {
+            Cursor = dangXuLy ? Cursors.WaitCursor : Cursors.Default;
+            _btnXemBaoCao.Enabled = !dangXuLy;
+            _btnXuatExcel.Enabled = !dangXuLy && (_baoCaoHienTai != null);
+            _dtpTuNgay.Enabled = !dangXuLy;
+            _dtpDenNgay.Enabled = !dangXuLy;
+            _cboLoaiPhong.Enabled = !dangXuLy;
+            _btnDong.Enabled = !dangXuLy;
+
+            _btnHuyThaoTac.Visible = dangXuLy;
+            _btnHuyThaoTac.Enabled = dangXuLy;
+            _btnHuyThaoTac.Text = "⛔  Hủy";
+
+            _prgTienTrinh.Visible = dangXuLy;
+            if (dangXuLy)
+            {
+                _prgTienTrinh.Value = 0;
+                if (!string.IsNullOrEmpty(thongBao))
+                {
+                    _lblTrangThai.Text = thongBao;
                 }
             }
         }

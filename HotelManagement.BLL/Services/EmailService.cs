@@ -87,6 +87,7 @@ namespace HotelManagement.BLL.Services
             string noiDungHtml,
             byte[]? tepDinhKem = null,
             string? tenTepDinhKem = null,
+            IProgress<string>? progress = null,
             CancellationToken cancellationToken = default)
         {
             var thoiGian = DateTime.Now;
@@ -95,6 +96,9 @@ namespace HotelManagement.BLL.Services
             {
                 return new EmailResult(false, "Địa chỉ email người nhận trống.", nguoiNhan, tieuDe, thoiGian);
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report("Đang đọc thông tin cấu hình tài khoản gửi thư...");
 
             string senderEmail = LaySenderEmail();
             string senderName = LaySenderName();
@@ -124,6 +128,9 @@ namespace HotelManagement.BLL.Services
 
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
+                progress?.Report("Đang đóng gói nội dung thư và tệp đính kèm...");
+
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress(senderName, senderEmail));
                 message.To.Add(new MailboxAddress(nguoiNhan, nguoiNhan));
@@ -145,13 +152,30 @@ namespace HotelManagement.BLL.Services
                 // Giới hạn timeout 15s để không treo UI nếu mất kết nối mạng
                 client.Timeout = 15000;
 
+                cancellationToken.ThrowIfCancellationRequested();
+                progress?.Report($"Đang kết nối tới máy chủ SMTP ({smtpHost}:{smtpPort})...");
+
                 // SMTP Gmail: smtp.gmail.com cổng 587 StartTls
                 await client.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.StartTls, cancellationToken);
+
+                cancellationToken.ThrowIfCancellationRequested();
+                progress?.Report("Đang xác thực thông tin đăng nhập SMTP...");
+
                 await client.AuthenticateAsync(senderEmail, appPassword.Replace(" ", string.Empty), cancellationToken);
+
+                cancellationToken.ThrowIfCancellationRequested();
+                progress?.Report($"Đang chuyển phát email đến {nguoiNhan}...");
+
                 await client.SendAsync(message, cancellationToken);
+
+                progress?.Report("Đã chuyển phát thành công! Đang ngắt kết nối SMTP...");
                 await client.DisconnectAsync(true, cancellationToken);
 
                 return new EmailResult(true, null, nguoiNhan, tieuDe, thoiGian);
+            }
+            catch (OperationCanceledException)
+            {
+                return new EmailResult(false, "Thao tác gửi email đã bị hủy.", nguoiNhan, tieuDe, thoiGian);
             }
             catch (Exception ex)
             {
@@ -163,6 +187,7 @@ namespace HotelManagement.BLL.Services
 
         public async Task<EmailResult> GuiEmailXacNhanDatPhongAsync(
             string maBooking,
+            IProgress<string>? progress = null,
             CancellationToken cancellationToken = default)
         {
             var thoiGian = DateTime.Now;
@@ -174,6 +199,9 @@ namespace HotelManagement.BLL.Services
 
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
+                progress?.Report($"Đang tra cứu dữ liệu booking '{maBooking}'...");
+
                 var dp = await _unitOfWork.DatPhongRepository.GetByMaBookingAsync(maBooking.Trim());
                 if (dp == null)
                 {
@@ -197,7 +225,11 @@ namespace HotelManagement.BLL.Services
                 string tieuDe = $"[DCKLTTQ Hotel] Xác nhận đặt phòng thành công - Mã booking: {datPhong.Mabooking}";
                 string htmlBody = TaoHtmlXacNhanDatPhong(datPhong);
 
-                return await GuiEmailAsync(emailKhachHang, tieuDe, htmlBody, null, null, cancellationToken);
+                return await GuiEmailAsync(emailKhachHang, tieuDe, htmlBody, null, null, progress, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                return new EmailResult(false, "Thao tác gửi email đã bị hủy.", null, null, thoiGian);
             }
             catch (Exception ex)
             {
@@ -207,6 +239,7 @@ namespace HotelManagement.BLL.Services
 
         public async Task<EmailResult> GuiEmailHoaDonAsync(
             string maBooking,
+            IProgress<string>? progress = null,
             CancellationToken cancellationToken = default)
         {
             var thoiGian = DateTime.Now;
@@ -218,6 +251,9 @@ namespace HotelManagement.BLL.Services
 
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
+                progress?.Report($"Đang tra cứu thông tin hóa đơn cho '{maBooking}'...");
+
                 var hoaDon = await _hoaDonService.LayHoaDonTheoMaBookingAsync(maBooking.Trim());
                 if (hoaDon == null)
                 {
@@ -230,6 +266,9 @@ namespace HotelManagement.BLL.Services
                     return new EmailResult(false, $"Khách hàng '{hoaDon.TenKhachHang}' không có địa chỉ email trong hệ thống.", null, null, thoiGian);
                 }
 
+                cancellationToken.ThrowIfCancellationRequested();
+                progress?.Report("Đang tạo hóa đơn PDF để đính kèm...");
+
                 // Sinh tệp PDF hóa đơn từ QuestPDF (DCKLTTQ-77)
                 byte[] pdfBytes = await _hoaDonPdfService.SinhPdfTheoMaBookingAsync(maBooking.Trim());
                 string tenTepPdf = $"HoaDon_{maBooking.Trim()}.pdf";
@@ -237,7 +276,11 @@ namespace HotelManagement.BLL.Services
                 string tieuDe = $"[DCKLTTQ Hotel] Hóa đơn thanh toán - Mã booking: {maBooking.Trim()}";
                 string htmlBody = TaoHtmlHoaDonThanhToan(hoaDon);
 
-                return await GuiEmailAsync(emailKhachHang, tieuDe, htmlBody, pdfBytes, tenTepPdf, cancellationToken);
+                return await GuiEmailAsync(emailKhachHang, tieuDe, htmlBody, pdfBytes, tenTepPdf, progress, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                return new EmailResult(false, "Thao tác gửi email hóa đơn đã bị hủy.", null, null, thoiGian);
             }
             catch (Exception ex)
             {

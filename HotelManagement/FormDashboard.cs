@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using HotelManagement.BLL.DTOs;
@@ -18,12 +19,14 @@ namespace HotelManagement.Forms
 {
     /// <summary>
     /// Màn hình Dashboard phân tích biểu đồ doanh thu và hiệu suất phòng (DCKLTTQ-84 - Admin only).
+    /// Áp dụng mô hình chuẩn Task, IProgress, CancellationToken cho tác vụ nặng (DCKLTTQ-93).
     /// Sử dụng thư viện LiveCharts2 với 3 loại chart: Biểu đồ Cột, Biểu đồ Tròn và Biểu đồ Đường.
     /// </summary>
     public partial class FormDashboard : Form
     {
         private readonly IServiceScope _scope;
         private readonly IDashboardService _dashboardService;
+        private CancellationTokenSource? _cts;
 
         public FormDashboard()
         {
@@ -32,7 +35,12 @@ namespace HotelManagement.Forms
 
             InitializeComponent();
 
-            FormClosed += (_, _) => _scope.Dispose();
+            FormClosed += (_, _) =>
+            {
+                _cts?.Cancel();
+                _cts?.Dispose();
+                _scope.Dispose();
+            };
 
             // Mặc định khoảng lọc 7 ngày gần nhất
             _dtpTuNgay.Value = DateTime.Today.AddDays(-6);
@@ -72,10 +80,25 @@ namespace HotelManagement.Forms
 
             _btnLoc.Click += async (_, _) => await TaiDuLieuAsync();
             _btnLamMoi.Click += async (_, _) => await TaiDuLieuAsync();
+            _btnHuy.Click += (_, _) =>
+            {
+                _btnHuy.Enabled = false;
+                _btnHuy.Text = "Đang hủy...";
+                _cts?.Cancel();
+            };
         }
 
         private async Task TaiDuLieuAsync()
         {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+
+            var progress = new Progress<string>(msg =>
+            {
+                _lblSubTitle.Text = msg;
+            });
+
             try
             {
                 BatTatNutDieuKhien(false);
@@ -86,18 +109,25 @@ namespace HotelManagement.Forms
                     DenNgay = _dtpDenNgay.Value.Date
                 };
 
-                var data = await _dashboardService.LayDuLieuDashboardAsync(filter);
+                var data = await _dashboardService.LayDuLieuDashboardAsync(filter, progress, _cts.Token);
 
                 CapNhatTheKpi(data.Kpi);
                 VeBieuDoCotDoanhThu(data.DoanhThuTheoNgay);
                 VeBieuDoTronTrangThaiPhong(data.CoCauTrangThaiPhong);
                 VeBieuDoDuongLapDay(data.XuHuongLapDayTheoNgay);
                 CapNhatTomTat(data);
+
+                _lblSubTitle.Text = $"Cập nhật lúc {DateTime.Now:HH:mm:ss} — Phân tích trực quan doanh thu, tỷ lệ lấp đầy và hiện trạng phòng.";
+            }
+            catch (OperationCanceledException)
+            {
+                _lblSubTitle.Text = "Đã hủy tải dữ liệu Dashboard theo yêu cầu của bạn.";
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi khi tải dữ liệu thống kê Dashboard: " + ex.Message,
                     "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _lblSubTitle.Text = "Lỗi khi tải dữ liệu Dashboard.";
             }
             finally
             {
@@ -113,6 +143,14 @@ namespace HotelManagement.Forms
             _btn7Ngay.Enabled = enabled;
             _btn30Ngay.Enabled = enabled;
             _btnThangNay.Enabled = enabled;
+            _dtpTuNgay.Enabled = enabled;
+            _dtpDenNgay.Enabled = enabled;
+
+            _btnHuy.Visible = !enabled;
+            _btnHuy.Enabled = !enabled;
+            _btnHuy.Text = "⛔ Hủy";
+
+            _prgTienTrinh.Visible = !enabled;
         }
 
         private void CapNhatTheKpi(DashboardKpiDto kpi)

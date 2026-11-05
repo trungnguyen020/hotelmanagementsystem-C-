@@ -39,6 +39,8 @@ namespace HotelManagement.Forms
 
         // Bottom actions
         private Label _lblTrangThaiXuLy = null!;
+        private ProgressBar _prgTienTrinh = null!;
+        private Button _btnHuyThaoTac = null!;
         private Button _btnImport = null!;
         private Button _btnDong = null!;
 
@@ -162,6 +164,21 @@ namespace HotelManagement.Forms
             _btnDong.FlatAppearance.BorderSize = 1;
             flpBottomButtons.Controls.Add(_btnDong);
 
+            _btnHuyThaoTac = new Button
+            {
+                Text = "⛔  Hủy thao tác",
+                Size = new Size(130, 38),
+                BackColor = Color.FromArgb(239, 68, 68),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                Cursor = Cursors.Hand,
+                Visible = false,
+                Margin = new Padding(8, 0, 0, 0)
+            };
+            _btnHuyThaoTac.FlatAppearance.BorderSize = 0;
+            flpBottomButtons.Controls.Add(_btnHuyThaoTac);
+
             _btnImport = new Button
             {
                 Text = "⚡  Tiến hành Import vào hệ thống",
@@ -196,9 +213,20 @@ namespace HotelManagement.Forms
                 ForeColor = Color.FromArgb(153, 27, 27),
                 AutoSize = true,
                 Cursor = Cursors.Hand,
-                Margin = new Padding(0, 3, 20, 0)
+                Margin = new Padding(0, 3, 15, 0)
             };
             flpBottomStatus.Controls.Add(_chkChiHienThiLoi);
+
+            _prgTienTrinh = new ProgressBar
+            {
+                Size = new Size(160, 22),
+                Minimum = 0,
+                Maximum = 100,
+                Value = 0,
+                Visible = false,
+                Margin = new Padding(0, 3, 10, 0)
+            };
+            flpBottomStatus.Controls.Add(_prgTienTrinh);
 
             _lblTrangThaiXuLy = new Label
             {

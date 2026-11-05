@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using HotelManagement.BLL.DTOs;
@@ -6,13 +7,13 @@ namespace HotelManagement.BLL.Services
 {
     /// <summary>
     /// Service xử lý gửi email thông báo tự động bằng MailKit (DCKLTTQ-81).
-    /// Hỗ trợ gửi email xác nhận đặt phòng kèm mã booking và gửi email hóa đơn PDF sau khi thanh toán.
-    /// Mọi phương thức gửi email đều bắt ngoại lệ nội bộ và trả về EmailResult để không làm gián đoạn luồng chính.
+    /// Áp dụng mô hình chuẩn Task, IProgress, CancellationToken cho tác vụ nặng (DCKLTTQ-93).
     /// </summary>
     public interface IEmailService
     {
         /// <summary>
         /// Gửi email HTML tổng quát bất đồng bộ qua SMTP Gmail (cổng 587 StartTls).
+        /// Hỗ trợ báo tiến trình qua IProgress và hủy qua CancellationToken.
         /// </summary>
         Task<EmailResult> GuiEmailAsync(
             string nguoiNhan,
@@ -20,6 +21,7 @@ namespace HotelManagement.BLL.Services
             string noiDungHtml,
             byte[]? tepDinhKem = null,
             string? tenTepDinhKem = null,
+            IProgress<string>? progress = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -28,6 +30,7 @@ namespace HotelManagement.BLL.Services
         /// </summary>
         Task<EmailResult> GuiEmailXacNhanDatPhongAsync(
             string maBooking,
+            IProgress<string>? progress = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -36,6 +39,7 @@ namespace HotelManagement.BLL.Services
         /// </summary>
         Task<EmailResult> GuiEmailHoaDonAsync(
             string maBooking,
+            IProgress<string>? progress = null,
             CancellationToken cancellationToken = default);
     }
 }

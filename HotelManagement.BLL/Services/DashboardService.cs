@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using HotelManagement.BLL.DTOs;
 using HotelManagement.DAL.Repositories;
@@ -10,6 +11,7 @@ namespace HotelManagement.BLL.Services
 {
     /// <summary>
     /// Triển khai dịch vụ tổng hợp dữ liệu số liệu & chuỗi thời gian cho Dashboard (DCKLTTQ-84).
+    /// Áp dụng mô hình chuẩn Task, IProgress, CancellationToken cho tác vụ nặng (DCKLTTQ-93).
     /// </summary>
     public class DashboardService : IDashboardService
     {
@@ -20,8 +22,14 @@ namespace HotelManagement.BLL.Services
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
-        public async Task<DashboardDataDto> LayDuLieuDashboardAsync(DashboardFilterDto filter)
+        public async Task<DashboardDataDto> LayDuLieuDashboardAsync(
+            DashboardFilterDto filter,
+            IProgress<string>? progress = null,
+            CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report("Đang chuẩn hóa bộ lọc và thời gian...");
+
             // 1. Chuẩn hóa khoảng thời gian
             DateTime tuNgay = filter.TuNgay.Date;
             DateTime denNgay = filter.DenNgay.Date;
@@ -41,6 +49,9 @@ namespace HotelManagement.BLL.Services
                 Filter = new DashboardFilterDto { TuNgay = tuNgay, DenNgay = denNgay }
             };
 
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report("Đang thống kê hiện trạng phòng thời gian thực...");
+
             // 2. Thống kê trạng thái phòng hiện tại (Thời gian thực - dùng cho Biểu đồ Tròn)
             var danhSachPhong = (await _unitOfWork.PhongRepository.GetAllAsync()).ToList();
             int tongSoPhong = danhSachPhong.Count;
@@ -57,6 +68,9 @@ namespace HotelManagement.BLL.Services
                 .ToList();
 
             result.CoCauTrangThaiPhong = nhomTrangThai;
+
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report("Đang truy vấn hóa đơn thanh toán trong kỳ lọc...");
 
             // 3. Lấy các hóa đơn "Đã thanh toán" trong khoảng ngày (Dùng cho Biểu đồ Cột)
             var hoaDons = (await _unitOfWork.HoaDonRepository.FindAsync(hd =>
@@ -78,6 +92,7 @@ namespace HotelManagement.BLL.Services
 
             foreach (var d in danhSachNgay)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 DateTime nextD = d.AddDays(1);
                 var hoaDonsTrongNgay = hoaDons.Where(h => h.Ngaylap >= d && h.Ngaylap < nextD).ToList();
 
@@ -100,8 +115,10 @@ namespace HotelManagement.BLL.Services
             }
             result.DoanhThuTheoNgay = doanhThuTheoNgayList;
 
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report("Đang truy vấn danh sách đặt phòng trong kỳ...");
+
             // 4. Tính toán Tỷ lệ lấp đầy theo từng ngày (Dùng cho Biểu đồ Đường)
-            // Lấy các booking hợp lệ giao nhau với khoảng thời gian lọc hoặc các booking đang check-in
             var bookingsGiaoKy = (await _unitOfWork.DatPhongRepository.FindAsync(dp =>
                 dp.Trangthai != "Đã hủy" && (
                     (dp.NgaynhanDukien <= endDateOnly && dp.NgaytraDukien >= startDateOnly) ||
@@ -110,23 +127,30 @@ namespace HotelManagement.BLL.Services
 
             // Nạp chi tiết đầy đủ để biết số lượng phòng trong mỗi booking
             var bookingsChiTiet = new List<DatPhong>();
-            foreach (var b in bookingsGiaoKy)
+            for (int i = 0; i < bookingsGiaoKy.Count; i++)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+                var b = bookingsGiaoKy[i];
                 var full = await _unitOfWork.DatPhongRepository.GetChiTietDayDuAsync(b.IdDatphong);
                 if (full != null) bookingsChiTiet.Add(full);
+
+                if (i % 5 == 0 || i == bookingsGiaoKy.Count - 1)
+                {
+                    progress?.Report($"Đang nạp chi tiết đặt phòng ({i + 1}/{bookingsGiaoKy.Count})...");
+                }
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report("Đang phân tích xu hướng tỷ lệ lấp đầy từng ngày...");
 
             var xuHuongLapDayList = new List<TyLeLapDayTheoNgayDto>();
             double tongTyLeCacNgay = 0;
 
             foreach (var d in danhSachNgay)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 DateOnly curDateOnly = DateOnly.FromDateTime(d);
 
-                // Khách lưu trú tại ngày d:
-                // 1. Ngày nhận <= d < Ngày trả
-                // 2. Nhận và trả cùng ngày
-                // 3. Khách đang ở thực tế (Đã check-in) tính đến ngày hiện tại
                 var bookingsTrongNgay = bookingsChiTiet.Where(dp =>
                     (dp.NgaynhanDukien <= curDateOnly && dp.NgaytraDukien > curDateOnly) ||
                     (dp.NgaynhanDukien == dp.NgaytraDukien && dp.NgaynhanDukien == curDateOnly) ||
@@ -134,7 +158,7 @@ namespace HotelManagement.BLL.Services
                 ).ToList();
 
                 int soPhongCoKhach = bookingsTrongNgay.Sum(dp => dp.ChiTietDatPhongs.Count);
-                if (soPhongCoKhach > tongSoPhong) soPhongCoKhach = tongSoPhong; // Giới hạn logic tối đa 100%
+                if (soPhongCoKhach > tongSoPhong) soPhongCoKhach = tongSoPhong;
 
                 double tyLeNgay = tongSoPhong > 0
                     ? Math.Min(100.0, Math.Round((double)soPhongCoKhach / tongSoPhong * 100, 1))
@@ -168,6 +192,9 @@ namespace HotelManagement.BLL.Services
                 SoPhongDangO = soPhongDangO,
                 SoPhongTrong = soPhongTrong
             };
+
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report("Hoàn tất tổng hợp dữ liệu Dashboard!");
 
             return result;
         }

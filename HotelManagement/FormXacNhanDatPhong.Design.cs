@@ -38,6 +38,7 @@ namespace HotelManagement.Forms
         private Button _btnLuuQr = null!;
 
         // Nút hành động đáy
+        private Button _btnHuyGuiEmail = null!;
         private Button _btnGuiEmail = null!;
         private Button _btnDong = null!;
 
@@ -278,6 +279,20 @@ namespace HotelManagement.Forms
                 Padding = new Padding(20, 10, 20, 10)
             };
 
+            _btnHuyGuiEmail = new Button
+            {
+                Text = "⛔ Hủy gửi",
+                Size = new Size(110, 40),
+                Location = new Point(275, 10),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Visible = false,
+                BackColor = Color.FromArgb(239, 68, 68),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = AppTheme.FontBodyBold
+            };
+            _btnHuyGuiEmail.FlatAppearance.BorderSize = 0;
+
             _btnGuiEmail = new Button
             {
                 Text = "✉ Gửi lại email xác nhận",
@@ -296,7 +311,7 @@ namespace HotelManagement.Forms
             };
             AppTheme.ApplyPrimaryButton(_btnDong);
 
-            pnlBottom.Controls.AddRange(new Control[] { _btnGuiEmail, _btnDong });
+            pnlBottom.Controls.AddRange(new Control[] { _btnHuyGuiEmail, _btnGuiEmail, _btnDong });
 
             // ================= Assemble Form =================
             Controls.AddRange(new Control[]
