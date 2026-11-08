@@ -474,7 +474,9 @@ $RECYCLE.BIN/
 *.msix
 *.msm
 *.msp
-*.SQL
+
+# SQL Database Scripts (cho phép commit script tạo DB)
+!*.sql
 
 # Windows shortcuts
 *.lnk

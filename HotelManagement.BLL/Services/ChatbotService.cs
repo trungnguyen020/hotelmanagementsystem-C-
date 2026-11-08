@@ -11,6 +11,7 @@ using HotelManagement.BLL.DTOs;
 using HotelManagement.DAL.Repositories;
 using HotelManagement.Models.Entities;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace HotelManagement.BLL.Services
 {
@@ -159,6 +160,7 @@ namespace HotelManagement.BLL.Services
             string apiKey = LayApiKey();
             if (string.IsNullOrWhiteSpace(apiKey))
             {
+                Log.Warning("[ChatbotService] Chưa cấu hình Gemini:ApiKey trong User Secrets / appsettings. Trả về thông báo lỗi thân thiện.");
                 return ChatMessageDto.CreateModel(ThongBaoLoiFallback, isError: true);
             }
 
@@ -247,19 +249,22 @@ QUY TẮC BẮT BUỘC KHI TRẢ LỜI:
                 string? responseText = await GoiGeminiApiAsync(modelName, apiKey, jsonPayload, cancellationToken);
                 if (string.IsNullOrWhiteSpace(responseText) && modelName != FallbackModel)
                 {
+                    Log.Warning("[ChatbotService] Model chính '{Model}' không phản hồi, tự động chuyển sang Fallback Model '{FallbackModel}'.", modelName, FallbackModel);
                     responseText = await GoiGeminiApiAsync(FallbackModel, apiKey, jsonPayload, cancellationToken);
                 }
 
                 if (string.IsNullOrWhiteSpace(responseText))
                 {
+                    Log.Error("[ChatbotService] Không nhận được câu trả lời từ Gemini API sau khi thử cả model chính và fallback.");
                     return ChatMessageDto.CreateModel(ThongBaoLoiFallback, isError: true);
                 }
 
+                Log.Information("[ChatbotService] Nhận phản hồi thành công từ Gemini API cho câu hỏi của khách.");
                 return ChatMessageDto.CreateModel(responseText.Trim(), isError: false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Fallback tuyệt đối an toàn: không bao giờ để exception lan ra ngoài làm crash UI
+                Log.Error(ex, "[ChatbotService] Lỗi khi xử lý hội thoại chatbot Gemini: {ErrorMessage}", ex.Message);
                 return ChatMessageDto.CreateModel(ThongBaoLoiFallback, isError: true);
             }
         }
@@ -280,6 +285,7 @@ QUY TẮC BẮT BUỘC KHI TRẢ LỜI:
                 using var response = await _httpClient.SendAsync(request, cancellationToken);
                 if (!response.IsSuccessStatusCode)
                 {
+                    Log.Error("[ChatbotService] Gọi Gemini API ({Model}) thất bại với mã HTTP {StatusCode}", model, (int)response.StatusCode);
                     return null;
                 }
 
@@ -304,8 +310,9 @@ QUY TẮC BẮT BUỘC KHI TRẢ LỜI:
 
                 return null;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Log.Error(ex, "[ChatbotService] Ngoại lệ khi gửi request HTTP tới Gemini API ({Model}): {ErrorMessage}", model, ex.Message);
                 return null;
             }
         }

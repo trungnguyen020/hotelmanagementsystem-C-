@@ -1,5 +1,6 @@
 using HotelManagement.DAL.Repositories;
 using HotelManagement.Models.Entities;
+using Serilog;
 
 namespace HotelManagement.BLL.Services
 {
@@ -23,6 +24,7 @@ namespace HotelManagement.BLL.Services
         {
             if (string.IsNullOrWhiteSpace(tenDangNhap) || string.IsNullOrWhiteSpace(matKhau))
             {
+                Log.Warning("[AuthService] Đăng nhập thất bại: Thiếu tên đăng nhập hoặc mật khẩu.");
                 return TaoKetQua(TrangThaiDangNhap.SaiTenDangNhapHoacMatKhau,
                     "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.");
             }
@@ -33,13 +35,31 @@ namespace HotelManagement.BLL.Services
 
             if (taiKhoan is null)
             {
+                Log.Warning("[AuthService] Đăng nhập thất bại: Tài khoản '{Username}' không tồn tại.", tenDangNhap.Trim());
                 return TaoKetQua(TrangThaiDangNhap.SaiTenDangNhapHoacMatKhau, "Sai tên đăng nhập hoặc mật khẩu.");
             }
 
+            // Kiểm tra xem có phải tài khoản Admin hoặc vai trò Quản trị viên không
+            bool laAdmin = string.Equals(taiKhoan.TenDangnhap, "admin", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(taiKhoan.IdVaitroNavigation?.TenVaitro, "Admin", StringComparison.OrdinalIgnoreCase);
+
             if (taiKhoan.Trangthai == TrangThaiKhoa)
             {
-                return TaoKetQua(TrangThaiDangNhap.TaiKhoanBiKhoa,
-                    $"Tài khoản đã bị khóa do nhập sai mật khẩu quá {SoLanSaiToiDa} lần. Vui lòng liên hệ Admin.");
+                if (laAdmin)
+                {
+                    // Tự động mở khóa bảo vệ nếu tài khoản Admin vô tình bị khóa trước đó
+                    taiKhoan.Trangthai = TrangThaiHoatDong;
+                    taiKhoan.SolanSaimatkhau = 0;
+                    _uow.TaiKhoanRepository.Update(taiKhoan);
+                    await _uow.SaveChangesAsync();
+                    Log.Information("[AuthService] Tự động kích hoạt lại tài khoản Admin.");
+                }
+                else
+                {
+                    Log.Warning("[AuthService] Đăng nhập thất bại: Tài khoản '{Username}' đang bị khóa.", taiKhoan.TenDangnhap);
+                    return TaoKetQua(TrangThaiDangNhap.TaiKhoanBiKhoa,
+                        $"Tài khoản đã bị khóa do nhập sai mật khẩu quá {SoLanSaiToiDa} lần. Vui lòng liên hệ Admin.");
+                }
             }
 
             bool matKhauDung = false;
@@ -47,14 +67,22 @@ namespace HotelManagement.BLL.Services
             {
                 matKhauDung = BCrypt.Net.BCrypt.Verify(matKhau, taiKhoan.MatkhauHash);
             }
-            catch (BCrypt.Net.SaltParseException)
+            catch (Exception ex)
             {
-                // Nếu hash trong DB không phải chuẩn BCrypt (ví dụ insert tay bằng plaintext)
+                // Nếu hash trong DB không phải chuẩn BCrypt hoặc bị lỗi cấu trúc salt
+                Log.Warning(ex, "[AuthService] Không thể verify hash mật khẩu cho tài khoản '{Username}'.", taiKhoan.TenDangnhap);
                 matKhauDung = false;
             }
 
             if (!matKhauDung)
             {
+                // Tài khoản Admin được miễn trừ cơ chế khóa để tránh mất quyền quản trị hệ thống
+                if (laAdmin)
+                {
+                    Log.Warning("[AuthService] Tài khoản Admin '{Username}' nhập sai mật khẩu. Miễn trừ cơ chế khóa tài khoản.", taiKhoan.TenDangnhap);
+                    return TaoKetQua(TrangThaiDangNhap.SaiTenDangNhapHoacMatKhau, "Sai mật khẩu.");
+                }
+
                 taiKhoan.SolanSaimatkhau++;
 
                 bool viBiKhoa = taiKhoan.SolanSaimatkhau >= SoLanSaiToiDa;
@@ -64,11 +92,16 @@ namespace HotelManagement.BLL.Services
                 _uow.TaiKhoanRepository.Update(taiKhoan);
                 await _uow.SaveChangesAsync();
 
-                return viBiKhoa
-                    ? TaoKetQua(TrangThaiDangNhap.TaiKhoanBiKhoa,
-                        $"Sai mật khẩu {SoLanSaiToiDa} lần liên tiếp. Tài khoản đã bị khóa.")
-                    : TaoKetQua(TrangThaiDangNhap.SaiTenDangNhapHoacMatKhau,
-                        $"Sai mật khẩu. Còn {SoLanSaiToiDa - taiKhoan.SolanSaimatkhau} lần thử trước khi bị khóa.");
+                if (viBiKhoa)
+                {
+                    Log.Warning("[AuthService] Tài khoản '{Username}' bị khóa do nhập sai mật khẩu {Max} lần liên tiếp.", taiKhoan.TenDangnhap, SoLanSaiToiDa);
+                    return TaoKetQua(TrangThaiDangNhap.TaiKhoanBiKhoa,
+                        $"Sai mật khẩu {SoLanSaiToiDa} lần liên tiếp. Tài khoản đã bị khóa.");
+                }
+
+                Log.Warning("[AuthService] Tài khoản '{Username}' nhập sai mật khẩu (Lần {Count}/{Max}).", taiKhoan.TenDangnhap, taiKhoan.SolanSaimatkhau, SoLanSaiToiDa);
+                return TaoKetQua(TrangThaiDangNhap.SaiTenDangNhapHoacMatKhau,
+                    $"Sai mật khẩu. Còn {SoLanSaiToiDa - taiKhoan.SolanSaimatkhau} lần thử trước khi bị khóa.");
             }
 
             // Đăng nhập thành công: reset số lần sai nếu trước đó có sai
@@ -81,6 +114,8 @@ namespace HotelManagement.BLL.Services
 
             await GhiNhatKyAsync(taiKhoan.IdTaikhoan, "Đăng nhập");
 
+            Log.Information("[AuthService] Đăng nhập thành công: '{Username}' - Vai trò: '{Role}'", taiKhoan.TenDangnhap, taiKhoan.IdVaitroNavigation?.TenVaitro ?? "Chưa rõ");
+
             return new KetQuaDangNhap
             {
                 TrangThai = TrangThaiDangNhap.ThanhCong,
@@ -90,7 +125,10 @@ namespace HotelManagement.BLL.Services
         }
 
         public async Task DangXuatAsync(int idTaiKhoan)
-            => await GhiNhatKyAsync(idTaiKhoan, "Đăng xuất");
+        {
+            Log.Information("[AuthService] Đăng xuất tài khoản ID: {IdTaiKhoan}", idTaiKhoan);
+            await GhiNhatKyAsync(idTaiKhoan, "Đăng xuất");
+        }
 
         public string HashMatKhau(string matKhauTho)
             => BCrypt.Net.BCrypt.HashPassword(matKhauTho);
@@ -98,29 +136,33 @@ namespace HotelManagement.BLL.Services
         public async Task<(bool Success, string Message)> DoiMatKhauAsync(int idTaiKhoan, string matKhauCu, string matKhauMoi)
         {
             var taiKhoan = await _uow.TaiKhoanRepository.GetByIdAsync(idTaiKhoan);
-            if (taiKhoan == null) return (false, "Tài khoản không tồn tại.");
+            if (taiKhoan == null)
+            {
+                Log.Warning("[AuthService] Đổi mật khẩu thất bại: Không tìm thấy tài khoản ID {IdTaiKhoan}", idTaiKhoan);
+                return (false, "Tài khoản không tồn tại.");
+            }
 
             bool matKhauDung = false;
             try
             {
                 matKhauDung = BCrypt.Net.BCrypt.Verify(matKhauCu, taiKhoan.MatkhauHash);
             }
-            catch (BCrypt.Net.SaltParseException)
+            catch (Exception ex)
             {
+                Log.Warning(ex, "[AuthService] Không thể verify hash mật khẩu cũ cho tài khoản '{Username}'.", taiKhoan.TenDangnhap);
                 matKhauDung = false;
             }
 
             if (!matKhauDung)
+            {
+                Log.Warning("[AuthService] Đổi mật khẩu thất bại cho tài khoản '{Username}': Mật khẩu cũ không chính xác.", taiKhoan.TenDangnhap);
                 return (false, "Mật khẩu cũ không chính xác.");
+            }
 
             taiKhoan.MatkhauHash = HashMatKhau(matKhauMoi);
-            // Bỏ _uow.TaiKhoanRepository.Update(taiKhoan) vì entity đã được track bởi DbContext
-            // EF Core sẽ tự phát hiện property MatkhauHash bị thay đổi để Update đúng field đó.
             await _uow.SaveChangesAsync();
 
-            // Không ghi log "Đổi mật khẩu" vì CSDL có CHECK CONSTRAINT chỉ cho phép "Đăng nhập" và "Đăng xuất"
-            // await GhiNhatKyAsync(idTaiKhoan, "Đổi mật khẩu");
-            
+            Log.Information("[AuthService] Đổi mật khẩu thành công cho tài khoản '{Username}'.", taiKhoan.TenDangnhap);
             return (true, "Đổi mật khẩu thành công.");
         }
 

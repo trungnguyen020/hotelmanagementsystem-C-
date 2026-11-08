@@ -11,6 +11,7 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
+using Serilog;
 
 namespace HotelManagement.BLL.Services
 {
@@ -108,6 +109,7 @@ namespace HotelManagement.BLL.Services
 
             if (string.IsNullOrWhiteSpace(senderEmail))
             {
+                Log.Warning("[EmailService] Chưa cấu hình địa chỉ email gửi (Email:SenderEmail) khi gửi thư tới '{NguoiNhan}'.", nguoiNhan);
                 return new EmailResult(
                     false,
                     "Chưa cấu hình địa chỉ email gửi (Email:SenderEmail) trong cấu hình hoặc User Secrets.",
@@ -118,6 +120,7 @@ namespace HotelManagement.BLL.Services
 
             if (string.IsNullOrWhiteSpace(appPassword))
             {
+                Log.Warning("[EmailService] Chưa cấu hình Gmail App Password (Email:AppPassword) khi gửi thư tới '{NguoiNhan}'.", nguoiNhan);
                 return new EmailResult(
                     false,
                     "Chưa cấu hình Gmail App Password (Email:AppPassword) trong User Secrets hoặc cấu hình.",
@@ -171,16 +174,19 @@ namespace HotelManagement.BLL.Services
                 progress?.Report("Đã chuyển phát thành công! Đang ngắt kết nối SMTP...");
                 await client.DisconnectAsync(true, cancellationToken);
 
+                Log.Information("[EmailService] Gửi email thành công tới '{NguoiNhan}' - Tiêu đề: '{TieuDe}'", nguoiNhan, tieuDe);
                 return new EmailResult(true, null, nguoiNhan, tieuDe, thoiGian);
             }
             catch (OperationCanceledException)
             {
+                Log.Warning("[EmailService] Thao tác gửi email tới '{NguoiNhan}' đã bị hủy bởi người dùng.", nguoiNhan);
                 return new EmailResult(false, "Thao tác gửi email đã bị hủy.", nguoiNhan, tieuDe, thoiGian);
             }
             catch (Exception ex)
             {
                 // Bắt toàn bộ lỗi nội bộ (SMTP lỗi, timeout, sai mật khẩu, rớt mạng)
                 // Tuyệt đối không throw để không làm hỏng luồng đặt phòng hoặc thanh toán
+                Log.Error(ex, "[EmailService] Gửi email tới '{NguoiNhan}' thất bại: {ErrorMessage}", nguoiNhan, ex.Message);
                 return new EmailResult(false, $"Lỗi khi gửi email qua MailKit: {ex.Message}", nguoiNhan, tieuDe, thoiGian);
             }
         }
