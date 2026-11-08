@@ -49,6 +49,8 @@ namespace HotelManagement.Forms
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            this.AutoScaleMode = AutoScaleMode.Dpi;
+            AppTheme.ApplyFormStyle(this);
 
             Text = "Quản lý phòng";
             Width = 1150;
@@ -114,14 +116,8 @@ namespace HotelManagement.Forms
                 Location = new Point(452, yNut),
                 Width = 135,
                 Height = 30,
-                Anchor = AnchorStyles.Left | AnchorStyles.Bottom,
-                BackColor = Color.FromArgb(13, 59, 102),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 9f, FontStyle.Bold),
-                Cursor = Cursors.Hand
+                Anchor = AnchorStyles.Left | AnchorStyles.Bottom
             };
-            _btnImportExcel.FlatAppearance.BorderSize = 0;
 
             _btnThem.Click += async (_, _) => await ThemAsync();
             _btnSua.Click += async (_, _) => await SuaAsync();
@@ -137,6 +133,30 @@ namespace HotelManagement.Forms
                 lblTrangThai, _cboTrangThai,
                 _btnThem, _btnSua, _btnXoa, _btnLamMoi, _btnImportExcel
             });
+
+            AppTheme.ApplyLabel(lblTimKiem);
+            AppTheme.ApplyLabel(lblSoPhong);
+            AppTheme.ApplyLabel(lblLoaiPhong);
+            AppTheme.ApplyLabel(lblTrangThai);
+
+            AppTheme.ApplyTextBox(_txtTimKiem);
+            AppTheme.ApplyTextBox(_txtSoPhong);
+            AppTheme.ApplyComboBox(_cboLoaiPhong);
+            AppTheme.ApplyComboBox(_cboTrangThai);
+            AppTheme.ApplyDataGridView(_dgv);
+
+            AppTheme.ApplyPrimaryButton(_btnTimKiem);
+            AppTheme.ApplyPrimaryButton(_btnThem);
+            AppTheme.ApplySecondaryButton(_btnSua);
+            AppTheme.ApplySecondaryButton(_btnXoa);
+            AppTheme.ApplySecondaryButton(_btnLamMoi);
+            AppTheme.ApplySecondaryButton(_btnImportExcel);
+
+            // Label AutoSize rộng ra theo font mới -> canh ô nhập theo mép label để không đè chữ
+            AppTheme.AlignInputAfterLabel(lblTimKiem, _txtTimKiem);
+            AppTheme.AlignInputAfterLabel(lblSoPhong, _txtSoPhong);
+            AppTheme.AlignInputAfterLabel(lblLoaiPhong, _cboLoaiPhong);
+            AppTheme.AlignInputAfterLabel(lblTrangThai, _cboTrangThai);
         }
 
         #endregion

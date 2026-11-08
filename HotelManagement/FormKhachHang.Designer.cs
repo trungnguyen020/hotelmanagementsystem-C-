@@ -50,6 +50,8 @@ namespace HotelManagement.Forms
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            this.AutoScaleMode = AutoScaleMode.Dpi;
+            AppTheme.ApplyFormStyle(this);
 
             Text = "Quản lý khách hàng";
             Width = 1150;
@@ -148,6 +150,48 @@ namespace HotelManagement.Forms
                 _chkCoNgaySinh, _dtpNgaySinh,
                 _btnThem, _btnSua, _btnXoa, _btnLamMoi
             });
+
+            AppTheme.ApplyLabel(lblTimKiem);
+            AppTheme.ApplyLabel(lblTen);
+            AppTheme.ApplyLabel(lblCccd);
+            AppTheme.ApplyLabel(lblSdt);
+            AppTheme.ApplyLabel(lblEmail);
+            AppTheme.ApplyLabel(lblGioiTinh);
+
+            AppTheme.ApplyTextBox(_txtTimKiem);
+            AppTheme.ApplyTextBox(_txtTen);
+            AppTheme.ApplyTextBox(_txtCccd);
+            AppTheme.ApplyTextBox(_txtSdt);
+            AppTheme.ApplyTextBox(_txtEmail);
+            AppTheme.ApplyComboBox(_cboGioiTinh);
+            AppTheme.ApplyDateTimePicker(_dtpNgaySinh);
+            AppTheme.ApplyCheckBox(_chkCoNgaySinh);
+            AppTheme.ApplyDataGridView(_dgv);
+
+            AppTheme.ApplyPrimaryButton(_btnTimKiem);
+            AppTheme.ApplyPrimaryButton(_btnThem);
+            AppTheme.ApplySecondaryButton(_btnSua);
+            AppTheme.ApplySecondaryButton(_btnXoa);
+            AppTheme.ApplySecondaryButton(_btnLamMoi);
+
+            // Label AutoSize rộng ra theo font mới -> canh ô nhập theo mép label, giữ cột thẳng hàng
+            int cotNhapTrai = Math.Max(lblTen.Right, Math.Max(lblSdt.Right, lblGioiTinh.Right)) + 8;
+            _txtTen.Left = cotNhapTrai;
+            _txtSdt.Left = cotNhapTrai;
+            _cboGioiTinh.Left = cotNhapTrai;
+
+            // Cột phải phải nằm sau mép phải của ô rộng nhất bên trái
+            lblCccd.Left = _txtTen.Right + 24;
+            lblEmail.Left = lblCccd.Left;
+
+            int cotNhapPhai = Math.Max(lblCccd.Right, lblEmail.Right) + 8;
+            _txtCccd.Left = cotNhapPhai;
+            _txtEmail.Left = cotNhapPhai;
+
+            _chkCoNgaySinh.Left = _cboGioiTinh.Right + 24;
+            _dtpNgaySinh.Left = _chkCoNgaySinh.Right + 8;
+
+            AppTheme.AlignInputAfterLabel(lblTimKiem, _txtTimKiem);
         }
 
         #endregion

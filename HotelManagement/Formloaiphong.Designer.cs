@@ -47,6 +47,8 @@ namespace HotelManagement.Forms
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            this.AutoScaleMode = AutoScaleMode.Dpi;
+            AppTheme.ApplyFormStyle(this);
 
             Text = "Quản lý loại phòng";
             Width = 1150;
@@ -56,6 +58,7 @@ namespace HotelManagement.Forms
             MinimumSize = new Size(920, 620);
 
             var lblTimKiem = new Label { Text = "Tìm kiếm:", Location = new Point(12, 15), AutoSize = true };
+            AppTheme.ApplyLabel(lblTimKiem);
             _txtTimKiem = new TextBox { Location = new Point(80, 12), Width = 300 };
             _btnTimKiem = new Button { Text = "Tìm", Location = new Point(415, 10), Width = 100, Height = 30 };
             _btnTimKiem.Click += async (_, _) => await TimKiemAsync();
@@ -77,9 +80,11 @@ namespace HotelManagement.Forms
 
             int yNhap = 549;
             var lblTen = new Label { Text = "Tên loại phòng:", Location = new Point(12, yNhap), AutoSize = true, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
+            AppTheme.ApplyLabel(lblTen);
             _txtTen = new TextBox { Location = new Point(130, yNhap - 3), Width = 220, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
 
             var lblGia = new Label { Text = "Giá (VNĐ):", Location = new Point(370, yNhap), AutoSize = true, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
+            AppTheme.ApplyLabel(lblGia);
             _numGia = new NumericUpDown
             {
                 Location = new Point(460, yNhap - 3),
@@ -90,6 +95,7 @@ namespace HotelManagement.Forms
             };
 
             var lblSucChua = new Label { Text = "Sức chứa (người):", Location = new Point(12, yNhap + 35), AutoSize = true, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
+            AppTheme.ApplyLabel(lblSucChua);
             _numSucChua = new NumericUpDown
             {
                 Location = new Point(150, yNhap + 32),
@@ -100,6 +106,7 @@ namespace HotelManagement.Forms
             };
 
             var lblMoTa = new Label { Text = "Mô tả:", Location = new Point(12, yNhap + 70), AutoSize = true, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
+            AppTheme.ApplyLabel(lblMoTa);
             _txtMoTa = new TextBox
             {
                 Location = new Point(130, yNhap + 67),
@@ -129,6 +136,29 @@ namespace HotelManagement.Forms
                 lblMoTa, _txtMoTa,
                 _btnThem, _btnSua, _btnXoa, _btnLamMoi
             });
+
+            AppTheme.ApplyTextBox(_txtTimKiem);
+            AppTheme.ApplyTextBox(_txtTen);
+            AppTheme.ApplyTextBox(_txtMoTa);
+            AppTheme.ApplyNumericUpDown(_numGia);
+            AppTheme.ApplyNumericUpDown(_numSucChua);
+            AppTheme.ApplyDataGridView(_dgv);
+            AppTheme.ApplyPrimaryButton(_btnTimKiem);
+            AppTheme.ApplyPrimaryButton(_btnThem);
+            AppTheme.ApplySecondaryButton(_btnSua);
+            AppTheme.ApplySecondaryButton(_btnXoa);
+            AppTheme.ApplySecondaryButton(_btnLamMoi);
+
+            // Label AutoSize rộng ra theo font mới -> dời ô nhập theo mép label để không đè chữ
+            AppTheme.AlignInputAfterLabel(lblTimKiem, _txtTimKiem);
+            AppTheme.AlignInputAfterLabel(lblTen, _txtTen);
+            AppTheme.AlignInputAfterLabel(lblGia, _numGia);
+            AppTheme.AlignInputAfterLabel(lblSucChua, _numSucChua);
+
+            // Giữ cột nhập của Mô tả thẳng hàng với ô Tên và giữ nguyên mép phải
+            int chenhLechCotNhap = _txtTen.Left - 130;
+            _txtMoTa.Left += chenhLechCotNhap;
+            _txtMoTa.Width -= chenhLechCotNhap;
         }
 
         #endregion

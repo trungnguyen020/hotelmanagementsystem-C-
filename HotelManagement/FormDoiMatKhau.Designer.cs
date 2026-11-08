@@ -40,6 +40,8 @@ namespace HotelManagement.Forms
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            this.AutoScaleMode = AutoScaleMode.Dpi;
+            AppTheme.ApplyFormStyle(this);
 
             Text = "Đổi mật khẩu";
             Width = 500;
@@ -53,14 +55,17 @@ namespace HotelManagement.Forms
             int y = 30;
 
             var lblMatKhauCu = new Label { Text = "Mật khẩu cũ:", Location = new Point(30, y), AutoSize = true };
+            AppTheme.ApplyLabel(lblMatKhauCu);
             _txtMatKhauCu = new TextBox { Location = new Point(lblWidth + 30, y - 3), Width = 220, UseSystemPasswordChar = true };
 
             y += 45;
             var lblMatKhauMoi = new Label { Text = "Mật khẩu mới:", Location = new Point(30, y), AutoSize = true };
+            AppTheme.ApplyLabel(lblMatKhauMoi);
             _txtMatKhauMoi = new TextBox { Location = new Point(lblWidth + 30, y - 3), Width = 220, UseSystemPasswordChar = true };
 
             y += 45;
             var lblXacNhan = new Label { Text = "Xác nhận MK:", Location = new Point(30, y), AutoSize = true };
+            AppTheme.ApplyLabel(lblXacNhan);
             _txtXacNhanMatKhau = new TextBox { Location = new Point(lblWidth + 30, y - 3), Width = 220, UseSystemPasswordChar = true };
 
             y += 55;
@@ -77,6 +82,12 @@ namespace HotelManagement.Forms
                 lblXacNhan, _txtXacNhanMatKhau,
                 _btnLuu, _btnHuy
             });
+
+            AppTheme.ApplyTextBox(_txtMatKhauCu);
+            AppTheme.ApplyTextBox(_txtMatKhauMoi);
+            AppTheme.ApplyTextBox(_txtXacNhanMatKhau);
+            AppTheme.ApplyPrimaryButton(_btnLuu);
+            AppTheme.ApplySecondaryButton(_btnHuy);
         }
 
         #endregion

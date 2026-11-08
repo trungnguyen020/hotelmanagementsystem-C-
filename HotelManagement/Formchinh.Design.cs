@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using HotelManagement.Common;
 using HotelManagement.Localization;
 
 namespace HotelManagement
@@ -46,12 +47,15 @@ namespace HotelManagement
         private Label _lblUserInfoBadge = null!;
         private ComboBox _cboLanguage = null!;
         private Panel _pnlMainContainer = null!;
-        private Label _lblDashboardTitle = null!;
-        private Label _lblDashboardSub = null!;
-        private FlowLayoutPanel _pnlQuickActions = null!;
         private StatusStrip _statusStrip = null!;
         private ToolStripStatusLabel _lblStatusUser = null!;
         private ToolStripStatusLabel _lblStatusTime = null!;
+
+        private Panel _pnlSidebar = null!;
+        private Panel _pnlSidebarHeader = null!;
+        private FlowLayoutPanel _pnlSidebarNav = null!;
+        private PictureBox _picSidebarLogo = null!;
+        private readonly List<Button> _sidebarNavButtons = new();
 
         private void InitializeComponent()
         {
@@ -280,61 +284,161 @@ namespace HotelManagement
             _pnlTopBar.Resize += (s, e) => CanChinhTopBar();
             CanChinhTopBar();
 
-            // ================= 3. Main Dashboard: Các thẻ thao tác nhanh =================
-            _pnlMainContainer = new Panel
+            // ================= 2b. Sidebar điều hướng =================
+            _pnlSidebar = new Panel
+            {
+                Dock = DockStyle.Left,
+                Width = 240,
+                BackColor = AppTheme.Surface
+            };
+
+            _pnlSidebarHeader = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 188,
+                BackColor = AppTheme.Surface
+            };
+
+            _picSidebarLogo = new PictureBox
+            {
+                Image = EmbeddedImages.Logo,
+                Size = new Size(96, 96),
+                Location = new Point((_pnlSidebar.Width - 96) / 2, 16),
+                SizeMode = PictureBoxSizeMode.Zoom,
+                BackColor = AppTheme.Surface
+            };
+
+            var lblSidebarTen = new Label
+            {
+                Text = "Khách sạn DCKLTTQ",
+                Font = AppTheme.FontBodyBold,
+                ForeColor = AppTheme.Primary,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Location = new Point(8, 118),
+                Size = new Size(_pnlSidebar.Width - 16, 24)
+            };
+
+            var lblSidebarPhu = new Label
+            {
+                Text = "HỆ THỐNG QUẢN LÝ",
+                Font = AppTheme.FontCaption,
+                ForeColor = AppTheme.TextMuted,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Location = new Point(8, 144),
+                Size = new Size(_pnlSidebar.Width - 16, 20)
+            };
+
+            _pnlSidebarHeader.Controls.AddRange(new Control[] { _picSidebarLogo, lblSidebarTen, lblSidebarPhu });
+
+            _pnlSidebarNav = new FlowLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                BackColor = AppTheme.Background,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
                 AutoScroll = true,
-                Padding = new Padding(36, 28, 36, 28)
+                BackColor = AppTheme.Surface,
+                Padding = new Padding(0, 8, 0, 12)
             };
 
-            _lblDashboardTitle = new Label
+            void ThemNhomSidebar(string tieuDe)
             {
-                Text = "BẢNG ĐIỀU KHIỂN & TÁC VỤ NHANH",
-                Font = AppTheme.FontHeader,
-                ForeColor = AppTheme.TextPrimary,
-                AutoSize = true,
-                Location = new Point(36, 18)
-            };
+                _pnlSidebarNav.Controls.Add(new Label
+                {
+                    Text = tieuDe,
+                    Font = AppTheme.FontSmallBold,
+                    ForeColor = AppTheme.TextMuted,
+                    TextAlign = ContentAlignment.BottomLeft,
+                    Size = new Size(208, 26),
+                    Margin = new Padding(20, 10, 0, 2)
+                });
+            }
 
-            _lblDashboardSub = new Label
+            void ThemNutSidebar(ToolStripMenuItem mucMenu)
             {
-                Text = "Chọn nhanh các phân hệ nghiệp vụ khách sạn thường dùng hàng ngày",
-                Font = AppTheme.FontSmall,
-                ForeColor = AppTheme.TextSecondary,
-                AutoSize = true,
-                Location = new Point(36, 52)
-            };
+                var btn = new Button
+                {
+                    Text = mucMenu.Text,
+                    Width = 208,
+                    Height = 40,
+                    Margin = new Padding(16, 2, 16, 2),
+                    FlatStyle = FlatStyle.Flat,
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    Padding = new Padding(12, 0, 0, 0),
+                    Font = AppTheme.FontBody,
+                    ForeColor = AppTheme.TextPrimary,
+                    BackColor = AppTheme.Surface,
+                    Cursor = Cursors.Hand,
+                    UseVisualStyleBackColor = false
+                };
+                btn.FlatAppearance.BorderSize = 0;
+                btn.FlatAppearance.MouseOverBackColor = AppTheme.SurfaceSecondary;
+                btn.FlatAppearance.MouseDownBackColor = AppTheme.SurfaceHover;
 
-            _pnlQuickActions = new FlowLayoutPanel
+                mucMenu.TextChanged += (_, _) => btn.Text = mucMenu.Text;
+                // Dùng Available thay vì Visible: mục con trong menu sổ xuống báo Visible=false
+                // cho tới khi menu được mở lần đầu, còn Available vẫn đúng trạng thái ẩn/hiện.
+                mucMenu.AvailableChanged += (_, _) => btn.Visible = mucMenu.Available;
+                btn.Visible = mucMenu.Available;
+
+                btn.Click += (_, _) =>
+                {
+                    DatNutSidebarDangChon(btn);
+                    mucMenu.PerformClick();
+                };
+
+                _sidebarNavButtons.Add(btn);
+                _pnlSidebarNav.Controls.Add(btn);
+            }
+
+            ThemNhomSidebar("ĐIỀU HƯỚNG");
+            ThemNutSidebar(mnuDashboard);
+            ThemNutSidebar(mnuSoDoPhongTop);
+
+            ThemNhomSidebar("NGHIỆP VỤ");
+            ThemNutSidebar(mnuDatPhong);
+            ThemNutSidebar(mnuCheckIn);
+            ThemNutSidebar(mnuCheckOut);
+            ThemNutSidebar(mnuThanhToan);
+
+            ThemNhomSidebar("DANH MỤC");
+            ThemNutSidebar(mnuPhong);
+            ThemNutSidebar(mnuLoaiPhong);
+            ThemNutSidebar(mnuKhachHang);
+            ThemNutSidebar(mnuQuanLyNhanSu);
+            ThemNutSidebar(mnuImportPhong);
+            ThemNutSidebar(mnuBaoCao);
+            ThemNutSidebar(mnuLichSuThongBao);
+
+            ThemNhomSidebar("HỆ THỐNG");
+            ThemNutSidebar(mnuDoiMatKhau);
+            ThemNutSidebar(mnuDangXuat);
+
+            var pnlSidebarBorder = new Panel
             {
-                Location = new Point(36, 88),
-                Size = new Size(1200, 520),
-                Anchor = AnchorStyles.Top | AnchorStyles.Left,
-                BackColor = Color.Transparent,
-                AutoScroll = true,
-                WrapContents = true
+                Dock = DockStyle.Right,
+                Width = 1,
+                BackColor = AppTheme.BorderLight
             };
 
-            // Co giãn theo bề rộng vùng nội dung; không neo phải để tránh vòng lặp
-            // kích thước với AutoScroll của panel cha.
-            _pnlMainContainer.Resize += (s, e) =>
+            _pnlSidebar.Controls.Add(_pnlSidebarNav);
+            _pnlSidebar.Controls.Add(_pnlSidebarHeader);
+            _pnlSidebar.Controls.Add(pnlSidebarBorder);
+
+            // ================= 3. Vùng nội dung: ảnh nền phủ kín =================
+            // Panel chỉ chiếm phần còn lại sau MenuStrip/TopBar/Sidebar/StatusStrip
+            // nên ảnh nền không thể tràn lên các vùng đó.
+            _pnlMainContainer = new BackgroundPanel
             {
-                int width = _pnlMainContainer.ClientSize.Width - 72;
-                if (width > 0 && _pnlQuickActions.Width != width)
-                    _pnlQuickActions.Width = width;
+                Dock = DockStyle.Fill,
+                BackColor = AppTheme.Background
             };
-
-            TaiLaiTheTacVuNhanh();
-
-            _pnlMainContainer.Controls.Add(_lblDashboardTitle);
-            _pnlMainContainer.Controls.Add(_lblDashboardSub);
-            _pnlMainContainer.Controls.Add(_pnlQuickActions);
 
             // ================= 4. Bottom StatusStrip =================
             _statusStrip = new StatusStrip
             {
+                // TableLayout mặc định tính sai bề rộng Spring ở DPI 125%, đẩy nhãn giờ
+                // ra ngoài khung; xếp ngang và ghim phải cho kết quả ổn định.
+                LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow,
                 BackColor = AppTheme.Surface,
                 Font = AppTheme.FontSmall,
                 ForeColor = AppTheme.TextSecondary,
@@ -344,181 +448,66 @@ namespace HotelManagement
             _lblStatusUser = new ToolStripStatusLabel
             {
                 Text = $"Hệ thống đang hoạt động • Người dùng: {_taiKhoanDangNhap.TenDangnhap} ({_taiKhoanDangNhap.IdVaitroNavigation.TenVaitro})",
-                Spring = true,
                 TextAlign = ContentAlignment.MiddleLeft
             };
 
             _lblStatusTime = new ToolStripStatusLabel
             {
                 Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                Alignment = ToolStripItemAlignment.Right,
                 TextAlign = ContentAlignment.MiddleRight
             };
 
             _statusStrip.Items.AddRange(new ToolStripItem[] { _lblStatusUser, _lblStatusTime });
 
-            // Ráp vào Form
+            // Ráp vào Form (thứ tự dock: Fill -> TopBar -> Sidebar -> Menu -> Status)
             this.Controls.Add(_pnlMainContainer);
             this.Controls.Add(_pnlTopBar);
+            this.Controls.Add(_pnlSidebar);
             this.Controls.Add(menuChinh);
             this.Controls.Add(_statusStrip);
         }
 
-        private void TaiLaiTheTacVuNhanh()
+        private void DatNutSidebarDangChon(Button nutDuocChon)
         {
-            if (_pnlQuickActions == null) return;
-            _pnlQuickActions.SuspendLayout();
-            _pnlQuickActions.Controls.Clear();
-
-            // 1. Sơ đồ phòng
-            ThemTheTacVuNhanh(
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_SoDoPhong_Title"),
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_SoDoPhong_Desc"),
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_SoDoPhong_Btn"),
-                AppTheme.Primary, () =>
+            foreach (var btn in _sidebarNavButtons)
             {
-                using var form = new HotelManagement.Forms.FormSoDoPhong(_taiKhoanDangNhap);
-                form.ShowDialog(this);
-            });
-
-            // 2. Đặt phòng mới
-            ThemTheTacVuNhanh(
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_DatPhong_Title"),
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_DatPhong_Desc"),
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_DatPhong_Btn"),
-                AppTheme.AccentGold, () =>
-            {
-                using var form = new HotelManagement.Forms.FormDatPhong(_taiKhoanDangNhap);
-                form.ShowDialog(this);
-            });
-
-            // 3. Check-in
-            ThemTheTacVuNhanh(
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_CheckIn_Title"),
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_CheckIn_Desc"),
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_CheckIn_Btn"),
-                AppTheme.StatusSuccessText, () =>
-            {
-                using var form = new HotelManagement.Forms.FormCheckIn(_taiKhoanDangNhap);
-                form.ShowDialog(this);
-            });
-
-            // 4. Check-out
-            ThemTheTacVuNhanh(
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_CheckOut_Title"),
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_CheckOut_Desc"),
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_CheckOut_Btn"),
-                AppTheme.StatusWarningText, () =>
-            {
-                using var form = new HotelManagement.Forms.FormCheckOut(_taiKhoanDangNhap);
-                form.ShowDialog(this);
-            });
-
-            // 5. Thanh toán
-            ThemTheTacVuNhanh(
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_ThanhToan_Title"),
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_ThanhToan_Desc"),
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_ThanhToan_Btn"),
-                AppTheme.Primary, () =>
-            {
-                using var form = new HotelManagement.Forms.FormThanhToan();
-                form.ShowDialog(this);
-            });
-
-            // 6. Khách hàng
-            ThemTheTacVuNhanh(
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_KhachHang_Title"),
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_KhachHang_Desc"),
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_KhachHang_Btn"),
-                AppTheme.TextSecondary, () =>
-            {
-                using var form = new HotelManagement.Forms.FormKhachHang();
-                form.ShowDialog(this);
-            });
-
-            // 7. Lịch sử thông báo
-            ThemTheTacVuNhanh(
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_LichSuThongBao_Title"),
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_LichSuThongBao_Desc"),
-                HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_LichSuThongBao_Btn"),
-                AppTheme.Primary, () =>
-            {
-                using var form = new HotelManagement.Forms.FormLichSuThongBao();
-                form.ShowDialog(this);
-            });
-
-            // 8. Dashboard (Admin)
-            if (_taiKhoanDangNhap.IdVaitroNavigation.TenVaitro == "Admin")
-            {
-                ThemTheTacVuNhanh(
-                    HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_Dashboard_Title"),
-                    HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_Dashboard_Desc"),
-                    HotelManagement.Localization.LanguageManager.GetString("FormChinh_Quick_Dashboard_Btn"),
-                    AppTheme.AccentGold, () =>
-                {
-                    using var form = new HotelManagement.Forms.FormDashboard();
-                    form.ShowDialog(this);
-                });
+                bool dangChon = ReferenceEquals(btn, nutDuocChon);
+                btn.BackColor = dangChon ? AppTheme.PrimaryLight : AppTheme.Surface;
+                btn.ForeColor = dangChon ? AppTheme.Primary : AppTheme.TextPrimary;
+                btn.Font = dangChon ? AppTheme.FontBodyBold : AppTheme.FontBody;
+                btn.FlatAppearance.MouseOverBackColor = dangChon ? AppTheme.PrimaryLight : AppTheme.SurfaceSecondary;
             }
-
-            _pnlQuickActions.ResumeLayout();
-        }
-
-        private void ThemTheTacVuNhanh(string title, string desc, string btnText, Color accentColor, Action action)
-        {
-            var pnlCard = new Panel
-            {
-                Width = 360,
-                Height = 170,
-                Margin = new Padding(0, 0, 20, 20),
-                BackColor = AppTheme.Surface,
-                Cursor = Cursors.Hand
-            };
-            AppTheme.ApplyCardPanel(pnlCard);
-
-            // Dải màu nhấn bên trái
-            pnlCard.Paint += (s, e) =>
-            {
-                using var brush = new SolidBrush(accentColor);
-                e.Graphics.FillRectangle(brush, 0, 0, 5, pnlCard.Height);
-            };
-
-            var lblTitle = new Label
-            {
-                Text = title,
-                Font = AppTheme.FontBodyBold,
-                ForeColor = AppTheme.TextPrimary,
-                Location = new Point(18, 16),
-                Size = new Size(325, 24)
-            };
-
-            var lblDesc = new Label
-            {
-                Text = desc,
-                Font = AppTheme.FontSmall,
-                ForeColor = AppTheme.TextSecondary,
-                Location = new Point(18, 44),
-                Size = new Size(325, 55)
-            };
-
-            var btn = new Button
-            {
-                Text = btnText,
-                Location = new Point(18, 112),
-                Size = new Size(190, 36),
-                Cursor = Cursors.Hand
-            };
-            AppTheme.ApplySecondaryButton(btn);
-            btn.Click += (_, _) => action();
-
-            pnlCard.Controls.AddRange(new Control[] { lblTitle, lblDesc, btn });
-            pnlCard.Click += (_, _) => action();
-            lblTitle.Click += (_, _) => action();
-            lblDesc.Click += (_, _) => action();
-
-            _pnlQuickActions.Controls.Add(pnlCard);
         }
 
         #endregion
+
+        /// <summary>
+        /// Panel nền phủ kín vùng nội dung: ảnh được phóng theo tỷ lệ gốc và cắt phần dư,
+        /// không kéo giãn, không vẽ ra ngoài biên panel.
+        /// </summary>
+        private sealed class BackgroundPanel : Panel
+        {
+            protected override void OnPaintBackground(PaintEventArgs e)
+            {
+                base.OnPaintBackground(e);
+
+                Size kichThuoc = ClientSize;
+                if (kichThuoc.Width < 1 || kichThuoc.Height < 1)
+                    return;
+
+                Image anh = EmbeddedImages.Background;
+                float tyLe = Math.Max((float)kichThuoc.Width / anh.Width, (float)kichThuoc.Height / anh.Height);
+                int rong = (int)Math.Ceiling(anh.Width * tyLe);
+                int cao = (int)Math.Ceiling(anh.Height * tyLe);
+                var dich = new Rectangle((kichThuoc.Width - rong) / 2, (kichThuoc.Height - cao) / 2, rong, cao);
+
+                var cheDoCu = e.Graphics.InterpolationMode;
+                e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                e.Graphics.DrawImage(anh, dich);
+                e.Graphics.InterpolationMode = cheDoCu;
+            }
+        }
 
         /// <summary>
         /// Renderer menu phẳng thanh lịch theo theme đại dương.

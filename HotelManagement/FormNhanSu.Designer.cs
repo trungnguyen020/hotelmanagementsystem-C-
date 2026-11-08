@@ -58,6 +58,8 @@ namespace HotelManagement.Forms
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            this.AutoScaleMode = AutoScaleMode.Dpi;
+            AppTheme.ApplyFormStyle(this);
 
             Text = "Quản lý nhân sự";
             Width = 1150;
@@ -120,7 +122,6 @@ namespace HotelManagement.Forms
                 Text = "",
                 Location = new Point(12, yTaiKhoan),
                 AutoSize = true,
-                ForeColor = System.Drawing.Color.Blue,
                 Anchor = AnchorStyles.Left | AnchorStyles.Bottom
             };
 
@@ -194,6 +195,46 @@ namespace HotelManagement.Forms
                 _lblMatKhau, _txtMatKhau,
                 _btnThem, _btnSua, _btnXoa, _btnLamMoi, _btnDatLaiMk
             });
+
+            AppTheme.ApplyLabel(lblTimKiem);
+            AppTheme.ApplyLabel(lblHoTen);
+            AppTheme.ApplyLabel(lblCccd);
+            AppTheme.ApplyLabel(lblSdt);
+            AppTheme.ApplyLabel(lblNgaySinh);
+            AppTheme.ApplyLabel(_lblTenDangNhap);
+            AppTheme.ApplyLabel(_lblMatKhau);
+            AppTheme.ApplyLabel(_lblTaiKhoanInfo);
+            _lblTaiKhoanInfo.ForeColor = AppTheme.Primary;
+
+            AppTheme.ApplyTextBox(_txtTimKiem);
+            AppTheme.ApplyTextBox(_txtHoTen);
+            AppTheme.ApplyTextBox(_txtCccd);
+            AppTheme.ApplyTextBox(_txtSdt);
+            AppTheme.ApplyTextBox(_txtTenDangNhap);
+            AppTheme.ApplyTextBox(_txtMatKhau);
+            AppTheme.ApplyDateTimePicker(_dtpNgaySinh);
+            AppTheme.ApplyCheckBox(_chkTaoTaiKhoan);
+            AppTheme.ApplyDataGridView(_dgv);
+
+            AppTheme.ApplyPrimaryButton(_btnTimKiem);
+            AppTheme.ApplyPrimaryButton(_btnThem);
+            AppTheme.ApplySecondaryButton(_btnSua);
+            AppTheme.ApplySecondaryButton(_btnXoa);
+            AppTheme.ApplySecondaryButton(_btnLamMoi);
+            AppTheme.ApplySecondaryButton(_btnDatLaiMk);
+
+            // Label AutoSize rộng ra theo font mới -> canh ô nhập theo mép phải label, giữ 2 cột thẳng hàng
+            int cotNhapTrai = Math.Max(lblHoTen.Right, Math.Max(lblSdt.Right, _lblTenDangNhap.Right)) + 8;
+            _txtHoTen.Left = cotNhapTrai;
+            _txtSdt.Left = cotNhapTrai;
+            _txtTenDangNhap.Left = cotNhapTrai;
+
+            int cotNhapPhai = Math.Max(lblCccd.Right, Math.Max(lblNgaySinh.Right, _lblMatKhau.Right)) + 8;
+            _txtCccd.Left = cotNhapPhai;
+            _dtpNgaySinh.Left = cotNhapPhai;
+            _txtMatKhau.Left = cotNhapPhai;
+
+            AppTheme.AlignInputAfterLabel(lblTimKiem, _txtTimKiem);
         }
 
         #endregion

@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using HotelManagement.Common;
 using HotelManagement.Localization;
 
 namespace HotelManagement
@@ -22,6 +23,7 @@ namespace HotelManagement
 
         private Panel pnlBackground = null!;
         private Panel pnlCard = null!;
+        private PictureBox _picLogo = null!;
         private TextBox txtTenDangNhap = null!;
         private TextBox txtMatKhau = null!;
         private Button btnDangNhap = null!;
@@ -43,8 +45,8 @@ namespace HotelManagement
 
             // Cấu hình Form đăng nhập
             this.Text = "Hệ thống quản lý khách sạn — Đăng nhập";
-            this.ClientSize = new Size(580, 580);
-            this.MinimumSize = new Size(580, 580);
+            this.ClientSize = new Size(580, 640);
+            this.MinimumSize = new Size(580, 640);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -62,8 +64,8 @@ namespace HotelManagement
             // Thẻ Card đăng nhập trung tâm
             pnlCard = new Panel
             {
-                Size = new Size(500, 500),
-                Location = new Point(40, 40),
+                Size = new Size(500, 570),
+                Location = new Point(40, 35),
                 BackColor = AppTheme.Surface
             };
             AppTheme.ApplyCardPanel(pnlCard);
@@ -74,9 +76,9 @@ namespace HotelManagement
                 Text = "HOTEL MANAGEMENT • RESORT",
                 Font = AppTheme.FontSmallBold,
                 ForeColor = AppTheme.Primary,
-                TextAlign = ContentAlignment.MiddleLeft,
-                Location = new Point(35, 20),
-                Size = new Size(300, 24)
+                TextAlign = ContentAlignment.MiddleCenter,
+                Location = new Point(20, 160),
+                Size = new Size(460, 22)
             };
 
             // Nút chọn ngôn ngữ góc trên bên phải của Card (VI / EN)
@@ -102,6 +104,16 @@ namespace HotelManagement
             AppTheme.ApplySecondaryButton(_btnLangEn);
             _btnLangEn.Click += (s, e) => LanguageManager.SetLanguage(AppLanguage.English);
 
+            // Logo thương hiệu phía trên khối đăng nhập (nền trắng của logo hòa với card)
+            _picLogo = new PictureBox
+            {
+                Image = EmbeddedImages.Logo,
+                Size = new Size(140, 140),
+                Location = new Point(180, 16),
+                SizeMode = PictureBoxSizeMode.Zoom,
+                BackColor = AppTheme.Surface
+            };
+
             // 2. Tiêu đề chính
             _lblTieuDe = new Label
             {
@@ -109,15 +121,15 @@ namespace HotelManagement
                 Font = AppTheme.FontDisplay,
                 ForeColor = AppTheme.TextPrimary,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Location = new Point(20, 54),
-                Size = new Size(460, 40)
+                Location = new Point(20, 186),
+                Size = new Size(460, 38)
             };
 
             // Dải gạch trang trí màu vàng đồng
             var pnlDivider = new Panel
             {
                 Size = new Size(60, 3),
-                Location = new Point(220, 98),
+                Location = new Point(220, 230),
                 BackColor = AppTheme.AccentGold
             };
 
@@ -127,13 +139,13 @@ namespace HotelManagement
                 Text = "Tên đăng nhập",
                 Font = AppTheme.FontBodyBold,
                 ForeColor = AppTheme.TextPrimary,
-                Location = new Point(45, 118),
+                Location = new Point(45, 248),
                 AutoSize = true
             };
 
             txtTenDangNhap = new TextBox
             {
-                Location = new Point(45, 142),
+                Location = new Point(45, 272),
                 Size = new Size(410, 34),
                 PlaceholderText = "Nhập tài khoản nhân sự..."
             };
@@ -145,13 +157,13 @@ namespace HotelManagement
                 Text = "Mật khẩu",
                 Font = AppTheme.FontBodyBold,
                 ForeColor = AppTheme.TextPrimary,
-                Location = new Point(45, 186),
+                Location = new Point(45, 316),
                 AutoSize = true
             };
 
             txtMatKhau = new TextBox
             {
-                Location = new Point(45, 210),
+                Location = new Point(45, 340),
                 Size = new Size(410, 34),
                 UseSystemPasswordChar = true,
                 PlaceholderText = "Nhập mật khẩu..."
@@ -162,7 +174,7 @@ namespace HotelManagement
             btnDangNhap = new Button
             {
                 Text = "ĐĂNG NHẬP",
-                Location = new Point(45, 264),
+                Location = new Point(45, 392),
                 Size = new Size(410, 44),
                 Cursor = Cursors.Hand
             };
@@ -172,7 +184,7 @@ namespace HotelManagement
             // 6. Label Thông báo lỗi / trạng thái
             lblThongBao = new Label
             {
-                Location = new Point(45, 314),
+                Location = new Point(45, 442),
                 Size = new Size(410, 36),
                 Font = AppTheme.FontSmallBold,
                 ForeColor = AppTheme.StatusDangerText,
@@ -184,7 +196,7 @@ namespace HotelManagement
             _btnKiosk = new Button
             {
                 Text = "🖥️  Chế độ Kiosk tra cứu (Dành cho khách hàng)",
-                Location = new Point(45, 356),
+                Location = new Point(45, 482),
                 Size = new Size(410, 42),
                 Font = AppTheme.FontSmallBold,
                 Cursor = Cursors.Hand
@@ -211,13 +223,14 @@ namespace HotelManagement
                 Font = AppTheme.FontCaption,
                 ForeColor = AppTheme.TextMuted,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Location = new Point(20, 412),
+                Location = new Point(20, 532),
                 Size = new Size(460, 22)
             };
 
             // Thêm controls vào Card
             pnlCard.Controls.AddRange(new Control[]
             {
+                _picLogo,
                 _lblBrand,
                 _btnLangVi,
                 _btnLangEn,

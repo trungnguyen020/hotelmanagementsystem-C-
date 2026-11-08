@@ -38,9 +38,8 @@ namespace HotelManagement
             }
             catch (Exception ex)
             {
-                // TODO: thay bằng cơ chế ghi log lỗi thực tế ở giai đoạn hoàn thiện
+                Serilog.Log.Error(ex, "[FormDangNhap] Ngoại lệ khi đăng nhập tài khoản '{Username}': {Message}", txtTenDangNhap.Text.Trim(), ex.Message);
                 lblThongBao.Text = LanguageManager.GetString("FormDangNhap_ErrGeneral");
-                Debug.WriteLine(ex);
             }
             finally
             {

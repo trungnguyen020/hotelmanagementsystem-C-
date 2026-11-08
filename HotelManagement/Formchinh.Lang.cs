@@ -70,20 +70,13 @@ namespace HotelManagement
                 if (mnuDoiMatKhau != null) mnuDoiMatKhau.Text = LanguageManager.GetString("FormChinh_Menu_DoiMatKhau");
                 if (mnuDangXuat != null) mnuDangXuat.Text = LanguageManager.GetString("FormChinh_Menu_DangXuat");
 
-                // 4. Nội dung Dashboard & Tác vụ nhanh
-                if (_lblDashboardTitle != null) _lblDashboardTitle.Text = LanguageManager.GetString("FormChinh_DashboardTitle");
-                if (_lblDashboardSub != null) _lblDashboardSub.Text = LanguageManager.GetString("FormChinh_DashboardSub");
-
-                // 5. Status Strip
+                // 4. Status Strip
                 if (_lblStatusUser != null)
                 {
                     _lblStatusUser.Text = string.Format(LanguageManager.GetString("FormChinh_StatusReady"),
                         _taiKhoanDangNhap.TenDangnhap,
                         _taiKhoanDangNhap.IdVaitroNavigation.TenVaitro);
                 }
-
-                // 6. Nạp lại thẻ tác vụ nhanh với các chuỗi dịch mới
-                TaiLaiTheTacVuNhanh();
             }
             finally
             {

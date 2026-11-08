@@ -98,7 +98,7 @@ namespace HotelManagement
         }
 
         /// <summary>
-        /// Nút bấm chính (Call to Action) - Nền Teal, chữ trắng.
+        /// Nút bấm chính (Call to Action) - Nền Bronze, chữ trắng.
         /// </summary>
         public static void ApplyPrimaryButton(Button btn)
         {
@@ -195,6 +195,66 @@ namespace HotelManagement
             txt.ForeColor = TextPrimary;
             txt.BackColor = Surface;
             txt.BorderStyle = BorderStyle.FixedSingle;
+        }
+
+        /// <summary>
+        /// Áp dụng style chuẩn cho ComboBox (chỉ thuộc tính, không vẽ lại).
+        /// </summary>
+        public static void ApplyComboBox(ComboBox cbo)
+        {
+            cbo.Font = FontBody;
+            cbo.ForeColor = TextPrimary;
+            cbo.BackColor = Surface;
+            cbo.FlatStyle = FlatStyle.Flat;
+        }
+
+        /// <summary>
+        /// Áp dụng style chuẩn cho NumericUpDown.
+        /// </summary>
+        public static void ApplyNumericUpDown(NumericUpDown num)
+        {
+            num.Font = FontBody;
+            num.ForeColor = TextPrimary;
+            num.BackColor = Surface;
+            num.BorderStyle = BorderStyle.FixedSingle;
+        }
+
+        /// <summary>
+        /// Áp dụng style chuẩn cho DateTimePicker.
+        /// </summary>
+        public static void ApplyDateTimePicker(DateTimePicker dtp)
+        {
+            dtp.Font = FontBody;
+            dtp.ForeColor = TextPrimary;
+            dtp.BackColor = Surface;
+        }
+
+        /// <summary>
+        /// Áp dụng style chuẩn cho CheckBox.
+        /// </summary>
+        public static void ApplyCheckBox(CheckBox chk)
+        {
+            chk.Font = FontBody;
+            chk.ForeColor = TextPrimary;
+            chk.BackColor = Color.Transparent;
+        }
+
+        /// <summary>
+        /// Áp dụng style cho Label. isTitle=true cho tiêu đề, ngược lại cho nhãn thường.
+        /// </summary>
+        public static void ApplyLabel(Label lbl, bool isTitle = false)
+        {
+            lbl.Font = isTitle ? FontHeader : FontBody;
+            lbl.ForeColor = isTitle ? TextPrimary : TextSecondary;
+            lbl.BackColor = Color.Transparent;
+        }
+
+        /// <summary>
+        /// Đặt ô nhập nằm ngay sau label (label AutoSize nên mép phải thay đổi theo font).
+        /// </summary>
+        public static void AlignInputAfterLabel(Label lbl, Control input, int gap = 6)
+        {
+            input.Left = lbl.Right + gap;
         }
 
         /// <summary>
