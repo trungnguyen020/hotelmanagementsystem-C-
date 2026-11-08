@@ -48,6 +48,8 @@ namespace HotelManagement.Forms
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            this.AutoScaleMode = AutoScaleMode.Dpi;
+            AppTheme.ApplyFormStyle(this);
 
             Text = "Đặt phòng";
             Size = new Size(1280, 800);
@@ -83,7 +85,7 @@ namespace HotelManagement.Forms
             
             var lblTimKH = new Label { Text = "Nhập CCCD / SĐT:", Location = new Point(10, 30), AutoSize = true };
             _txtTimKhachHang = new TextBox { Location = new Point(10, 50), Width = 180 };
-            _btnTimKhachHang = new Button { Text = "Tra cứu", Location = new Point(200, 48), Width = 80, Height = 25 };
+            _btnTimKhachHang = new Button { Text = "Tra cứu", Location = new Point(200, 48), Width = 80, Height = 30 };
             _btnTimKhachHang.Click += async (_, _) => await TimKhachHangAsync();
 
             _lblThongTinKhachHang = new Label 
@@ -94,11 +96,16 @@ namespace HotelManagement.Forms
                 MaximumSize = new Size(280, 0)
             };
 
-            var btnThemKH = new Button { Text = "Khách hàng mới...", Location = new Point(10, 160), Width = 130, Height = 30 };
+            var btnThemKH = new Button { Text = "Chọn khách hàng...", Location = new Point(10, 200), Width = 160, Height = 30 };
             btnThemKH.Click += (_, _) =>
             {
-                var frmKH = new FormKhachHang();
-                frmKH.ShowDialog(this);
+                using var frmChon = new FormChonKhachHang();
+                if (frmChon.ShowDialog(this) == DialogResult.OK && frmChon.KhachHangDaChon != null)
+                {
+                    _khachHangDuocChon = frmChon.KhachHangDaChon;
+                    _lblThongTinKhachHang.Text =
+                        $"Họ tên: {_khachHangDuocChon.Ten}\nCCCD: {_khachHangDuocChon.Cccd}\nSĐT: {_khachHangDuocChon.Sdt}";
+                }
             };
 
             pnlKhachHang.Controls.AddRange(new Control[] { lblTimKH, _txtTimKhachHang, _btnTimKhachHang, _lblThongTinKhachHang, btnThemKH });
@@ -143,10 +150,7 @@ namespace HotelManagement.Forms
                 Text = "ĐẶT PHÒNG", 
                 Location = new Point(20, 48), 
                 Width = 130, 
-                Height = 38, 
-                BackColor = Color.LightGreen,
-                Font = new Font(Font, FontStyle.Bold),
-                Cursor = Cursors.Hand
+                Height = 38
             };
             _btnDatPhong.Click += async (_, _) => await DatPhongAsync();
 
@@ -154,9 +158,7 @@ namespace HotelManagement.Forms
             { 
                 Text = "Tổng tiền tạm tính: 0", 
                 Location = new Point(170, 56), 
-                AutoSize = true, 
-                Font = new Font(Font.FontFamily, 11f, FontStyle.Bold),
-                ForeColor = Color.DarkSlateBlue
+                AutoSize = true
             };
 
             pnlDatPhong.Controls.AddRange(new Control[] { btnXoaPhongChon, _btnDatPhong, _lblTongTien });
@@ -170,6 +172,47 @@ namespace HotelManagement.Forms
             Controls.Add(pnlCenter);
             Controls.Add(pnlKhachHang);
             Controls.Add(pnlFilter);
+
+            // --- Áp theme chung ---
+            AppTheme.ApplyLabel(lblNgayNhan);
+            AppTheme.ApplyLabel(lblNgayTra);
+            AppTheme.ApplyLabel(lblLoaiPhong);
+            AppTheme.ApplyLabel(lblSoKhach);
+            AppTheme.ApplyLabel(lblTimKH);
+            AppTheme.ApplyLabel(_lblThongTinKhachHang);
+            AppTheme.ApplyLabel(_lblTongTien);
+            _lblTongTien.Font = AppTheme.FontSubHeader;
+            _lblTongTien.ForeColor = AppTheme.Primary;
+
+            AppTheme.ApplyDateTimePicker(_dtpNgayNhan);
+            AppTheme.ApplyDateTimePicker(_dtpNgayTra);
+            AppTheme.ApplyComboBox(_cboLoaiPhong);
+            AppTheme.ApplyNumericUpDown(_numSoKhach);
+            AppTheme.ApplyTextBox(_txtTimKhachHang);
+            AppTheme.ApplyDataGridView(_dgvPhongTrong);
+            AppTheme.ApplyDataGridView(_dgvPhongChon);
+
+            AppTheme.ApplyPrimaryButton(_btnTimPhong);
+            AppTheme.ApplyPrimaryButton(_btnDatPhong);
+            AppTheme.ApplySecondaryButton(_btnTimKhachHang);
+            AppTheme.ApplySecondaryButton(btnThemKH);
+            AppTheme.ApplySecondaryButton(btnChonPhong);
+            AppTheme.ApplySecondaryButton(btnXoaPhongChon);
+
+            // --- Canh lại bố cục theo font mới ---
+            AppTheme.AlignInputAfterLabel(lblNgayNhan, _dtpNgayNhan);
+            lblNgayTra.Left = _dtpNgayNhan.Right + 40;
+            AppTheme.AlignInputAfterLabel(lblNgayTra, _dtpNgayTra);
+            lblLoaiPhong.Left = _dtpNgayTra.Right + 40;
+            AppTheme.AlignInputAfterLabel(lblLoaiPhong, _cboLoaiPhong);
+            lblSoKhach.Left = _cboLoaiPhong.Right + 40;
+            AppTheme.AlignInputAfterLabel(lblSoKhach, _numSoKhach);
+            _btnTimPhong.Left = _numSoKhach.Right + 20;
+
+            _txtTimKhachHang.Top = lblTimKH.Bottom + 6;
+            _btnTimKhachHang.Top = _txtTimKhachHang.Top;
+            _lblThongTinKhachHang.Top = _txtTimKhachHang.Bottom + 12;
+            btnThemKH.Top = _lblThongTinKhachHang.Top + 80;
         }
 
         #endregion

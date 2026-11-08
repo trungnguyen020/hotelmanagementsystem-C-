@@ -44,8 +44,28 @@ namespace HotelManagement.BLL.Services
             if (danhSachIdPhong == null || !danhSachIdPhong.Any())
                 return (false, "Vui lòng chọn ít nhất 1 phòng để đặt.", null);
 
+            if (danhSachIdPhong.Distinct().Count() != danhSachIdPhong.Count)
+                return (false, "Danh sách phòng đặt bị trùng, vui lòng kiểm tra lại.", null);
+
+            if (idKhachHang <= 0)
+                return (false, "Vui lòng chọn khách hàng trước khi đặt phòng.", null);
+
+            if (soNguoi <= 0)
+                return (false, "Số người phải lớn hơn 0.", null);
+
             if (ngayNhan >= ngayTra)
                 return (false, "Ngày nhận phòng phải trước ngày trả phòng.", null);
+
+            if (ngayNhan < DateOnly.FromDateTime(DateTime.Today))
+                return (false, "Ngày nhận phòng không được ở quá khứ.", null);
+
+            // Khách đang lưu trú (đã check-in) chỉ được đặt phòng mới sau khi check-out thành công
+            var bookingDangLuuTru = await _unitOfWork.DatPhongRepository
+                .FindAsync(dp => dp.IdKhachhang == idKhachHang && dp.Trangthai == "Đã check-in");
+
+            var bookingHienTai = bookingDangLuuTru.FirstOrDefault();
+            if (bookingHienTai != null)
+                return (false, $"Khách hàng đang lưu trú (booking {bookingHienTai.Mabooking}) và chưa check-out. Vui lòng check-out trước khi đặt phòng mới.", null);
 
             try
             {
@@ -61,6 +81,27 @@ namespace HotelManagement.BLL.Services
                         await _unitOfWork.RollbackTransactionAsync();
                         return (false, $"Phòng {phong?.Sophong} đã được đặt trong khoảng thời gian này.", null);
                     }
+                }
+
+                // Tổng sức chứa của các phòng đã chọn phải đủ cho số khách
+                int tongSucChua = 0;
+                foreach (var idPhong in danhSachIdPhong)
+                {
+                    var phong = await _unitOfWork.PhongRepository.GetByIdAsync(idPhong);
+                    if (phong == null)
+                    {
+                        await _unitOfWork.RollbackTransactionAsync();
+                        return (false, $"Không tìm thấy phòng có mã {idPhong}.", null);
+                    }
+
+                    var loaiPhong = await _unitOfWork.LoaiPhongRepository.GetByIdAsync(phong.IdLoaiphong);
+                    tongSucChua += loaiPhong?.Succhua ?? 0;
+                }
+
+                if (tongSucChua < soNguoi)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return (false, $"Tổng sức chứa của các phòng đã chọn ({tongSucChua} người) không đủ cho {soNguoi} khách.", null);
                 }
 
                 // Sinh mã booking ngẫu nhiên / unique

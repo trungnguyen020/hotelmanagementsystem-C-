@@ -149,13 +149,43 @@ namespace HotelManagement.Forms
                 return;
             }
 
+            if (_numSoKhach.Value <= 0)
+            {
+                MessageBox.Show("Số khách phải lớn hơn 0.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var ngayNhan = DateOnly.FromDateTime(_dtpNgayNhan.Value);
+            var ngayTra = DateOnly.FromDateTime(_dtpNgayTra.Value);
+
+            if (ngayNhan >= ngayTra)
+            {
+                MessageBox.Show("Ngày trả phòng phải sau ngày nhận phòng.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (ngayNhan < DateOnly.FromDateTime(DateTime.Today))
+            {
+                MessageBox.Show("Ngày nhận phòng không được ở quá khứ.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            int tongSucChua = _dsPhongChon.Sum(p => p.SucChua);
+            if (tongSucChua < (int)_numSoKhach.Value)
+            {
+                MessageBox.Show(
+                    $"Tổng sức chứa của các phòng đã chọn ({tongSucChua} người) không đủ cho {_numSoKhach.Value} khách.",
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var dsIdPhong = _dsPhongChon.Select(p => p.IdPhong).ToList();
 
             var (success, msg, maBooking) = await _datPhongService.DatPhongAsync(
                 _khachHangDuocChon.IdKhachHang,
                 _taiKhoanDangNhap.IdNhansu,
-                DateOnly.FromDateTime(_dtpNgayNhan.Value),
-                DateOnly.FromDateTime(_dtpNgayTra.Value),
+                ngayNhan,
+                ngayTra,
                 (int)_numSoKhach.Value,
                 dsIdPhong
             );
