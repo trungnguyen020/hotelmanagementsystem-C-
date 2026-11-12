@@ -79,7 +79,8 @@ namespace HotelManagement.Forms
             StartPosition = FormStartPosition.CenterParent;
             WindowState = FormWindowState.Maximized;
             MinimumSize = new Size(1100, 740);
-            Font = new Font("Segoe UI", 9.5f, FontStyle.Regular);
+            AutoScaleMode = AutoScaleMode.Dpi;
+            AppTheme.ApplyFormStyle(this);
 
             // ================= 1. GroupBox: Tra cứu =================
             var grpTraCuu = new GroupBox
@@ -87,7 +88,8 @@ namespace HotelManagement.Forms
                 Text = "Tra cứu mã booking",
                 Location = new Point(16, 10),
                 Size = new Size(1232, 65),
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+                Font = AppTheme.FontBodyBold
             };
 
             var lblMaBooking = new Label
@@ -95,15 +97,17 @@ namespace HotelManagement.Forms
                 Text = "Mã Booking:",
                 Location = new Point(16, 26),
                 AutoSize = true,
-                Font = new Font(Font, FontStyle.Bold)
+                Font = AppTheme.FontBodyBold,
+                ForeColor = AppTheme.TextSecondary
             };
 
             _txtMaBooking = new TextBox
             {
                 Location = new Point(140, 23),
-                Width = 260,
-                Font = new Font("Segoe UI", 10.5f, FontStyle.Regular)
+                Width = 260
             };
+            AppTheme.ApplyTextBox(_txtMaBooking);
+            _txtMaBooking.Font = AppTheme.FontSubHeader;
             _txtMaBooking.KeyDown += async (_, e) =>
             {
                 if (e.KeyCode == Keys.Enter)
@@ -117,28 +121,18 @@ namespace HotelManagement.Forms
             {
                 Text = "Tra cứu",
                 Location = new Point(415, 21),
-                Size = new Size(100, 32),
-                BackColor = Color.FromArgb(0, 120, 215),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font(Font, FontStyle.Bold),
-                Cursor = Cursors.Hand
+                Size = new Size(100, 32)
             };
-            _btnTim.FlatAppearance.BorderSize = 0;
+            AppTheme.ApplyPrimaryButton(_btnTim);
             _btnTim.Click += async (_, _) => await TraCuuBookingAsync();
 
             _btnTraCuuNangCao = new Button
             {
-                Text = "Tra cứu",
+                Text = "Tra cứu nâng cao",
                 Location = new Point(525, 21),
-                Size = new Size(165, 32),
-                BackColor = Color.FromArgb(108, 92, 231),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font(Font, FontStyle.Bold),
-                Cursor = Cursors.Hand
+                Size = new Size(165, 32)
             };
-            _btnTraCuuNangCao.FlatAppearance.BorderSize = 0;
+            AppTheme.ApplySecondaryButton(_btnTraCuuNangCao);
             _btnTraCuuNangCao.Click += async (_, _) =>
             {
                 using var frm = new FormTraCuuBooking();
@@ -153,12 +147,17 @@ namespace HotelManagement.Forms
             {
                 Text = "Làm mới",
                 Location = new Point(700, 21),
-                Size = new Size(90, 32),
-                Cursor = Cursors.Hand
+                Size = new Size(90, 32)
             };
+            AppTheme.ApplySecondaryButton(_btnLamMoi);
             _btnLamMoi.Click += (_, _) => XoaTrangForm();
 
             grpTraCuu.Controls.AddRange(new Control[] { lblMaBooking, _txtMaBooking, _btnTim, _btnTraCuuNangCao, _btnLamMoi });
+
+            AppTheme.AlignInputAfterLabel(lblMaBooking, _txtMaBooking);
+            _btnTim.Left = _txtMaBooking.Right + 10;
+            _btnTraCuuNangCao.Left = _btnTim.Right + 10;
+            _btnLamMoi.Left = _btnTraCuuNangCao.Right + 10;
 
             // ================= 2. Panel Trái: Thông tin Booking & Thanh toán =================
             var grpThongTin = new GroupBox
@@ -166,7 +165,8 @@ namespace HotelManagement.Forms
                 Text = "Thông tin lưu trú - Thanh toán",
                 Location = new Point(16, 80),
                 Size = new Size(410, 644),
-                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left,
+                Font = AppTheme.FontBodyBold
             };
 
             var tblThongTin = new TableLayoutPanel
@@ -177,7 +177,7 @@ namespace HotelManagement.Forms
                 Padding = new Padding(10, 15, 10, 10),
                 AutoScroll = true
             };
-            tblThongTin.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 185f));
+            tblThongTin.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             tblThongTin.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
 
             void ThemDongThongTin(string nhan, Control giaTri, int row, bool inDamNhan = false)
@@ -186,8 +186,8 @@ namespace HotelManagement.Forms
                 {
                     Text = nhan,
                     AutoSize = true,
-                    ForeColor = inDamNhan ? Color.Black : Color.DimGray,
-                    Font = inDamNhan ? new Font(Font, FontStyle.Bold) : Font,
+                    ForeColor = inDamNhan ? AppTheme.TextPrimary : AppTheme.TextSecondary,
+                    Font = inDamNhan ? AppTheme.FontBodyBold : AppTheme.FontBody,
                     Anchor = AnchorStyles.Left | AnchorStyles.Top,
                     Margin = new Padding(0, 4, 4, 4)
                 };
@@ -198,13 +198,13 @@ namespace HotelManagement.Forms
                 tblThongTin.Controls.Add(giaTri, 1, row);
             }
 
-            _lblMaBookingVal = new Label { Text = "-", AutoSize = true, Font = new Font(Font, FontStyle.Bold) };
+            _lblMaBookingVal = new Label { Text = "-", AutoSize = true, Font = AppTheme.FontBodyBold, ForeColor = AppTheme.TextPrimary };
             ThemDongThongTin("Mã booking:", _lblMaBookingVal, 0);
 
-            _lblTrangThaiVal = new Label { Text = "-", AutoSize = true, Font = new Font(Font, FontStyle.Bold) };
+            _lblTrangThaiVal = new Label { Text = "-", AutoSize = true, Font = AppTheme.FontBodyBold, ForeColor = AppTheme.TextPrimary };
             ThemDongThongTin("Trạng thái:", _lblTrangThaiVal, 1);
 
-            _lblKhachHangVal = new Label { Text = "-", AutoSize = true, Font = new Font(Font, FontStyle.Bold) };
+            _lblKhachHangVal = new Label { Text = "-", AutoSize = true, Font = AppTheme.FontBodyBold, ForeColor = AppTheme.TextPrimary };
             ThemDongThongTin("Khách hàng:", _lblKhachHangVal, 2);
 
             _lblSdtVal = new Label { Text = "-", AutoSize = true };
@@ -223,22 +223,22 @@ namespace HotelManagement.Forms
             ThemDongThongTin("Ngày trả (thực tế):", _lblNgayTraThucTeVal, 7);
 
             // Đường phân cách
-            var pnlSep = new Panel { Height = 2, BackColor = Color.LightGray, Dock = DockStyle.Fill, Margin = new Padding(0, 8, 0, 8) };
+            var pnlSep = new Panel { Height = 2, BackColor = AppTheme.BorderLight, Dock = DockStyle.Fill, Margin = new Padding(0, 8, 0, 8) };
             tblThongTin.Controls.Add(pnlSep, 0, 8);
             tblThongTin.SetColumnSpan(pnlSep, 2);
 
-            _lblTongTienPhongVal = new Label { Text = "0 đ", AutoSize = true, Font = new Font(Font, FontStyle.Bold) };
+            _lblTongTienPhongVal = new Label { Text = "0 đ", AutoSize = true, Font = AppTheme.FontBodyBold, ForeColor = AppTheme.TextPrimary };
             ThemDongThongTin("Tiền phòng (tạm tính):", _lblTongTienPhongVal, 9);
 
-            _lblTongTienDichVuVal = new Label { Text = "0 đ", AutoSize = true, Font = new Font(Font, FontStyle.Bold) };
+            _lblTongTienDichVuVal = new Label { Text = "0 đ", AutoSize = true, Font = AppTheme.FontBodyBold, ForeColor = AppTheme.TextPrimary };
             ThemDongThongTin("Tiền dịch vụ phát sinh:", _lblTongTienDichVuVal, 10);
 
             _lblTongCongVal = new Label
             {
                 Text = "0 đ",
                 AutoSize = true,
-                Font = new Font("Segoe UI", 12f, FontStyle.Bold),
-                ForeColor = Color.Firebrick
+                Font = AppTheme.FontHeader,
+                ForeColor = AppTheme.Primary
             };
             ThemDongThongTin("TỔNG CỘNG:", _lblTongCongVal, 11, inDamNhan: true);
 
@@ -246,8 +246,8 @@ namespace HotelManagement.Forms
             {
                 Text = "-",
                 AutoSize = true,
-                Font = new Font(Font, FontStyle.Bold),
-                ForeColor = Color.DarkOrange
+                Font = AppTheme.FontBodyBold,
+                ForeColor = AppTheme.StatusWarningText
             };
             ThemDongThongTin("Thanh toán:", _lblTrangThaiThanhToanVal, 12, inDamNhan: true);
 
@@ -260,7 +260,8 @@ namespace HotelManagement.Forms
                 Text = "Danh sách phòng đang lưu trú",
                 Location = new Point(rightX, 80),
                 Size = new Size(810, 160),
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+                Font = AppTheme.FontBodyBold
             };
 
             _dgvPhong = new DataGridView
@@ -269,14 +270,9 @@ namespace HotelManagement.Forms
                 ReadOnly = true,
                 AllowUserToAddRows = false,
                 AllowUserToDeleteRows = false,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                MultiSelect = false,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                BackgroundColor = Color.White,
-                BorderStyle = BorderStyle.None,
-                RowHeadersVisible = false,
-                RowTemplate = { Height = 30 }
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             };
+            AppTheme.ApplyDataGridView(_dgvPhong);
 
             _dgvPhong.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "SoPhong", HeaderText = "Số phòng", FillWeight = 20 });
             _dgvPhong.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "TenLoaiPhong", HeaderText = "Loại phòng", FillWeight = 30 });
@@ -298,7 +294,8 @@ namespace HotelManagement.Forms
                 Text = "Dịch vụ phát sinh đã sử dụng",
                 Location = new Point(rightX, 245),
                 Size = new Size(810, 354),
-                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
+                Font = AppTheme.FontBodyBold
             };
 
             _dgvDichVu = new DataGridView
@@ -307,14 +304,9 @@ namespace HotelManagement.Forms
                 ReadOnly = true,
                 AllowUserToAddRows = false,
                 AllowUserToDeleteRows = false,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                MultiSelect = false,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                BackgroundColor = Color.White,
-                BorderStyle = BorderStyle.None,
-                RowHeadersVisible = false,
-                RowTemplate = { Height = 30 }
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             };
+            AppTheme.ApplyDataGridView(_dgvDichVu);
 
             _dgvDichVu.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Id", HeaderText = "ID", Visible = false });
             _dgvDichVu.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "TenDichVu", HeaderText = "Tên dịch vụ", FillWeight = 30 });
@@ -356,17 +348,19 @@ namespace HotelManagement.Forms
                 Location = new Point(rightX, 609),
                 Size = new Size(810, 115),
                 Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
-                Enabled = false
+                Enabled = false,
+                Font = AppTheme.FontBodyBold
             };
 
             // Hàng 1: Dịch vụ & Giá
-            var lblChonDV = new Label { Text = "Dịch vụ:", Location = new Point(16, 28), AutoSize = true };
+            var lblChonDV = new Label { Text = "Dịch vụ:", Location = new Point(16, 28), AutoSize = true, Font = AppTheme.FontBody, ForeColor = AppTheme.TextSecondary };
             _cboDichVu = new ComboBox
             {
                 Location = new Point(80, 24),
                 Width = 260,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
+            AppTheme.ApplyComboBox(_cboDichVu);
             _cboDichVu.SelectedIndexChanged += (_, _) =>
             {
                 if (_cboDichVu.SelectedItem is DichVuDto dv)
@@ -380,12 +374,12 @@ namespace HotelManagement.Forms
                 Text = "Đơn giá: -",
                 Location = new Point(360, 28),
                 AutoSize = true,
-                ForeColor = Color.DarkSlateBlue,
-                Font = new Font(Font, FontStyle.Bold)
+                ForeColor = AppTheme.Primary,
+                Font = AppTheme.FontBodyBold
             };
 
             // Hàng 2: Số lượng & Nút thao tác
-            var lblSL = new Label { Text = "Số lượng:", Location = new Point(16, 68), AutoSize = true };
+            var lblSL = new Label { Text = "Số lượng:", Location = new Point(16, 68), AutoSize = true, Font = AppTheme.FontBody, ForeColor = AppTheme.TextSecondary };
             _numSoLuong = new NumericUpDown
             {
                 Location = new Point(95, 65),
@@ -394,28 +388,24 @@ namespace HotelManagement.Forms
                 Maximum = 99,
                 Value = 1
             };
+            AppTheme.ApplyNumericUpDown(_numSoLuong);
 
             _btnThemDichVu = new Button
             {
                 Text = "+ Thêm dịch vụ",
                 Location = new Point(180, 62),
-                Size = new Size(140, 32),
-                BackColor = Color.FromArgb(0, 120, 215),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font(Font, FontStyle.Bold),
-                Cursor = Cursors.Hand
+                Size = new Size(140, 32)
             };
-            _btnThemDichVu.FlatAppearance.BorderSize = 0;
+            AppTheme.ApplyPrimaryButton(_btnThemDichVu);
             _btnThemDichVu.Click += async (_, _) => await ThemDichVuAsync();
 
             _btnXoaDichVu = new Button
             {
                 Text = "Xóa DV đã chọn",
                 Location = new Point(330, 62),
-                Size = new Size(140, 32),
-                Cursor = Cursors.Hand
+                Size = new Size(140, 32)
             };
+            AppTheme.ApplySecondaryButton(_btnXoaDichVu);
             _btnXoaDichVu.Click += async (_, _) => await XoaDichVuAsync();
 
             _grpThemDichVu.Controls.AddRange(new Control[] { lblChonDV, _cboDichVu, _lblDonGiaDichVu, lblSL, _numSoLuong, _btnThemDichVu, _btnXoaDichVu });
@@ -433,8 +423,8 @@ namespace HotelManagement.Forms
                 Text = "Vui lòng nhập mã booking và nhấn 'Tra cứu' để kiểm tra thông tin.",
                 Location = new Point(6, 16),
                 AutoSize = true,
-                ForeColor = Color.DarkSlateGray,
-                Font = new Font(Font, FontStyle.Italic)
+                ForeColor = AppTheme.TextSecondary,
+                Font = AppTheme.FontCaption
             };
 
             _btnThanhToan = new Button
@@ -443,14 +433,9 @@ namespace HotelManagement.Forms
                 Location = new Point(735, 6),
                 Size = new Size(170, 42),
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                BackColor = Color.FromArgb(39, 174, 96), // Xanh lá cây nổi bật
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10.5f, FontStyle.Bold),
-                Cursor = Cursors.Hand,
                 Enabled = false
             };
-            _btnThanhToan.FlatAppearance.BorderSize = 0;
+            AppTheme.ApplySecondaryButton(_btnThanhToan);
             _btnThanhToan.Click += async (_, _) => await MoManHinhThanhToanAsync();
 
             _btnCheckOut = new Button
@@ -459,14 +444,9 @@ namespace HotelManagement.Forms
                 Location = new Point(915, 6),
                 Size = new Size(200, 42),
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                BackColor = Color.FromArgb(192, 57, 43), // Đỏ mận sang trọng
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10.5f, FontStyle.Bold),
-                Cursor = Cursors.Hand,
                 Enabled = false
             };
-            _btnCheckOut.FlatAppearance.BorderSize = 0;
+            AppTheme.ApplyPrimaryButton(_btnCheckOut);
             _btnCheckOut.Click += async (_, _) => await ThucHienCheckOutAsync();
 
             _btnDong = new Button
@@ -474,9 +454,9 @@ namespace HotelManagement.Forms
                 Text = "Đóng",
                 Location = new Point(1125, 6),
                 Size = new Size(95, 42),
-                Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                Cursor = Cursors.Hand
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
             };
+            AppTheme.ApplySecondaryButton(_btnDong);
             _btnDong.Click += (_, _) => Close();
 
             pnlBottom.Controls.AddRange(new Control[] { _lblThongBao, _btnThanhToan, _btnCheckOut, _btnDong });

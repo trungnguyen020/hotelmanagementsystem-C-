@@ -169,13 +169,9 @@ namespace HotelManagement.Forms
                 Text = "⛔ Hủy",
                 Size = new Size(80, 34),
                 Margin = new Padding(0, 4, 4, 4),
-                Visible = false,
-                BackColor = Color.FromArgb(239, 68, 68),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = AppTheme.FontBodyBold
+                Visible = false
             };
-            _btnHuy.FlatAppearance.BorderSize = 0;
+            AppTheme.ApplyDangerButton(_btnHuy);
 
             _prgTienTrinh = new ProgressBar
             {

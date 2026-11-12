@@ -135,7 +135,9 @@
 
   <!-- FormDangNhap -->
   <data name="FormDangNhap_Title" xml:space="preserve"><value>Hệ thống quản lý khách sạn — Đăng nhập</value></data>
-  <data name="FormDangNhap_Brand" xml:space="preserve"><value>HOTEL MANAGEMENT • RESORT &amp; SUITES</value></data>
+  <data name="FormDangNhap_Brand" xml:space="preserve"><value>RESORT &amp; HOTEL MANAGEMENT</value></data>
+  <data name="FormDangNhap_Tagline" xml:space="preserve"><value>Khách sạn nghỉ dưỡng • Trung tâm thành phố</value></data>
+  <data name="FormDangNhap_Hotline" xml:space="preserve"><value>☎ Hotline lễ tân: 1900 6868</value></data>
   <data name="FormDangNhap_Header" xml:space="preserve"><value>ĐĂNG NHẬP HỆ THỐNG</value></data>
   <data name="FormDangNhap_Username" xml:space="preserve"><value>Tên đăng nhập</value></data>
   <data name="FormDangNhap_UsernamePlaceholder" xml:space="preserve"><value>Nhập tài khoản nhân sự...</value></data>
@@ -198,5 +200,17 @@
   <data name="FormKiosk_ChipCheckIn" xml:space="preserve"><value>⏰ Giờ check-in/out</value></data>
   <data name="FormKiosk_ChipPhongTrong" xml:space="preserve"><value>📅 Hôm nay còn phòng không?</value></data>
   <data name="FormKiosk_ChipChinhSachHuy" xml:space="preserve"><value>❌ Chính sách hủy phòng</value></data>
+  <data name="FormKiosk_TabTraCuu" xml:space="preserve"><value>🔍  Tra cứu đặt phòng</value></data>
+  <data name="FormKiosk_TabGioiThieu" xml:space="preserve"><value>🏨  Giới thiệu khách sạn</value></data>
+  <data name="FormKiosk_Intro_Title" xml:space="preserve"><value>VỀ KHÁCH SẠN</value></data>
+  <data name="FormKiosk_Intro_Content" xml:space="preserve"><value>Resort &amp; Hotel Management là khách sạn nghỉ dưỡng tọa lạc tại trung tâm thành phố, mang đến không gian yên tĩnh và dịch vụ tận tâm. Khách sạn có hệ thống phòng nghỉ tiện nghi cùng nhiều tiện ích như hồ bơi, nhà hàng và spa, phù hợp cho cả kỳ nghỉ gia đình lẫn chuyến công tác.</value></data>
+  <data name="FormKiosk_Intro_HoursTitle" xml:space="preserve"><value>GIỜ NHẬN &amp; TRẢ PHÒNG</value></data>
+  <data name="FormKiosk_Intro_Hours" xml:space="preserve"><value>Nhận phòng từ 14:00 — Trả phòng trước 12:00</value></data>
+  <data name="FormKiosk_Intro_ContactTitle" xml:space="preserve"><value>LIÊN HỆ LỄ TÂN</value></data>
+  <data name="FormKiosk_Intro_Contact" xml:space="preserve"><value>Hotline: 1900 6868 — Phục vụ 24/7</value></data>
+  <data name="FormKiosk_Intro_ServicesTitle" xml:space="preserve"><value>DỊCH VỤ &amp; TIỆN ÍCH</value></data>
+  <data name="FormKiosk_Intro_ServicesLoading" xml:space="preserve"><value>Đang tải danh sách dịch vụ...</value></data>
+  <data name="FormKiosk_Intro_ServicesEmpty" xml:space="preserve"><value>Chưa có dữ liệu dịch vụ.</value></data>
+  <data name="FormKiosk_Intro_ServicesError" xml:space="preserve"><value>Không tải được danh sách dịch vụ. Vui lòng liên hệ lễ tân.</value></data>
 </root>
 

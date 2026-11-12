@@ -11,7 +11,7 @@ public partial class TaiKhoan
 
     public string MatkhauHash { get; set; } = null!;
 
-    public int IdNhansu { get; set; }
+    public int? IdNhansu { get; set; }
 
     public int IdVaitro { get; set; }
 
@@ -23,7 +23,11 @@ public partial class TaiKhoan
 
     public DateTime? UpdatedAt { get; set; }
 
-    public virtual NhanSu IdNhansuNavigation { get; set; } = null!;
+    public int? IdKhachhang { get; set; }
+
+    public virtual KhachHang? IdKhachhangNavigation { get; set; }
+
+    public virtual NhanSu? IdNhansuNavigation { get; set; }
 
     public virtual VaiTro IdVaitroNavigation { get; set; } = null!;
 

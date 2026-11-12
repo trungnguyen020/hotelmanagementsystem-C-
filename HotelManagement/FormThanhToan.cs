@@ -162,7 +162,7 @@ namespace HotelManagement.Forms
 
                 _lblMaBooking.Text = dto.MaBooking;
                 _lblTrangThaiHienTai.Text = dto.TrangThaiThanhtoan;
-                _lblTrangThaiHienTai.ForeColor = dto.TrangThaiThanhtoan == "Đã thanh toán" ? Color.DarkGreen : Color.Crimson;
+                _lblTrangThaiHienTai.ForeColor = dto.TrangThaiThanhtoan == "Đã thanh toán" ? AppTheme.StatusSuccessText : AppTheme.StatusDangerText;
 
                 _lblKhachHang.Text = dto.TenKhachHang;
                 _lblSdt.Text = dto.SdtKhachHang;
@@ -185,7 +185,7 @@ namespace HotelManagement.Forms
                 {
                     _btnXacNhan.Enabled = false;
                     _btnXacNhan.Text = "Hóa đơn đã thanh toán";
-                    _btnXacNhan.BackColor = Color.Gray;
+                    _btnXacNhan.BackColor = AppTheme.StatusNeutralText;
                     _numGiamGia.Enabled = false;
                     _pnlTienMat.Enabled = false;
                     _pnlChuyenKhoan.Enabled = false;
@@ -194,7 +194,7 @@ namespace HotelManagement.Forms
                 {
                     _btnXacNhan.Enabled = true;
                     _btnXacNhan.Text = "Xác nhận thanh toán";
-                    _btnXacNhan.BackColor = Color.FromArgb(39, 174, 96);
+                    _btnXacNhan.BackColor = AppTheme.Primary;
                     _numGiamGia.Enabled = true;
                     _pnlTienMat.Enabled = true;
                     _pnlChuyenKhoan.Enabled = true;

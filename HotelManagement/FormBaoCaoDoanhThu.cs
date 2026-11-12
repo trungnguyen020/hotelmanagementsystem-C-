@@ -233,8 +233,8 @@ namespace HotelManagement.Forms
 
                 if (_dgvHoaDon.Columns[nameof(ChiTietHoaDonBaoCaoDto.TongTien)] is DataGridViewColumn colTongTien)
                 {
-                    colTongTien.DefaultCellStyle.Font = new Font(_dgvHoaDon.Font, FontStyle.Bold);
-                    colTongTien.DefaultCellStyle.ForeColor = Color.FromArgb(13, 59, 102);
+                    colTongTien.DefaultCellStyle.Font = AppTheme.FontBodyBold;
+                    colTongTien.DefaultCellStyle.ForeColor = AppTheme.Primary;
                 }
             }
             finally
@@ -291,8 +291,8 @@ namespace HotelManagement.Forms
 
                 if (_dgvLoaiPhong.Columns[nameof(DoanhThuTheoLoaiPhongDto.DoanhThuPhong)] is DataGridViewColumn colDt)
                 {
-                    colDt.DefaultCellStyle.Font = new Font(_dgvLoaiPhong.Font, FontStyle.Bold);
-                    colDt.DefaultCellStyle.ForeColor = Color.FromArgb(13, 59, 102);
+                    colDt.DefaultCellStyle.Font = AppTheme.FontBodyBold;
+                    colDt.DefaultCellStyle.ForeColor = AppTheme.Primary;
                 }
             }
             finally

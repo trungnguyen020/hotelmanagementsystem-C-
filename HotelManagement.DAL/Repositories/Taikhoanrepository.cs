@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using HotelManagement.Models.Entities;
 
 namespace HotelManagement.DAL.Repositories
@@ -16,6 +16,7 @@ namespace HotelManagement.DAL.Repositories
         public async Task<TaiKhoan?> GetByTenDangNhapKemVaiTroAsync(string tenDangNhap)
             => await _dbSet
                 .Include(tk => tk.IdNhansuNavigation)
+                .Include(tk => tk.IdKhachhangNavigation)
                 .Include(tk => tk.IdVaitroNavigation)
                 .FirstOrDefaultAsync(tk => tk.TenDangnhap == tenDangNhap);
     }

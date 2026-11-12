@@ -43,6 +43,7 @@ namespace HotelManagement.Forms
 
             KhoiTaoSuKienVaDongHo();
             KhoiTaoChatbot();
+            KhoiTaoGioiThieu();
             CapNhatNgonNgu();
         }
 
@@ -296,6 +297,8 @@ namespace HotelManagement.Forms
             dlg.MaximizeBox = false;
             dlg.MinimizeBox = false;
             dlg.BackColor = AppTheme.Surface;
+            dlg.Font = AppTheme.FontBody;
+            dlg.ForeColor = AppTheme.TextPrimary;
             dlg.KeyPreview = true;
 
             var lblPrompt = new Label
@@ -311,9 +314,10 @@ namespace HotelManagement.Forms
             {
                 Location = new Point(24, 48),
                 Width = 356,
-                Font = new Font("Segoe UI", 12F),
                 UseSystemPasswordChar = true
             };
+            AppTheme.ApplyTextBox(txtPass);
+            txtPass.Font = AppTheme.FontSubHeader;
 
             var lblError = new Label
             {

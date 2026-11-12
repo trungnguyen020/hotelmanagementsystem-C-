@@ -165,6 +165,36 @@ namespace HotelManagement
         }
 
         /// <summary>
+        /// Nút hành động nguy hiểm (hủy, xóa) - nền đỏ trầm, chữ trắng.
+        /// </summary>
+        public static void ApplyDangerButton(Button btn)
+        {
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.BackColor = StatusDangerText;
+            btn.ForeColor = TextOnPrimary;
+            btn.Font = FontBodyBold;
+            btn.Cursor = Cursors.Hand;
+
+            btn.MouseEnter -= OnDangerButtonMouseEnter;
+            btn.MouseLeave -= OnDangerButtonMouseLeave;
+            btn.MouseEnter += OnDangerButtonMouseEnter;
+            btn.MouseLeave += OnDangerButtonMouseLeave;
+        }
+
+        private static void OnDangerButtonMouseEnter(object? sender, EventArgs e)
+        {
+            if (sender is Button btn && btn.Enabled)
+                btn.BackColor = Color.FromArgb(133, 55, 43);
+        }
+
+        private static void OnDangerButtonMouseLeave(object? sender, EventArgs e)
+        {
+            if (sender is Button btn && btn.Enabled)
+                btn.BackColor = StatusDangerText;
+        }
+
+        /// <summary>
         /// Áp dụng giao diện thẻ Card (Panel trắng, viền thanh mảnh).
         /// </summary>
         public static void ApplyCardPanel(Panel pnl, int borderRadius = 8)

@@ -69,7 +69,18 @@ namespace HotelManagement.Forms
             if (_btnChipPhongTrong != null) _btnChipPhongTrong.Text = LanguageManager.GetString("FormKiosk_ChipPhongTrong", "📅 Còn phòng không?");
             if (_btnChipChinhSachHuy != null) _btnChipChinhSachHuy.Text = LanguageManager.GetString("FormKiosk_ChipChinhSachHuy", "❌ Chính sách hủy phòng");
 
-            // 7. Nếu đang có kết quả hiển thị, cập nhật lại nhãn kết quả
+            // 7. Tab Giới thiệu khách sạn (DCKLTTQ-103)
+            if (_tabTraCuu != null) _tabTraCuu.Text = LanguageManager.GetString("FormKiosk_TabTraCuu", "🔍  Tra cứu đặt phòng");
+            if (_tabGioiThieu != null) _tabGioiThieu.Text = LanguageManager.GetString("FormKiosk_TabGioiThieu", "🏨  Giới thiệu khách sạn");
+            if (_lblIntroTitle != null) _lblIntroTitle.Text = LanguageManager.GetString("FormKiosk_Intro_Title", "VỀ KHÁCH SẠN");
+            if (_lblIntroContent != null) _lblIntroContent.Text = LanguageManager.GetString("FormKiosk_Intro_Content");
+            if (_lblIntroHoursTitle != null) _lblIntroHoursTitle.Text = LanguageManager.GetString("FormKiosk_Intro_HoursTitle", "GIỜ NHẬN & TRẢ PHÒNG");
+            if (_lblIntroHours != null) _lblIntroHours.Text = LanguageManager.GetString("FormKiosk_Intro_Hours", "Nhận phòng từ 14:00 — Trả phòng trước 12:00");
+            if (_lblIntroContactTitle != null) _lblIntroContactTitle.Text = LanguageManager.GetString("FormKiosk_Intro_ContactTitle", "LIÊN HỆ LỄ TÂN");
+            if (_lblIntroContact != null) _lblIntroContact.Text = LanguageManager.GetString("FormKiosk_Intro_Contact", "Hotline: 1900 6868 — Phục vụ 24/7");
+            if (_lblDichVuTitle != null) _lblDichVuTitle.Text = LanguageManager.GetString("FormKiosk_Intro_ServicesTitle", "DỊCH VỤ & TIỆN ÍCH");
+
+            // 8. Nếu đang có kết quả hiển thị, cập nhật lại nhãn kết quả
             if (_currentBooking != null)
             {
                 HienThiKetQuaBooking(_currentBooking);

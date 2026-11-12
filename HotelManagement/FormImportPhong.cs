@@ -126,23 +126,23 @@ namespace HotelManagement.Forms
                 if (tongSo == 0)
                 {
                     _lblTrangThaiXuLy.Text = "Không tìm thấy dòng dữ liệu nào trong file Excel.";
-                    _lblTrangThaiXuLy.ForeColor = Color.FromArgb(153, 27, 27);
+                    _lblTrangThaiXuLy.ForeColor = AppTheme.StatusDangerText;
                 }
                 else if (soLoi == 0)
                 {
                     _lblTrangThaiXuLy.Text = $"Hoàn tất kiểm tra: Toàn bộ {tongSo} dòng đều hợp lệ! Có thể import ngay.";
-                    _lblTrangThaiXuLy.ForeColor = Color.FromArgb(22, 101, 52);
+                    _lblTrangThaiXuLy.ForeColor = AppTheme.StatusSuccessText;
                 }
                 else
                 {
                     _lblTrangThaiXuLy.Text = $"Kiểm tra xong: Có {soHopLe} dòng hợp lệ, {soLoi} dòng bị lỗi cần chỉnh sửa.";
-                    _lblTrangThaiXuLy.ForeColor = Color.FromArgb(180, 83, 9);
+                    _lblTrangThaiXuLy.ForeColor = AppTheme.StatusWarningText;
                 }
             }
             catch (OperationCanceledException)
             {
                 _lblTrangThaiXuLy.Text = "Đã hủy thao tác kiểm tra file theo yêu cầu của bạn.";
-                _lblTrangThaiXuLy.ForeColor = Color.FromArgb(180, 83, 9);
+                _lblTrangThaiXuLy.ForeColor = AppTheme.StatusWarningText;
             }
             catch (Exception ex)
             {
@@ -150,7 +150,7 @@ namespace HotelManagement.Forms
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 _lblTrangThaiXuLy.Text = "Lỗi khi xử lý file Excel.";
-                _lblTrangThaiXuLy.ForeColor = Color.FromArgb(153, 27, 27);
+                _lblTrangThaiXuLy.ForeColor = AppTheme.StatusDangerText;
                 _btnImport.Enabled = false;
             }
             finally
@@ -180,24 +180,24 @@ namespace HotelManagement.Forms
             // Tô màu nền cho cả dòng
             if (!dto.HopLe)
             {
-                row.DefaultCellStyle.BackColor = Color.FromArgb(254, 242, 242);
-                row.DefaultCellStyle.SelectionBackColor = Color.FromArgb(254, 202, 202);
-                row.DefaultCellStyle.SelectionForeColor = Color.FromArgb(153, 27, 27);
+                row.DefaultCellStyle.BackColor = AppTheme.StatusDangerBg;
+                row.DefaultCellStyle.SelectionBackColor = AppTheme.StatusDangerBorder;
+                row.DefaultCellStyle.SelectionForeColor = AppTheme.StatusDangerText;
             }
             else
             {
-                row.DefaultCellStyle.BackColor = Color.FromArgb(240, 253, 244);
-                row.DefaultCellStyle.SelectionBackColor = Color.FromArgb(187, 247, 208);
-                row.DefaultCellStyle.SelectionForeColor = Color.FromArgb(22, 101, 52);
+                row.DefaultCellStyle.BackColor = AppTheme.StatusSuccessBg;
+                row.DefaultCellStyle.SelectionBackColor = AppTheme.StatusSuccessBorder;
+                row.DefaultCellStyle.SelectionForeColor = AppTheme.StatusSuccessText;
             }
 
             // Định dạng riêng cho cột "Kết quả"
             if (_dgvKetQua.Columns[e.ColumnIndex].DataPropertyName == "KetQuaKiemTra")
             {
-                e.CellStyle.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+                e.CellStyle.Font = AppTheme.FontSmallBold;
                 e.CellStyle.ForeColor = dto.HopLe
-                    ? Color.FromArgb(22, 101, 52)
-                    : Color.FromArgb(153, 27, 27);
+                    ? AppTheme.StatusSuccessText
+                    : AppTheme.StatusDangerText;
             }
 
             // Định dạng riêng cho cột "Chi tiết lỗi"
@@ -205,7 +205,7 @@ namespace HotelManagement.Forms
             {
                 if (!dto.HopLe)
                 {
-                    e.CellStyle.ForeColor = Color.FromArgb(185, 28, 28);
+                    e.CellStyle.ForeColor = AppTheme.StatusDangerText;
                 }
             }
         }
@@ -257,7 +257,7 @@ namespace HotelManagement.Forms
                 _btnImport.Enabled = false;
                 _btnImport.Text = "Đã import thành công";
                 _lblTrangThaiXuLy.Text = $"Đã lưu thành công {soLuongDaLuu} phòng vào cơ sở dữ liệu.";
-                _lblTrangThaiXuLy.ForeColor = Color.FromArgb(22, 101, 52);
+                _lblTrangThaiXuLy.ForeColor = AppTheme.StatusSuccessText;
 
                 if (!string.IsNullOrEmpty(_duongDanFileHienTai))
                 {
@@ -267,7 +267,7 @@ namespace HotelManagement.Forms
             catch (OperationCanceledException)
             {
                 _lblTrangThaiXuLy.Text = "Đã hủy thao tác import phòng. Dữ liệu đã được hoàn tác an toàn.";
-                _lblTrangThaiXuLy.ForeColor = Color.FromArgb(180, 83, 9);
+                _lblTrangThaiXuLy.ForeColor = AppTheme.StatusWarningText;
             }
             catch (Exception ex)
             {
@@ -278,7 +278,7 @@ namespace HotelManagement.Forms
                     MessageBoxIcon.Error);
 
                 _lblTrangThaiXuLy.Text = "Lưu dữ liệu thất bại.";
-                _lblTrangThaiXuLy.ForeColor = Color.FromArgb(153, 27, 27);
+                _lblTrangThaiXuLy.ForeColor = AppTheme.StatusDangerText;
             }
             finally
             {
@@ -345,7 +345,7 @@ namespace HotelManagement.Forms
                 if (!string.IsNullOrEmpty(thongBao))
                 {
                     _lblTrangThaiXuLy.Text = thongBao;
-                    _lblTrangThaiXuLy.ForeColor = Color.FromArgb(30, 95, 138);
+                    _lblTrangThaiXuLy.ForeColor = AppTheme.Primary;
                 }
             }
         }

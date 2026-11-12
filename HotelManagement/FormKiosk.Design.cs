@@ -1,5 +1,6 @@
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
+using HotelManagement.Common;
 
 namespace HotelManagement.Forms
 {
@@ -61,6 +62,24 @@ namespace HotelManagement.Forms
         private Button _btnXoaKetQua = null!;
         private Label _lblAutoClearCount = null!;
 
+        // Tab chính: Tra cứu booking / Giới thiệu khách sạn (DCKLTTQ-103)
+        private TabControl _tabMain = null!;
+        private TabPage _tabTraCuu = null!;
+        private TabPage _tabGioiThieu = null!;
+
+        // Tab Giới thiệu khách sạn
+        private Panel _pnlIntroCard = null!;
+        private Label _lblIntroTitle = null!;
+        private Label _lblIntroContent = null!;
+        private Label _lblIntroHoursTitle = null!;
+        private Label _lblIntroHours = null!;
+        private Label _lblIntroContactTitle = null!;
+        private Label _lblIntroContact = null!;
+        private Panel _pnlDichVuCard = null!;
+        private Label _lblDichVuTitle = null!;
+        private Label _lblDichVuTrangThai = null!;
+        private FlowLayoutPanel _flpDichVu = null!;
+
         // Bottom Footer
         private Panel _pnlFooter = null!;
         private Label _lblHelpText = null!;
@@ -117,7 +136,8 @@ namespace HotelManagement.Forms
                 Font = AppTheme.FontHeader,
                 ForeColor = AppTheme.Primary,
                 AutoSize = true,
-                Location = new Point(36, 16)
+                Location = new Point(36, 16),
+                UseMnemonic = false
             };
 
             _lblHeaderSub = new Label
@@ -198,7 +218,7 @@ namespace HotelManagement.Forms
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.Transparent,
                 ForeColor = AppTheme.TextMuted,
-                Font = new Font("Segoe UI", 12F, FontStyle.Regular),
+                Font = new Font(AppTheme.DefaultFontFamily, 12F, FontStyle.Regular),
                 Cursor = Cursors.Hand
             };
             _btnThoatKiosk.FlatAppearance.BorderSize = 0;
@@ -288,7 +308,7 @@ namespace HotelManagement.Forms
             {
                 Location = new Point(0, 40),
                 Width = 420,
-                Font = new Font("Segoe UI", 15F, FontStyle.Bold),
+                Font = new Font(AppTheme.DefaultFontFamily, 15F, FontStyle.Bold),
                 CharacterCasing = CharacterCasing.Upper,
                 PlaceholderText = "VD: BK261030134850"
             };
@@ -306,7 +326,7 @@ namespace HotelManagement.Forms
             {
                 Location = new Point(0, 124),
                 Width = 420,
-                Font = new Font("Segoe UI", 15F, FontStyle.Bold),
+                Font = new Font(AppTheme.DefaultFontFamily, 15F, FontStyle.Bold),
                 PlaceholderText = "VD: 0987654321"
             };
 
@@ -316,7 +336,7 @@ namespace HotelManagement.Forms
                 Location = new Point(0, 185),
                 Width = 420,
                 Height = 54,
-                Font = new Font("Segoe UI", 12F, FontStyle.Bold)
+                Font = new Font(AppTheme.DefaultFontFamily, 12F, FontStyle.Bold)
             };
             AppTheme.ApplyPrimaryButton(_btnTraCuu);
 
@@ -393,7 +413,7 @@ namespace HotelManagement.Forms
             _lblPlaceholderIcon = new Label
             {
                 Text = "🏨",
-                Font = new Font("Segoe UI", 48F),
+                Font = new Font(AppTheme.DefaultFontFamily, 48F),
                 TextAlign = ContentAlignment.MiddleCenter,
                 Dock = DockStyle.Top,
                 Height = 120
@@ -443,7 +463,7 @@ namespace HotelManagement.Forms
             _lblResKhachHang = new Label
             {
                 Text = "Quý khách: Nguyễn Văn A",
-                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                Font = new Font(AppTheme.DefaultFontFamily, 12F, FontStyle.Bold),
                 ForeColor = AppTheme.TextPrimary,
                 Location = new Point(0, 48),
                 AutoSize = true
@@ -540,6 +560,200 @@ namespace HotelManagement.Forms
             _tlpMain.Controls.Add(_pnlSearchCard, 0, 0);
             _tlpMain.Controls.Add(_pnlResultCard, 1, 0);
 
+            // ================= 3.3 Tab chính: Tra cứu booking | Giới thiệu khách sạn (DCKLTTQ-103) =================
+            _tabMain = new TabControl
+            {
+                Dock = DockStyle.Fill,
+                Font = AppTheme.FontBodyBold,
+                SizeMode = TabSizeMode.Fixed,
+                ItemSize = new Size(230, 36)
+            };
+
+            _tabTraCuu = new TabPage
+            {
+                Text = "🔍  Tra cứu đặt phòng",
+                BackColor = AppTheme.Background,
+                Padding = new Padding(10, 10, 10, 0)
+            };
+
+            _tabGioiThieu = new TabPage
+            {
+                Text = "🏨  Giới thiệu khách sạn",
+                BackColor = AppTheme.Background,
+                Padding = new Padding(0)
+            };
+
+            // --- 3.3.1 Tab Giới thiệu: thẻ nội dung bên trái ---
+            var tlpGioiThieu = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 1,
+                BackColor = Color.Transparent,
+                Padding = new Padding(16, 16, 16, 16)
+            };
+            tlpGioiThieu.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 58F));
+            tlpGioiThieu.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 42F));
+
+            _pnlIntroCard = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = AppTheme.Surface,
+                Padding = new Padding(30, 24, 30, 24),
+                Margin = new Padding(0, 0, 12, 0)
+            };
+            AppTheme.ApplyCardPanel(_pnlIntroCard);
+
+            _lblIntroTitle = new Label
+            {
+                Text = "VỀ KHÁCH SẠN",
+                Font = AppTheme.FontHeader,
+                ForeColor = AppTheme.Primary,
+                Dock = DockStyle.Top,
+                Height = 32,
+                UseMnemonic = false
+            };
+
+            _lblIntroContent = new Label
+            {
+                Text = "Resort & Hotel Management là khách sạn nghỉ dưỡng tọa lạc tại trung tâm thành phố, mang đến không gian yên tĩnh và dịch vụ tận tâm. Khách sạn có hệ thống phòng nghỉ tiện nghi cùng nhiều tiện ích như hồ bơi, nhà hàng và spa, phù hợp cho cả kỳ nghỉ gia đình lẫn chuyến công tác.",
+                Font = AppTheme.FontBody,
+                ForeColor = AppTheme.TextSecondary,
+                Dock = DockStyle.Top,
+                Height = 90,
+                UseMnemonic = false
+            };
+
+            var pnlIntroGap1 = new Panel { Dock = DockStyle.Top, Height = 14, BackColor = Color.Transparent };
+
+            _lblIntroHoursTitle = new Label
+            {
+                Text = "GIỜ NHẬN & TRẢ PHÒNG",
+                Font = AppTheme.FontSmallBold,
+                ForeColor = AppTheme.Primary,
+                Dock = DockStyle.Top,
+                Height = 24,
+                UseMnemonic = false
+            };
+
+            _lblIntroHours = new Label
+            {
+                Text = "Nhận phòng từ 14:00 — Trả phòng trước 12:00",
+                Font = AppTheme.FontBody,
+                ForeColor = AppTheme.TextPrimary,
+                Dock = DockStyle.Top,
+                Height = 28,
+                UseMnemonic = false
+            };
+
+            var pnlIntroGap2 = new Panel { Dock = DockStyle.Top, Height = 20, BackColor = Color.Transparent };
+
+            _lblIntroContactTitle = new Label
+            {
+                Text = "LIÊN HỆ LỄ TÂN",
+                Font = AppTheme.FontSmallBold,
+                ForeColor = AppTheme.Primary,
+                Dock = DockStyle.Top,
+                Height = 24,
+                UseMnemonic = false
+            };
+
+            _lblIntroContact = new Label
+            {
+                Text = "Hotline: 1900 6868 — Phục vụ 24/7",
+                Font = AppTheme.FontBody,
+                ForeColor = AppTheme.TextPrimary,
+                Dock = DockStyle.Top,
+                Height = 28,
+                UseMnemonic = false
+            };
+
+            var pnlIntroLogo = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 150,
+                BackColor = Color.Transparent
+            };
+            var picIntroLogo = new PictureBox
+            {
+                Image = EmbeddedImages.Logo,
+                Size = new Size(110, 110),
+                Location = new Point(0, 36),
+                SizeMode = PictureBoxSizeMode.Zoom,
+                BackColor = Color.Transparent
+            };
+            pnlIntroLogo.Controls.Add(picIntroLogo);
+
+            _pnlIntroCard.Controls.AddRange(new Control[]
+            {
+                pnlIntroLogo,
+                _lblIntroContact,
+                _lblIntroContactTitle,
+                pnlIntroGap2,
+                _lblIntroHours,
+                _lblIntroHoursTitle,
+                pnlIntroGap1,
+                _lblIntroContent,
+                _lblIntroTitle
+            });
+
+            // --- 3.3.2 Tab Giới thiệu: thẻ danh sách dịch vụ bên phải ---
+            _pnlDichVuCard = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = AppTheme.Surface,
+                Padding = new Padding(20, 20, 20, 20),
+                Margin = new Padding(12, 0, 0, 0)
+            };
+            AppTheme.ApplyCardPanel(_pnlDichVuCard);
+
+            _lblDichVuTitle = new Label
+            {
+                Text = "DỊCH VỤ & TIỆN ÍCH",
+                Font = AppTheme.FontHeader,
+                ForeColor = AppTheme.Primary,
+                Dock = DockStyle.Top,
+                Height = 32,
+                UseMnemonic = false
+            };
+
+            _lblDichVuTrangThai = new Label
+            {
+                Text = "Đang tải danh sách dịch vụ...",
+                Font = AppTheme.FontSmall,
+                ForeColor = AppTheme.TextMuted,
+                Dock = DockStyle.Top,
+                Height = 24,
+                Visible = false,
+                UseMnemonic = false
+            };
+
+            _flpDichVu = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                AutoScroll = true,
+                BackColor = AppTheme.Surface,
+                Padding = new Padding(0, 10, 0, 0)
+            };
+
+            _pnlDichVuCard.Controls.AddRange(new Control[]
+            {
+                _flpDichVu,
+                _lblDichVuTrangThai,
+                _lblDichVuTitle
+            });
+
+            tlpGioiThieu.Controls.Add(_pnlIntroCard, 0, 0);
+            tlpGioiThieu.Controls.Add(_pnlDichVuCard, 1, 0);
+
+            _tabTraCuu.Controls.Add(_tlpMain);
+            _tabGioiThieu.Controls.Add(tlpGioiThieu);
+            _tabMain.TabPages.Add(_tabTraCuu);
+            _tabMain.TabPages.Add(_tabGioiThieu);
+            _tabMain.SelectedIndex = 0;
+
             // ================= 4. Khung Chatbot AI Drawer (DCKLTTQ-88) =================
             _pnlChatDrawer = new Panel
             {
@@ -598,7 +812,7 @@ namespace HotelManagement.Forms
             {
                 Text = "✕",
                 Size = new Size(36, 32),
-                Font = new Font("Segoe UI", 11F, FontStyle.Bold),
+                Font = new Font(AppTheme.DefaultFontFamily, 11F, FontStyle.Bold),
                 ForeColor = AppTheme.TextSecondary,
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand
@@ -729,7 +943,7 @@ namespace HotelManagement.Forms
                 FlowDirection = FlowDirection.TopDown,
                 WrapContents = false,
                 AutoScroll = true,
-                BackColor = Color.FromArgb(250, 248, 245),
+                BackColor = AppTheme.SurfaceAlt,
                 Padding = new Padding(8, 8, 8, 8)
             };
 
@@ -737,7 +951,7 @@ namespace HotelManagement.Forms
             _pnlChatDrawer.Controls.Add(_pnlChatBottom);
             _pnlChatDrawer.Controls.Add(_pnlChatHeader);
 
-            pnlContainer.Controls.Add(_tlpMain);
+            pnlContainer.Controls.Add(_tabMain);
             pnlContainer.Controls.Add(_pnlChatDrawer);
 
             // ================= Ráp toàn bộ Form =================

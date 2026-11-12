@@ -183,7 +183,7 @@ namespace HotelManagement.Forms
 
             var (success, msg, maBooking) = await _datPhongService.DatPhongAsync(
                 _khachHangDuocChon.IdKhachHang,
-                _taiKhoanDangNhap.IdNhansu,
+                _taiKhoanDangNhap.IdNhansu ?? 0,
                 ngayNhan,
                 ngayTra,
                 (int)_numSoKhach.Value,

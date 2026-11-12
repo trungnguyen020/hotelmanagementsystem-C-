@@ -285,13 +285,9 @@ namespace HotelManagement.Forms
                 Size = new Size(110, 40),
                 Location = new Point(275, 10),
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                Visible = false,
-                BackColor = Color.FromArgb(239, 68, 68),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font = AppTheme.FontBodyBold
+                Visible = false
             };
-            _btnHuyGuiEmail.FlatAppearance.BorderSize = 0;
+            AppTheme.ApplyDangerButton(_btnHuyGuiEmail);
 
             _btnGuiEmail = new Button
             {

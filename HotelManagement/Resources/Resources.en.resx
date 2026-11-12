@@ -135,7 +135,9 @@
 
   <!-- FormDangNhap -->
   <data name="FormDangNhap_Title" xml:space="preserve"><value>Hotel Management System — Login</value></data>
-  <data name="FormDangNhap_Brand" xml:space="preserve"><value>HOTEL MANAGEMENT • RESORT &amp; SUITES</value></data>
+  <data name="FormDangNhap_Brand" xml:space="preserve"><value>RESORT &amp; HOTEL MANAGEMENT</value></data>
+  <data name="FormDangNhap_Tagline" xml:space="preserve"><value>Resort hotel • City centre</value></data>
+  <data name="FormDangNhap_Hotline" xml:space="preserve"><value>☎ Front desk: 1900 6868</value></data>
   <data name="FormDangNhap_Header" xml:space="preserve"><value>SYSTEM LOGIN</value></data>
   <data name="FormDangNhap_Username" xml:space="preserve"><value>Username</value></data>
   <data name="FormDangNhap_UsernamePlaceholder" xml:space="preserve"><value>Enter staff username...</value></data>
@@ -198,5 +200,17 @@
   <data name="FormKiosk_ChipCheckIn" xml:space="preserve"><value>⏰ Check-in/out hours</value></data>
   <data name="FormKiosk_ChipPhongTrong" xml:space="preserve"><value>📅 Any rooms available today?</value></data>
   <data name="FormKiosk_ChipChinhSachHuy" xml:space="preserve"><value>❌ Cancellation policy</value></data>
+  <data name="FormKiosk_TabTraCuu" xml:space="preserve"><value>🔍  Booking lookup</value></data>
+  <data name="FormKiosk_TabGioiThieu" xml:space="preserve"><value>🏨  About the hotel</value></data>
+  <data name="FormKiosk_Intro_Title" xml:space="preserve"><value>ABOUT THE HOTEL</value></data>
+  <data name="FormKiosk_Intro_Content" xml:space="preserve"><value>Resort &amp; Hotel Management is a resort hotel located in the city centre, offering a quiet atmosphere and attentive service. The hotel features comfortable rooms and amenities such as a pool, restaurant and spa, ideal for both family holidays and business trips.</value></data>
+  <data name="FormKiosk_Intro_HoursTitle" xml:space="preserve"><value>CHECK-IN &amp; CHECK-OUT</value></data>
+  <data name="FormKiosk_Intro_Hours" xml:space="preserve"><value>Check-in from 14:00 — Check-out before 12:00</value></data>
+  <data name="FormKiosk_Intro_ContactTitle" xml:space="preserve"><value>FRONT DESK CONTACT</value></data>
+  <data name="FormKiosk_Intro_Contact" xml:space="preserve"><value>Hotline: 1900 6868 — Available 24/7</value></data>
+  <data name="FormKiosk_Intro_ServicesTitle" xml:space="preserve"><value>SERVICES &amp; AMENITIES</value></data>
+  <data name="FormKiosk_Intro_ServicesLoading" xml:space="preserve"><value>Loading services...</value></data>
+  <data name="FormKiosk_Intro_ServicesEmpty" xml:space="preserve"><value>No services available.</value></data>
+  <data name="FormKiosk_Intro_ServicesError" xml:space="preserve"><value>Unable to load the service list. Please contact the front desk.</value></data>
 </root>
 

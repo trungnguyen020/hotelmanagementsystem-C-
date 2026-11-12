@@ -14,6 +14,8 @@ namespace HotelManagement
 
             // 2. Các nhãn và tiêu đề Card
             if (_lblBrand != null) _lblBrand.Text = LanguageManager.GetString("FormDangNhap_Brand");
+            if (_lblTagline != null) _lblTagline.Text = LanguageManager.GetString("FormDangNhap_Tagline", "Khách sạn nghỉ dưỡng • Trung tâm thành phố");
+            if (_lblHotline != null) _lblHotline.Text = LanguageManager.GetString("FormDangNhap_Hotline", "☎ Hotline lễ tân: 1900 6868");
             if (_lblTieuDe != null) _lblTieuDe.Text = LanguageManager.GetString("FormDangNhap_Header");
             if (_lblTenDangNhap != null) _lblTenDangNhap.Text = LanguageManager.GetString("FormDangNhap_Username");
             if (txtTenDangNhap != null) txtTenDangNhap.PlaceholderText = LanguageManager.GetString("FormDangNhap_UsernamePlaceholder");

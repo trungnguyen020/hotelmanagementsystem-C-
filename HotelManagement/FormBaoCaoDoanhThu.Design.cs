@@ -51,15 +51,15 @@ namespace HotelManagement.Forms
             Size = new Size(1100, 720);
             MinimumSize = new Size(1000, 650);
             StartPosition = FormStartPosition.CenterParent;
-            Font = new Font("Segoe UI", 9.5f, FontStyle.Regular);
-            BackColor = Color.FromArgb(245, 247, 250);
+            AutoScaleMode = AutoScaleMode.Dpi;
+            AppTheme.ApplyFormStyle(this);
 
             // 1. Panel Bộ lọc trên cùng (Top Panel)
             var pnlTop = new Panel
             {
                 Dock = DockStyle.Top,
                 Height = 85,
-                BackColor = Color.White,
+                BackColor = AppTheme.Surface,
                 Padding = new Padding(15, 6, 15, 6)
             };
 
@@ -67,8 +67,8 @@ namespace HotelManagement.Forms
             {
                 Text = "Bộ lọc báo cáo",
                 Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 9f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(13, 59, 102),
+                Font = AppTheme.FontBodyBold,
+                ForeColor = AppTheme.TextPrimary,
                 Padding = new Padding(8, 4, 8, 4)
             };
 
@@ -87,17 +87,17 @@ namespace HotelManagement.Forms
                 Text = "Từ ngày:",
                 AutoSize = true,
                 Margin = new Padding(2, 6, 2, 0),
-                Font = new Font("Segoe UI", 9f, FontStyle.Regular),
-                ForeColor = Color.FromArgb(33, 37, 41)
+                Font = AppTheme.FontBody,
+                ForeColor = AppTheme.TextSecondary
             };
             _dtpTuNgay = new DateTimePicker
             {
                 Format = DateTimePickerFormat.Custom,
                 CustomFormat = "dd/MM/yyyy",
                 Width = 110,
-                Margin = new Padding(0, 3, 10, 0),
-                Font = new Font("Segoe UI", 9f, FontStyle.Regular)
+                Margin = new Padding(0, 3, 10, 0)
             };
+            AppTheme.ApplyDateTimePicker(_dtpTuNgay);
 
             // Đến ngày
             var lblDenNgay = new Label
@@ -105,17 +105,17 @@ namespace HotelManagement.Forms
                 Text = "Đến ngày:",
                 AutoSize = true,
                 Margin = new Padding(2, 6, 2, 0),
-                Font = new Font("Segoe UI", 9f, FontStyle.Regular),
-                ForeColor = Color.FromArgb(33, 37, 41)
+                Font = AppTheme.FontBody,
+                ForeColor = AppTheme.TextSecondary
             };
             _dtpDenNgay = new DateTimePicker
             {
                 Format = DateTimePickerFormat.Custom,
                 CustomFormat = "dd/MM/yyyy",
                 Width = 110,
-                Margin = new Padding(0, 3, 10, 0),
-                Font = new Font("Segoe UI", 9f, FontStyle.Regular)
+                Margin = new Padding(0, 3, 10, 0)
             };
+            AppTheme.ApplyDateTimePicker(_dtpDenNgay);
 
             // Loại phòng
             var lblLoaiPhong = new Label
@@ -123,47 +123,37 @@ namespace HotelManagement.Forms
                 Text = "Loại phòng:",
                 AutoSize = true,
                 Margin = new Padding(2, 6, 2, 0),
-                Font = new Font("Segoe UI", 9f, FontStyle.Regular),
-                ForeColor = Color.FromArgb(33, 37, 41)
+                Font = AppTheme.FontBody,
+                ForeColor = AppTheme.TextSecondary
             };
             _cboLoaiPhong = new ComboBox
             {
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 Width = 185,
-                Margin = new Padding(0, 3, 15, 0),
-                Font = new Font("Segoe UI", 9f, FontStyle.Regular)
+                Margin = new Padding(0, 3, 15, 0)
             };
+            AppTheme.ApplyComboBox(_cboLoaiPhong);
 
             // Nút Xem báo cáo
             _btnXemBaoCao = new Button
             {
                 Text = "🔍 Xem báo cáo",
                 Width = 135,
-                Height = 30,
-                Margin = new Padding(0, 1, 10, 0),
-                BackColor = Color.FromArgb(13, 59, 102),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand,
-                Font = new Font("Segoe UI", 9f, FontStyle.Bold)
+                Height = 32,
+                Margin = new Padding(0, 1, 10, 0)
             };
-            _btnXemBaoCao.FlatAppearance.BorderSize = 0;
+            AppTheme.ApplyPrimaryButton(_btnXemBaoCao);
 
             // Nút Xuất Excel
             _btnXuatExcel = new Button
             {
                 Text = "📊 Xuất Excel",
                 Width = 135,
-                Height = 30,
+                Height = 32,
                 Margin = new Padding(0, 1, 0, 0),
-                BackColor = Color.FromArgb(46, 125, 50),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand,
-                Enabled = false,
-                Font = new Font("Segoe UI", 9f, FontStyle.Bold)
+                Enabled = false
             };
-            _btnXuatExcel.FlatAppearance.BorderSize = 0;
+            AppTheme.ApplySecondaryButton(_btnXuatExcel);
 
             flpFilter.Controls.AddRange(new Control[]
             {
@@ -197,7 +187,7 @@ namespace HotelManagement.Forms
                 var card = new Panel
                 {
                     Dock = DockStyle.Fill,
-                    BackColor = Color.White,
+                    BackColor = AppTheme.Surface,
                     Margin = new Padding(5, 0, 5, 0),
                     Padding = new Padding(10, 8, 10, 8)
                 };
@@ -207,7 +197,7 @@ namespace HotelManagement.Forms
                     Text = title,
                     Dock = DockStyle.Top,
                     Height = 20,
-                    Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
+                    Font = AppTheme.FontSmallBold,
                     ForeColor = titleColor
                 };
 
@@ -215,7 +205,7 @@ namespace HotelManagement.Forms
                 {
                     Text = "0 đ",
                     Dock = DockStyle.Fill,
-                    Font = new Font("Segoe UI", 12f, FontStyle.Bold),
+                    Font = AppTheme.FontHeader,
                     ForeColor = valColor,
                     TextAlign = ContentAlignment.MiddleLeft
                 };
@@ -225,11 +215,11 @@ namespace HotelManagement.Forms
                 return card;
             }
 
-            var card1 = CreateCard("TỔNG DOANH THU", out _lblTongDoanhThuVal, Color.FromArgb(108, 117, 125), Color.FromArgb(13, 59, 102));
-            var card2 = CreateCard("TIỀN PHÒNG", out _lblTienPhongVal, Color.FromArgb(108, 117, 125), Color.FromArgb(30, 95, 138));
-            var card3 = CreateCard("TIỀN DỊCH VỤ", out _lblTienDichVuVal, Color.FromArgb(108, 117, 125), Color.FromArgb(43, 122, 120));
-            var card4 = CreateCard("TỶ LỆ LẤP ĐẦY", out _lblTyLeLapDayVal, Color.FromArgb(108, 117, 125), Color.FromArgb(212, 175, 55));
-            var card5 = CreateCard("TỔNG BOOKING", out _lblTongBookingVal, Color.FromArgb(108, 117, 125), Color.FromArgb(44, 62, 80));
+            var card1 = CreateCard("TỔNG DOANH THU", out _lblTongDoanhThuVal, AppTheme.TextMuted, AppTheme.Primary);
+            var card2 = CreateCard("TIỀN PHÒNG", out _lblTienPhongVal, AppTheme.TextMuted, AppTheme.PrimaryActive);
+            var card3 = CreateCard("TIỀN DỊCH VỤ", out _lblTienDichVuVal, AppTheme.TextMuted, AppTheme.StatusSuccessText);
+            var card4 = CreateCard("TỶ LỆ LẤP ĐẦY", out _lblTyLeLapDayVal, AppTheme.TextMuted, AppTheme.AccentGold);
+            var card5 = CreateCard("TỔNG BOOKING", out _lblTongBookingVal, AppTheme.TextMuted, AppTheme.TextPrimary);
 
             pnlKpis.Controls.Add(card1, 0, 0);
             pnlKpis.Controls.Add(card2, 1, 0);
@@ -242,7 +232,7 @@ namespace HotelManagement.Forms
             {
                 Dock = DockStyle.Bottom,
                 Height = 48,
-                BackColor = Color.White,
+                BackColor = AppTheme.Surface,
                 Padding = new Padding(15, 8, 15, 8)
             };
 
@@ -252,22 +242,17 @@ namespace HotelManagement.Forms
                 Dock = DockStyle.Left,
                 AutoSize = true,
                 TextAlign = ContentAlignment.MiddleLeft,
-                ForeColor = Color.FromArgb(108, 117, 125),
-                Font = new Font("Segoe UI", 9f, FontStyle.Italic)
+                ForeColor = AppTheme.TextSecondary,
+                Font = AppTheme.FontCaption
             };
 
             _btnDong = new Button
             {
                 Text = "Đóng",
                 Width = 95,
-                Dock = DockStyle.Right,
-                BackColor = Color.FromArgb(240, 242, 245),
-                ForeColor = Color.FromArgb(33, 37, 41),
-                FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand,
-                Font = new Font("Segoe UI", 9.5f, FontStyle.Regular)
+                Dock = DockStyle.Right
             };
-            _btnDong.FlatAppearance.BorderColor = Color.FromArgb(206, 212, 218);
+            AppTheme.ApplySecondaryButton(_btnDong);
             _btnDong.Click += (_, _) => Close();
 
             _btnHuyThaoTac = new Button
@@ -275,14 +260,9 @@ namespace HotelManagement.Forms
                 Text = "⛔  Hủy",
                 Width = 100,
                 Dock = DockStyle.Right,
-                BackColor = Color.FromArgb(239, 68, 68),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand,
-                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
                 Visible = false
             };
-            _btnHuyThaoTac.FlatAppearance.BorderSize = 0;
+            AppTheme.ApplyDangerButton(_btnHuyThaoTac);
 
             _prgTienTrinh = new ProgressBar
             {
@@ -303,22 +283,31 @@ namespace HotelManagement.Forms
             var pnlCenter = new Panel
             {
                 Dock = DockStyle.Fill,
-                Padding = new Padding(15, 6, 15, 8)
+                Padding = new Padding(15, 6, 15, 8),
+                BackColor = AppTheme.Background
             };
 
             _tabDuLieu = new TabControl
             {
                 Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 9.5f, FontStyle.Regular)
+                Font = AppTheme.FontBody
             };
 
             // Tab 1: Danh sách hóa đơn chi tiết
-            var tabHoaDon = new TabPage("📋 Danh sách hóa đơn đã thanh toán");
+            var tabHoaDon = new TabPage("📋 Danh sách hóa đơn đã thanh toán")
+            {
+                BackColor = AppTheme.Surface,
+                Padding = new Padding(8)
+            };
             _dgvHoaDon = CreateStandardDataGridView();
             tabHoaDon.Controls.Add(_dgvHoaDon);
 
             // Tab 2: Phân tích theo loại phòng
-            var tabLoaiPhong = new TabPage("🏢 Phân tích doanh thu theo loại phòng");
+            var tabLoaiPhong = new TabPage("🏢 Phân tích doanh thu theo loại phòng")
+            {
+                BackColor = AppTheme.Surface,
+                Padding = new Padding(8)
+            };
             _dgvLoaiPhong = CreateStandardDataGridView();
             tabLoaiPhong.Controls.Add(_dgvLoaiPhong);
 
@@ -338,49 +327,14 @@ namespace HotelManagement.Forms
             var dgv = new DataGridView
             {
                 Dock = DockStyle.Fill,
-                BackgroundColor = Color.White,
-                BorderStyle = BorderStyle.None,
-                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
-                ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None,
-                EnableHeadersVisualStyles = false,
                 AllowUserToAddRows = false,
                 AllowUserToDeleteRows = false,
                 AllowUserToResizeRows = false,
                 ReadOnly = true,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                MultiSelect = false,
-                RowHeadersVisible = false,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None,
-                ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.EnableResizing,
-                ColumnHeadersHeight = 36,
-                GridColor = Color.FromArgb(233, 236, 239)
+                ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.EnableResizing
             };
-
-            dgv.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
-            {
-                BackColor = Color.FromArgb(13, 59, 102),
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
-                Alignment = DataGridViewContentAlignment.MiddleLeft,
-                Padding = new Padding(8, 6, 8, 6)
-            };
-
-            dgv.DefaultCellStyle = new DataGridViewCellStyle
-            {
-                BackColor = Color.White,
-                ForeColor = Color.FromArgb(33, 37, 41),
-                SelectionBackColor = Color.FromArgb(227, 242, 253),
-                SelectionForeColor = Color.FromArgb(13, 59, 102),
-                Font = new Font("Segoe UI", 9f, FontStyle.Regular),
-                Padding = new Padding(6, 4, 6, 4)
-            };
-
-            dgv.AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
-            {
-                BackColor = Color.FromArgb(249, 251, 252)
-            };
-
-            dgv.RowTemplate.Height = 34;
+            AppTheme.ApplyDataGridView(dgv);
             return dgv;
         }
 

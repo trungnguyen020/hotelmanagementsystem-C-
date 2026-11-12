@@ -24,4 +24,6 @@ public partial class KhachHang
     public DateTime? UpdatedAt { get; set; }
 
     public virtual ICollection<DatPhong> DatPhongs { get; set; } = new List<DatPhong>();
+
+    public virtual TaiKhoan? TaiKhoan { get; set; }
 }

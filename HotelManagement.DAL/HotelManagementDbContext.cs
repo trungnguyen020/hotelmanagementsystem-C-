@@ -343,7 +343,7 @@ public partial class HotelManagementDbContext : DbContext
 
             entity.ToTable("NhatKyHoatDong");
 
-            entity.HasIndex(e => new { e.IdTaikhoan, e.Thoigian }, "IX_NhatKyHoatDong_TaiKhoan");
+            entity.HasIndex(e => new { e.IdTaikhoan, e.Thoigian }, "IX_NhatKyHoatDong_TaiKhoan").IsDescending(false, true);
 
             entity.Property(e => e.IdNhatky).HasColumnName("id_nhatky");
             entity.Property(e => e.CreatedAt)
@@ -402,7 +402,13 @@ public partial class HotelManagementDbContext : DbContext
 
             entity.ToTable("TaiKhoan");
 
-            entity.HasIndex(e => e.IdNhansu, "UQ_TaiKhoan_NhanSu").IsUnique();
+            entity.HasIndex(e => e.IdKhachhang, "UQ_TaiKhoan_KhachHang")
+                .IsUnique()
+                .HasFilter("([id_khachhang] IS NOT NULL)");
+
+            entity.HasIndex(e => e.IdNhansu, "UQ_TaiKhoan_NhanSu")
+                .IsUnique()
+                .HasFilter("([id_nhansu] IS NOT NULL)");
 
             entity.HasIndex(e => e.TenDangnhap, "UQ_TaiKhoan_TenDangNhap").IsUnique();
 
@@ -410,6 +416,7 @@ public partial class HotelManagementDbContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(sysdatetime())", "DF_TaiKhoan_CreatedAt")
                 .HasColumnName("created_at");
+            entity.Property(e => e.IdKhachhang).HasColumnName("id_khachhang");
             entity.Property(e => e.IdNhansu).HasColumnName("id_nhansu");
             entity.Property(e => e.IdVaitro).HasColumnName("id_vaitro");
             entity.Property(e => e.MatkhauHash)
@@ -427,9 +434,12 @@ public partial class HotelManagementDbContext : DbContext
                 .HasColumnName("trangthai");
             entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
 
+            entity.HasOne(d => d.IdKhachhangNavigation).WithOne(p => p.TaiKhoan)
+                .HasForeignKey<TaiKhoan>(d => d.IdKhachhang)
+                .HasConstraintName("FK_TaiKhoan_KhachHang");
+
             entity.HasOne(d => d.IdNhansuNavigation).WithOne(p => p.TaiKhoan)
                 .HasForeignKey<TaiKhoan>(d => d.IdNhansu)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_TaiKhoan_NhanSu");
 
             entity.HasOne(d => d.IdVaitroNavigation).WithMany(p => p.TaiKhoans)

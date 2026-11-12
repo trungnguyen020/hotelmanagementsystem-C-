@@ -63,7 +63,8 @@ CREATE TABLE dbo.TaiKhoan (
     id_taikhoan         INT IDENTITY(1,1) NOT NULL,
     ten_dangnhap        VARCHAR(50) NOT NULL,
     matkhau_hash        VARCHAR(255) NOT NULL,
-    id_nhansu           INT NOT NULL,
+    id_nhansu           INT NULL,
+    id_khachhang        INT NULL,
     id_vaitro           INT NOT NULL,
     trangthai           NVARCHAR(20) NOT NULL CONSTRAINT DF_TaiKhoan_TrangThai DEFAULT (N'Hoạt động'),
     solan_saimatkhau    INT NOT NULL CONSTRAINT DF_TaiKhoan_SoLanSai DEFAULT (0),
@@ -71,11 +72,19 @@ CREATE TABLE dbo.TaiKhoan (
     updated_at          DATETIME2 NULL,
     CONSTRAINT PK_TaiKhoan PRIMARY KEY (id_taikhoan),
     CONSTRAINT UQ_TaiKhoan_TenDangNhap UNIQUE (ten_dangnhap),
-    CONSTRAINT UQ_TaiKhoan_NhanSu UNIQUE (id_nhansu),
     CONSTRAINT FK_TaiKhoan_NhanSu FOREIGN KEY (id_nhansu) REFERENCES dbo.NhanSu(id_nhansu),
+    CONSTRAINT FK_TaiKhoan_KhachHang FOREIGN KEY (id_khachhang) REFERENCES dbo.KhachHang(id_khachhang),
     CONSTRAINT FK_TaiKhoan_VaiTro FOREIGN KEY (id_vaitro) REFERENCES dbo.VaiTro(id_vaitro),
-    CONSTRAINT CK_TaiKhoan_TrangThai CHECK (trangthai IN (N'Hoạt động', N'Khóa'))
+    CONSTRAINT CK_TaiKhoan_TrangThai CHECK (trangthai IN (N'Hoạt động', N'Khóa')),
+    CONSTRAINT CK_TaiKhoan_DoiTuong CHECK (
+        (id_nhansu IS NOT NULL AND id_khachhang IS NULL) OR 
+        (id_nhansu IS NULL AND id_khachhang IS NOT NULL)
+    )
 );
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX UQ_TaiKhoan_NhanSu ON dbo.TaiKhoan(id_nhansu) WHERE id_nhansu IS NOT NULL;
+CREATE UNIQUE NONCLUSTERED INDEX UQ_TaiKhoan_KhachHang ON dbo.TaiKhoan(id_khachhang) WHERE id_khachhang IS NOT NULL;
 GO
 
 -- 4. BẢNG KHACHHANG
@@ -268,7 +277,7 @@ GO
    =================================================================================== */
 
 -- 1. Vai trò
-INSERT INTO dbo.VaiTro (ten_vaitro) VALUES (N'Admin'), (N'LeTan');
+INSERT INTO dbo.VaiTro (ten_vaitro) VALUES (N'Admin'), (N'LeTan'), (N'KhachHang');
 GO
 
 -- 2. Nhân sự
