@@ -163,6 +163,141 @@ namespace HotelManagement.BLL.Services
             }
         }
 
+        public async Task<(bool Success, string Message, string? MaBooking)> KhachHangDatPhongAsync(
+            int idKhachHang, DateOnly ngayNhan, DateOnly ngayTra, int soNguoi, List<int> danhSachIdPhong)
+        {
+            if (danhSachIdPhong == null || !danhSachIdPhong.Any())
+                return (false, "Vui lòng chọn ít nhất 1 phòng để đặt.", null);
+
+            if (danhSachIdPhong.Distinct().Count() != danhSachIdPhong.Count)
+                return (false, "Danh sách phòng đặt bị trùng, vui lòng kiểm tra lại.", null);
+
+            if (idKhachHang <= 0)
+                return (false, "Tài khoản khách hàng không hợp lệ.", null);
+
+            if (soNguoi <= 0)
+                return (false, "Số người phải lớn hơn 0.", null);
+
+            if (ngayNhan >= ngayTra)
+                return (false, "Ngày nhận phòng phải trước ngày trả phòng.", null);
+
+            if (ngayNhan < DateOnly.FromDateTime(DateTime.Today))
+                return (false, "Ngày nhận phòng không được ở quá khứ.", null);
+
+            // Kiểm tra xem khách có đang lưu trú không
+            var bookingDangLuuTru = await _unitOfWork.DatPhongRepository
+                .FindAsync(dp => dp.IdKhachhang == idKhachHang && dp.Trangthai == "Đã check-in");
+
+            var bookingHienTai = bookingDangLuuTru.FirstOrDefault();
+            if (bookingHienTai != null)
+                return (false, $"Quý khách đang lưu trú tại khách sạn (đơn #{bookingHienTai.Mabooking}) và chưa hoàn tất check-out.", null);
+
+            // Tìm một nhân sự hệ thống mặc định để gắn vào cột id_nhansu bắt buộc
+            var dsNhanSu = await _unitOfWork.NhanSuRepository.GetAllAsync();
+            var nhanSuMacDinh = dsNhanSu.FirstOrDefault();
+            if (nhanSuMacDinh == null)
+                return (false, "Hệ thống chưa thiết lập nhân sự tiếp nhận. Vui lòng liên hệ bộ phận hỗ trợ.", null);
+
+            int idNhanSu = nhanSuMacDinh.IdNhansu;
+
+            try
+            {
+                // DCKLTTQ-108: Sử dụng mức cô lập Serializable để triệt tiêu race condition khi nhiều khách cùng đặt
+                await _unitOfWork.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+
+                // Kiểm tra lại lần cuối trong transaction xem phòng còn trống không
+                foreach (var idPhong in danhSachIdPhong)
+                {
+                    bool isTrong = await _unitOfWork.DatPhongRepository.IsPhongTrongAsync(idPhong, ngayNhan, ngayTra);
+                    if (!isTrong)
+                    {
+                        var phong = await _unitOfWork.PhongRepository.GetByIdAsync(idPhong);
+                        await _unitOfWork.RollbackTransactionAsync();
+                        return (false, $"Rất tiếc, phòng {phong?.Sophong} vừa được đặt bởi người khác hoặc không còn trống trong khoảng thời gian này. Vui lòng chọn phòng khác.", null);
+                    }
+                }
+
+                // Kiểm tra tổng sức chứa
+                int tongSucChua = 0;
+                foreach (var idPhong in danhSachIdPhong)
+                {
+                    var phong = await _unitOfWork.PhongRepository.GetByIdAsync(idPhong);
+                    if (phong == null)
+                    {
+                        await _unitOfWork.RollbackTransactionAsync();
+                        return (false, $"Không tìm thấy thông tin phòng {idPhong}.", null);
+                    }
+
+                    var loaiPhong = await _unitOfWork.LoaiPhongRepository.GetByIdAsync(phong.IdLoaiphong);
+                    tongSucChua += loaiPhong?.Succhua ?? 0;
+                }
+
+                if (tongSucChua < soNguoi)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return (false, $"Tổng sức chứa các phòng đã chọn ({tongSucChua} người) không đủ cho {soNguoi} khách.", null);
+                }
+
+                // Sinh mã booking theo đúng chuẩn đã có ở Epic 3
+                string maBooking = "BK" + DateTime.Now.ToString("yyMMddHHmmss");
+
+                var datPhong = new HotelManagement.Models.Entities.DatPhong
+                {
+                    IdKhachhang = idKhachHang,
+                    IdNhansu = idNhanSu,
+                    NgaynhanDukien = ngayNhan,
+                    NgaytraDukien = ngayTra,
+                    Songuoi = soNguoi,
+                    Mabooking = maBooking,
+                    Trangthai = "Đã xác nhận",
+                    CreatedAt = DateTime.Now
+                };
+
+                await _unitOfWork.DatPhongRepository.AddAsync(datPhong);
+                await _unitOfWork.SaveChangesAsync();
+
+                // Thêm chi tiết đặt phòng
+                foreach (var idPhong in danhSachIdPhong)
+                {
+                    var phong = await _unitOfWork.PhongRepository.GetByIdAsync(idPhong);
+                    decimal donGia = 0;
+                    if (phong != null)
+                    {
+                        var loaiPhong = await _unitOfWork.LoaiPhongRepository.GetByIdAsync(phong.IdLoaiphong);
+                        donGia = loaiPhong?.Mucgia ?? 0;
+                    }
+
+                    var ctDatPhong = new HotelManagement.Models.Entities.ChiTietDatPhong
+                    {
+                        IdDatphong = datPhong.IdDatphong,
+                        IdPhong = idPhong,
+                        Dongia = donGia
+                    };
+
+                    datPhong.ChiTietDatPhongs.Add(ctDatPhong);
+                }
+
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+
+                return (true, $"Đặt phòng thành công! Mã booking của quý khách là: {maBooking}", maBooking);
+            }
+            catch (Microsoft.Data.SqlClient.SqlException sqlEx) when (sqlEx.Number == 1205) // Deadlock / Lock contention
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return (false, "Rất tiếc, phòng vừa được đặt bởi người khác trong lúc xử lý. Quý khách vui lòng chọn phòng hoặc thời gian khác.", null);
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                if (ex.InnerException is Microsoft.Data.SqlClient.SqlException innerSql && innerSql.Number == 1205)
+                {
+                    return (false, "Rất tiếc, phòng vừa được đặt bởi người khác trong lúc xử lý. Quý khách vui lòng chọn phòng hoặc thời gian khác.", null);
+                }
+                return (false, "Không thể hoàn tất đặt phòng do sự cố đường truyền: " + ex.Message, null);
+            }
+        }
+
         public async Task<DatPhongChiTietDto?> LayChiTietTheoMaBookingAsync(string maBooking)
         {
             if (string.IsNullOrWhiteSpace(maBooking))
@@ -519,6 +654,39 @@ namespace HotelManagement.BLL.Services
                     : string.Empty,
                 SoPhong = dp.ChiTietDatPhongs?.Count ?? 0,
                 SoNguoi = dp.Songuoi
+            }).ToList();
+        }
+
+        public async Task<List<DatPhongLichSuDto>> LayLichSuKhachHangAsync(int idKhachHang, string? trangThai = null)
+        {
+            var ds = await _unitOfWork.DatPhongRepository.GetLichSuKhachHangAsync(idKhachHang, trangThai);
+
+            return ds.Select(dp =>
+            {
+                int soDem = Math.Max(1, dp.NgaytraDukien.DayNumber - dp.NgaynhanDukien.DayNumber);
+                decimal tienPhong = dp.ChiTietDatPhongs.Sum(ct => ct.Dongia) * soDem;
+                decimal tienDichVu = dp.ChiTietDichVus.Sum(dv => dv.Dongia);
+                decimal tongTien = dp.HoaDon?.Tonggia ?? (tienPhong + tienDichVu);
+
+                string dsPhong = dp.ChiTietDatPhongs.Any()
+                    ? string.Join(", ", dp.ChiTietDatPhongs.Select(ct =>
+                        $"P.{ct.IdPhongNavigation?.Sophong ?? ct.IdPhong.ToString()} ({(ct.IdPhongNavigation?.IdLoaiphongNavigation?.Ten ?? "Tiêu chuẩn")})"))
+                    : "Chưa phân phòng";
+
+                return new DatPhongLichSuDto
+                {
+                    IdDatPhong = dp.IdDatphong,
+                    MaBooking = dp.Mabooking,
+                    NgayDat = dp.Ngaydat,
+                    NgayNhan = dp.NgaynhanDukien,
+                    NgayTra = dp.NgaytraDukien,
+                    SoNguoi = dp.Songuoi,
+                    DanhSachPhong = dsPhong,
+                    TrangThaiBooking = dp.Trangthai,
+                    CoHoaDon = dp.HoaDon != null,
+                    TrangThaiThanhToan = dp.HoaDon?.TrangthaiThanhtoan ?? (dp.Trangthai == "Đã check-out" ? "Đã thanh toán" : "Chưa thanh toán"),
+                    TongTien = tongTien
+                };
             }).ToList();
         }
     }

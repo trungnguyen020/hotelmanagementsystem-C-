@@ -38,6 +38,7 @@ namespace HotelManagement
         private ToolStripMenuItem mnuDashboard = null!;      // chỉ Admin
         private ToolStripMenuItem mnuImportPhong = null!;    // chỉ Admin
         private ToolStripMenuItem mnuLichSuThongBao = null!;
+        private ToolStripMenuItem mnuMoKiosk = null!;        // DCKLTTQ-107 (Admin/LeTan mở Kiosk riêng)
         private ToolStripMenuItem mnuDoiMatKhau = null!;
         private ToolStripMenuItem mnuDangXuat = null!;
 
@@ -200,7 +201,16 @@ namespace HotelManagement
             };
             menuChinh.Items.Add(mnuLichSuThongBao);
 
-            // --- 1.8 Đổi mật khẩu ---
+            // --- 1.9 Mở chế độ Kiosk (DCKLTTQ-107 - Cửa sổ độc lập không chặn) ---
+            mnuMoKiosk = new ToolStripMenuItem("🖥️ Mở chế độ Kiosk");
+            mnuMoKiosk.Click += (_, _) =>
+            {
+                var formKiosk = new HotelManagement.Forms.FormKiosk();
+                formKiosk.Show(); // Modeless - độc lập với FormChinh, có thể kéo sang màn hình thứ 2
+            };
+            menuChinh.Items.Add(mnuMoKiosk);
+
+            // --- 1.10 Đổi mật khẩu ---
             mnuDoiMatKhau = new ToolStripMenuItem("Đổi mật khẩu");
             mnuDoiMatKhau.Click += (_, _) =>
             {

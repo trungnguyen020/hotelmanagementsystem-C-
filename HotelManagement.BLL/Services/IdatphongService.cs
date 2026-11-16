@@ -14,6 +14,13 @@ namespace HotelManagement.BLL.Services
             int idKhachHang, int idNhanSu, DateOnly ngayNhan, DateOnly ngayTra, int soNguoi, List<int> danhSachIdPhong);
 
         /// <summary>
+        /// Khách hàng tự đặt phòng trực tuyến (DCKLTTQ-108).
+        /// Áp dụng mức cô lập Serializable trong transaction để ngăn chặn race condition/đặt trùng phòng.
+        /// </summary>
+        Task<(bool Success, string Message, string? MaBooking)> KhachHangDatPhongAsync(
+            int idKhachHang, DateOnly ngayNhan, DateOnly ngayTra, int soNguoi, List<int> danhSachIdPhong);
+
+        /// <summary>
         /// Tra cứu chi tiết đơn đặt phòng bằng mã booking phục vụ hiển thị màn hình Check-in (DCKLTTQ-71).
         /// </summary>
         Task<DatPhongChiTietDto?> LayChiTietTheoMaBookingAsync(string maBooking);
@@ -68,5 +75,10 @@ namespace HotelManagement.BLL.Services
             string? cccd = null,
             string? soPhong = null,
             string? trangThai = null);
+
+        /// <summary>
+        /// Lấy toàn bộ lịch sử booking của khách hàng (DCKLTTQ-109) kèm chi tiết phòng và trạng thái hóa đơn/thanh toán.
+        /// </summary>
+        Task<List<DatPhongLichSuDto>> LayLichSuKhachHangAsync(int idKhachHang, string? trangThai = null);
     }
 }

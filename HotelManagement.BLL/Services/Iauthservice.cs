@@ -38,5 +38,11 @@ namespace HotelManagement.BLL.Services
 
         /// <summary>Người dùng tự đổi mật khẩu của mình.</summary>
         Task<(bool Success, string Message)> DoiMatKhauAsync(int idTaiKhoan, string matKhauCu, string matKhauMoi);
+
+        /// <summary>
+        /// Đăng ký tài khoản khách hàng mới (DCKLTTQ-106).
+        /// Tạo đồng thời bản ghi KhachHang và TaiKhoan tương ứng trong 1 transaction an toàn.
+        /// </summary>
+        Task<(bool Success, string Message)> DangKyKhachHangAsync(HotelManagement.BLL.DTOs.KhachHangDangKyDto dto);
     }
 }

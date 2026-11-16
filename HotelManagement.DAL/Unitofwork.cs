@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using HotelManagement.Models.Entities;
 
@@ -68,6 +69,9 @@ namespace HotelManagement.DAL.Repositories
 
         public async Task BeginTransactionAsync()
             => _transaction = await _context.Database.BeginTransactionAsync();
+
+        public async Task BeginTransactionAsync(System.Data.IsolationLevel isolationLevel)
+            => _transaction = await _context.Database.BeginTransactionAsync(isolationLevel);
 
         public async Task CommitTransactionAsync()
         {

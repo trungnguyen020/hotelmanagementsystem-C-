@@ -30,6 +30,9 @@ namespace HotelManagement.DAL.Repositories
         /// <summary>Bắt đầu transaction tường minh - dùng cho nghiệp vụ nhiều bước (vd: đặt nhiều phòng).</summary>
         Task BeginTransactionAsync();
 
+        /// <summary>Bắt đầu transaction với mức cô lập tùy chỉnh (vd: Serializable để chống race condition đặt phòng).</summary>
+        Task BeginTransactionAsync(System.Data.IsolationLevel isolationLevel);
+
         /// <summary>Commit transaction đã mở bằng BeginTransactionAsync.</summary>
         Task CommitTransactionAsync();
 

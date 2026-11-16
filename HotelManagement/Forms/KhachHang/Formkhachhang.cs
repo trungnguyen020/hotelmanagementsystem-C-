@@ -51,6 +51,9 @@ namespace HotelManagement.Forms
             if (_dgv.Columns["Sdt"] != null) _dgv.Columns["Sdt"].HeaderText = "Số điện thoại";
             if (_dgv.Columns["GioiTinh"] != null) _dgv.Columns["GioiTinh"].HeaderText = "Giới tính";
             if (_dgv.Columns["NgaySinh"] != null) _dgv.Columns["NgaySinh"].HeaderText = "Ngày sinh";
+            if (_dgv.Columns["TenTaiKhoan"] != null) _dgv.Columns["TenTaiKhoan"].HeaderText = "Tài khoản";
+            if (_dgv.Columns["TrangThaiTaiKhoan"] != null) _dgv.Columns["TrangThaiTaiKhoan"].HeaderText = "TT Tài khoản";
+            if (_dgv.Columns["SoLanSaiMatKhau"] != null) _dgv.Columns["SoLanSaiMatKhau"].HeaderText = "Sai MK";
         }
 
         private void Dgv_SelectionChanged(object? sender, EventArgs e)
@@ -76,6 +79,21 @@ namespace HotelManagement.Forms
             else
             {
                 _chkCoNgaySinh.Checked = false;
+            }
+
+            // Hiển thị thông tin tài khoản khách hàng
+            if (!string.IsNullOrEmpty(dto.TenTaiKhoan))
+            {
+                _lblTaiKhoanInfo.Text = $"Tài khoản: {dto.TenTaiKhoan} ({dto.TrangThaiTaiKhoan ?? "Hoạt động"})\nSố lần sai MK: {dto.SoLanSaiMatKhau}/10 lần";
+                _btnDatLaiMk.Visible = true;
+                _btnKhoaMoKhoa.Visible = true;
+                _btnKhoaMoKhoa.Text = dto.TrangThaiTaiKhoan == "Khóa" ? "🔓 Mở khóa tài khoản" : "🔒 Khóa tài khoản";
+            }
+            else
+            {
+                _lblTaiKhoanInfo.Text = "Khách hàng này chưa có tài khoản đăng nhập";
+                _btnDatLaiMk.Visible = false;
+                _btnKhoaMoKhoa.Visible = false;
             }
         }
 
@@ -159,7 +177,46 @@ namespace HotelManagement.Forms
             _txtSdt.Clear();
             _cboGioiTinh.SelectedIndex = 0;
             _chkCoNgaySinh.Checked = false;
+            _lblTaiKhoanInfo.Text = "Chưa chọn khách hàng";
+            _btnDatLaiMk.Visible = false;
+            _btnKhoaMoKhoa.Visible = false;
             _dgv.ClearSelection();
+        }
+
+        private async Task DatLaiMatKhauAsync()
+        {
+            if (!_idDangChon.HasValue) return;
+
+            var xacNhan = MessageBox.Show(
+                "Bạn có chắc chắn muốn đặt lại mật khẩu của khách hàng này về mặc định '123456' và mở khóa tài khoản?",
+                "Xác nhận đặt lại mật khẩu",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (xacNhan != DialogResult.Yes) return;
+
+            var (success, message) = await _khachHangService.ResetMatKhauKhachHangAsync(_idDangChon.Value);
+            MessageBox.Show(message, success ? "Thành công" : "Lỗi",
+                MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+
+            if (success)
+            {
+                await TaiDanhSachAsync();
+            }
+        }
+
+        private async Task ChuyenTrangThaiTaiKhoanAsync()
+        {
+            if (!_idDangChon.HasValue) return;
+
+            var (success, message) = await _khachHangService.ChuyenTrangThaiTaiKhoanAsync(_idDangChon.Value);
+            MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
+                MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+
+            if (success)
+            {
+                await TaiDanhSachAsync();
+            }
         }
     }
 }

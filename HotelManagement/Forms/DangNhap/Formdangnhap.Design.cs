@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 using HotelManagement.Common;
@@ -37,7 +37,7 @@ namespace HotelManagement
         private Label _lblTieuDe = null!;
         private Label _lblTenDangNhap = null!;
         private Label _lblMatKhau = null!;
-        private Button _btnKiosk = null!;
+        private LinkLabel _lnkDangKy = null!;
         private Label _lblFooter = null!;
         private Button _btnLangVi = null!;
         private Button _btnLangEn = null!;
@@ -266,39 +266,33 @@ namespace HotelManagement
                 Text = string.Empty
             };
 
-            // 7. Nút chuyển sang Chế độ Kiosk tra cứu dành cho sảnh khách sạn (DCKLTTQ-85)
-            _btnKiosk = new Button
+            // 7. Link Đăng ký tài khoản dành cho Khách hàng (DCKLTTQ-106)
+            _lnkDangKy = new LinkLabel
             {
-                Text = "🖥️  Chế độ Kiosk tra cứu (Dành cho khách hàng)",
-                Location = new Point(30, 358),
-                Size = new Size(380, 40),
-                Font = AppTheme.FontSmallBold,
+                Text = "✨ Khách hàng mới? Đăng ký tài khoản tại đây",
+                Location = new Point(30, 365),
+                Size = new Size(380, 32),
+                Font = AppTheme.FontBodyBold,
+                LinkColor = AppTheme.Primary,
+                ActiveLinkColor = AppTheme.PrimaryActive,
+                TextAlign = ContentAlignment.MiddleCenter,
                 Cursor = Cursors.Hand
             };
-            AppTheme.ApplySecondaryButton(_btnKiosk);
-            _btnKiosk.Click += (s, e) =>
+            _lnkDangKy.LinkClicked += (s, e) =>
             {
-                this.Hide();
-                using (var formKiosk = new HotelManagement.Forms.FormKiosk())
-                {
-                    formKiosk.ShowDialog();
-                }
-                this.Show();
-                this.WindowState = FormWindowState.Normal;
-                this.BringToFront();
-                this.Activate();
-                txtTenDangNhap.Focus();
+                using var formDangKy = new HotelManagement.Forms.FormDangKyKhachHang();
+                formDangKy.ShowDialog();
             };
 
             // 8. Ghi chú chân trang
             _lblFooter = new Label
             {
-                Text = "Phiên bản bảo mật nội bộ — Ban Quản Lý & Lễ Tân",
+                Text = "Hệ thống Quản lý Khách sạn — Dành cho Nhân sự & Khách hàng",
                 Font = AppTheme.FontCaption,
                 ForeColor = AppTheme.TextMuted,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Location = new Point(20, 430),
-                Size = new Size(400, 34),
+                Location = new Point(20, 420),
+                Size = new Size(400, 30),
                 UseMnemonic = false
             };
 
@@ -306,7 +300,7 @@ namespace HotelManagement
             pnlCard.Controls.AddRange(new Control[]
             {
                 _lblFooter,
-                _btnKiosk,
+                _lnkDangKy,
                 lblThongBao,
                 btnDangNhap,
                 txtMatKhau,

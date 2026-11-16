@@ -34,7 +34,7 @@ namespace HotelManagement
                     return;
                 }
 
-                MoFormChinh(ketQua.TaiKhoan!);
+                DinhTuyenDangNhap(ketQua.TaiKhoan!);
             }
             catch (Exception ex)
             {
@@ -45,6 +45,43 @@ namespace HotelManagement
             {
                 btnDangNhap.Enabled = true;
             }
+        }
+
+        private void DinhTuyenDangNhap(TaiKhoan taiKhoan)
+        {
+            string tenVaiTro = taiKhoan.IdVaitroNavigation?.TenVaitro ?? string.Empty;
+
+            if (string.Equals(tenVaiTro, "KhachHang", StringComparison.OrdinalIgnoreCase))
+            {
+                MoFormKhachHang(taiKhoan);
+            }
+            else
+            {
+                // "Admin", "LeTan" hoặc các vai trò nội bộ khác -> mở FormChinh
+                MoFormChinh(taiKhoan);
+            }
+        }
+
+        private void MoFormKhachHang(TaiKhoan taiKhoan)
+        {
+            txtTenDangNhap.Text = string.Empty;
+            txtMatKhau.Text = string.Empty;
+            lblThongBao.Text = string.Empty;
+            Hide();
+
+            var formPortal = new HotelManagement.Forms.FormKhachHangPortal(taiKhoan);
+
+            // Đăng xuất từ FormKhachHangPortal: hiện lại màn hình đăng nhập, KHÔNG thoát ứng dụng
+            formPortal.YeuCauDangXuat += (s, e) => Show();
+
+            // Form portal bị đóng mà KHÔNG qua đăng xuất (bấm nút X) => thoát hẳn ứng dụng
+            formPortal.FormClosed += (s, e) =>
+            {
+                if (!Visible)
+                    Close();
+            };
+
+            formPortal.Show();
         }
 
         private void MoFormChinh(TaiKhoan taiKhoan)

@@ -24,7 +24,6 @@ namespace HotelManagement
 
             // 3. Các nút bấm
             if (btnDangNhap != null) btnDangNhap.Text = LanguageManager.GetString("FormDangNhap_BtnLogin");
-            if (_btnKiosk != null) _btnKiosk.Text = LanguageManager.GetString("FormDangNhap_BtnKiosk");
             if (_lblFooter != null) _lblFooter.Text = LanguageManager.GetString("FormDangNhap_Footer");
 
             // 4. Highlight nút ngôn ngữ

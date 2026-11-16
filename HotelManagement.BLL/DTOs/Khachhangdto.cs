@@ -13,5 +13,10 @@ namespace HotelManagement.BLL.DTOs
         public string Sdt { get; set; } = string.Empty;
         public string? GioiTinh { get; set; }
         public DateOnly? NgaySinh { get; set; }
+
+        // Bổ sung thông tin tài khoản cho Admin/Lễ tân quản lý
+        public string? TenTaiKhoan { get; set; }
+        public string? TrangThaiTaiKhoan { get; set; }
+        public int SoLanSaiMatKhau { get; set; }
     }
 }

@@ -38,5 +38,11 @@ namespace HotelManagement.DAL.Repositories
             string? cccd = null,
             string? soPhong = null,
             string? trangThai = null);
+
+        /// <summary>
+        /// Lấy toàn bộ lịch sử đặt phòng của một khách hàng cụ thể (DCKLTTQ-109),
+        /// bao gồm cả các booking cũ đặt qua điện thoại lẫn booking tự đặt trên cổng khách hàng.
+        /// </summary>
+        Task<IEnumerable<DatPhong>> GetLichSuKhachHangAsync(int idKhachHang, string? trangThai = null);
     }
 }

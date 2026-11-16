@@ -130,5 +130,28 @@ namespace HotelManagement.DAL.Repositories
                 .Take(100)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<DatPhong>> GetLichSuKhachHangAsync(int idKhachHang, string? trangThai = null)
+        {
+            var query = _dbSet.AsNoTracking()
+                .Where(dp => dp.IdKhachhang == idKhachHang)
+                .Include(dp => dp.ChiTietDatPhongs)
+                    .ThenInclude(ct => ct.IdPhongNavigation)
+                        .ThenInclude(p => p.IdLoaiphongNavigation)
+                .Include(dp => dp.ChiTietDichVus)
+                    .ThenInclude(dv => dv.IdDichvuNavigation)
+                .Include(dp => dp.HoaDon)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(trangThai) && trangThai != "Tất cả")
+            {
+                string tt = trangThai.Trim();
+                query = query.Where(dp => dp.Trangthai == tt);
+            }
+
+            return await query
+                .OrderByDescending(dp => dp.Ngaydat)
+                .ToListAsync();
+        }
     }
 }
