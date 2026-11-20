@@ -137,7 +137,9 @@ namespace HotelManagement.Forms
             {
                 Format = DateTimePickerFormat.Short,
                 Location = new Point(16, 52),
-                Size = new Size(140, 28)
+                Size = new Size(140, 28),
+                MinDate = DateTime.Today,
+                Value = DateTime.Today
             };
             AppTheme.ApplyDateTimePicker(dtpNgayNhan);
 
@@ -153,7 +155,9 @@ namespace HotelManagement.Forms
             {
                 Format = DateTimePickerFormat.Short,
                 Location = new Point(175, 52),
-                Size = new Size(140, 28)
+                Size = new Size(140, 28),
+                MinDate = DateTime.Today.AddDays(1),
+                Value = DateTime.Today.AddDays(1)
             };
             AppTheme.ApplyDateTimePicker(dtpNgayTra);
 

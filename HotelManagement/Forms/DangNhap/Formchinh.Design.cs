@@ -160,7 +160,7 @@ namespace HotelManagement
             mnuKhachHang = new ToolStripMenuItem("Quản lý khách hàng");
             mnuKhachHang.Click += (_, _) =>
             {
-                using var form = new HotelManagement.Forms.FormKhachHang();
+                using var form = new HotelManagement.Forms.FormKhachHang(_taiKhoanDangNhap);
                 form.ShowDialog(this);
             };
             menuChinh.Items.Add(mnuKhachHang);

@@ -235,6 +235,8 @@ namespace HotelManagement.Forms
             _txtMatKhau.Left = cotNhapPhai;
 
             AppTheme.AlignInputAfterLabel(lblTimKiem, _txtTimKiem);
+            _btnTimKiem.Left = _txtTimKiem.Right + 10;
+            _btnTimKiem.Top = _txtTimKiem.Top - 1;
         }
 
         #endregion

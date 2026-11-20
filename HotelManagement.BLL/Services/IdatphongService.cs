@@ -66,6 +66,11 @@ namespace HotelManagement.BLL.Services
         Task<string?> LayMaBookingHienTaiCuaPhongAsync(int idPhong);
 
         /// <summary>
+        /// Tra cứu mã booking đã xác nhận đang chờ nhận phòng (check-in) hôm nay của một phòng trên Sơ đồ phòng GDI+.
+        /// </summary>
+        Task<string?> LayMaBookingChoCheckInCuaPhongAsync(int idPhong);
+
+        /// <summary>
         /// Tìm kiếm danh sách booking theo nhiều tiêu chí tùy chọn: tên khách hàng, SĐT, CCCD, số phòng, trạng thái.
         /// Hỗ trợ nhân viên lễ tân tra cứu nhanh booking khi check-in/check-out/thanh toán mà không cần nhớ mã booking.
         /// </summary>

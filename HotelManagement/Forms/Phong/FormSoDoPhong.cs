@@ -26,6 +26,7 @@ namespace HotelManagement.Forms
         private List<PhongDto> _danhSachGoc = new();
         private PhongDto? _phongDangChon;
         private string? _maBookingCuaPhongDangChon;
+        private readonly System.Windows.Forms.Timer _debounceTimer = new() { Interval = 300 };
 
         public FormSoDoPhong(TaiKhoan? taiKhoanDangNhap = null)
         {
@@ -61,10 +62,44 @@ namespace HotelManagement.Forms
 
             _btnLamMoi.Click += async (s, e) => await TaiDuLieuSoDoAsync();
 
-            _cboLocTrangThai.SelectedIndexChanged += (s, e) => ApDungBoLoc();
-            _cboLocLoaiPhong.SelectedIndexChanged += (s, e) => ApDungBoLoc();
-            _cboCheDoXem.SelectedIndexChanged += (s, e) => ApDungBoLoc();
-            _txtTimKiem.TextChanged += (s, e) => ApDungBoLoc();
+            // Debounce 300ms cho ô tìm kiếm
+            _debounceTimer.Interval = 300;
+            _debounceTimer.Tick += (s, e) =>
+            {
+                _debounceTimer.Stop();
+                ApDungBoLoc();
+            };
+
+            _txtTimKiem.TextChanged += (s, e) =>
+            {
+                _debounceTimer.Stop();
+                _debounceTimer.Start();
+            };
+
+            // Lọc theo trạng thái
+            _radStatusAll.CheckedChanged += (s, e) => { if (_radStatusAll.Checked) ApDungBoLoc(); };
+            _radStatusTrong.CheckedChanged += (s, e) => { if (_radStatusTrong.Checked) ApDungBoLoc(); };
+            _radStatusDangO.CheckedChanged += (s, e) => { if (_radStatusDangO.Checked) ApDungBoLoc(); };
+            _radStatusDangDon.CheckedChanged += (s, e) => { if (_radStatusDangDon.Checked) ApDungBoLoc(); };
+            _radStatusBaoTri.CheckedChanged += (s, e) => { if (_radStatusBaoTri.Checked) ApDungBoLoc(); };
+
+            // Lọc theo loại phòng (Mặc định: Tất cả)
+            _radLoaiPhongAll.CheckedChanged += (s, e) => { if (_radLoaiPhongAll.Checked) ApDungBoLoc(); };
+
+            // Chế độ xem
+            _radXemTheoTang.CheckedChanged += (s, e) => { if (_radXemTheoTang.Checked) ApDungBoLoc(); };
+            _radXemLuoi.CheckedChanged += (s, e) => { if (_radXemLuoi.Checked) ApDungBoLoc(); };
+
+            // Nút đặt lại bộ lọc
+            _btnDatLaiBoLoc.Click += (s, e) =>
+            {
+                _debounceTimer.Stop();
+                _txtTimKiem.Clear();
+                _radStatusAll.Checked = true;
+                _radLoaiPhongAll.Checked = true;
+                _radXemTheoTang.Checked = true;
+                ApDungBoLoc();
+            };
 
             // Sự kiện từ Canvas GDI+
             _mapCanvas.RoomClicked += async (s, phong) => await ChonPhongAsync(phong);
@@ -94,6 +129,20 @@ namespace HotelManagement.Forms
             };
 
             // Context Menu Items
+            _mnuCtxCheckIn.Click += (s, e) =>
+            {
+                if (!string.IsNullOrEmpty(_maBookingCuaPhongDangChon))
+                {
+                    MoCheckInChoBooking(_maBookingCuaPhongDangChon);
+                }
+                else if (_taiKhoanDangNhap != null)
+                {
+                    using var frm = new FormCheckIn(_taiKhoanDangNhap);
+                    frm.ShowDialog(this);
+                    _ = TaiDuLieuSoDoAsync();
+                }
+            };
+
             _mnuCtxCheckOut.Click += async (s, e) =>
             {
                 if (_phongDangChon != null) await MoCheckOutChoPhongAsync(_phongDangChon);
@@ -121,13 +170,37 @@ namespace HotelManagement.Forms
             try
             {
                 var dsLoai = await _loaiPhongService.LayDanhSachAsync();
-                _cboLocLoaiPhong.Items.Clear();
-                _cboLocLoaiPhong.Items.Add("Tất cả loại phòng");
+
+                _flpLoaiPhong.SuspendLayout();
+                var controlsToRemove = _flpLoaiPhong.Controls.Cast<Control>()
+                    .Where(c => c != _radLoaiPhongAll)
+                    .ToList();
+                foreach (var c in controlsToRemove)
+                {
+                    _flpLoaiPhong.Controls.Remove(c);
+                    c.Dispose();
+                }
+
                 foreach (var lp in dsLoai)
                 {
-                    _cboLocLoaiPhong.Items.Add(lp.TenLoaiPhong);
+                    var rb = new RadioButton
+                    {
+                        Text = lp.TenLoaiPhong,
+                        Tag = lp.TenLoaiPhong,
+                        AutoSize = true,
+                        Font = AppTheme.FontBody,
+                        ForeColor = AppTheme.TextPrimary,
+                        Cursor = Cursors.Hand,
+                        Margin = new Padding(2, 3, 2, 3),
+                        BackColor = Color.Transparent
+                    };
+                    rb.CheckedChanged += (s, e) =>
+                    {
+                        if (rb.Checked) ApDungBoLoc();
+                    };
+                    _flpLoaiPhong.Controls.Add(rb);
                 }
-                _cboLocLoaiPhong.SelectedIndex = 0;
+                _flpLoaiPhong.ResumeLayout();
             }
             catch (Exception ex)
             {
@@ -192,32 +265,57 @@ namespace HotelManagement.Forms
             _lblStatTyLe.Text = $"● Lấp đầy: {tyLe:0.#}%";
         }
 
+        private string LayTrangThaiDangChon()
+        {
+            if (_radStatusTrong.Checked) return "Trống";
+            if (_radStatusDangO.Checked) return "Đang ở";
+            if (_radStatusDangDon.Checked) return "Đang dọn";
+            if (_radStatusBaoTri.Checked) return "Bảo trì";
+            return "Tất cả";
+        }
+
+        private string LayLoaiPhongDangChon()
+        {
+            if (_radLoaiPhongAll.Checked) return "Tất cả";
+            foreach (Control c in _flpLoaiPhong.Controls)
+            {
+                if (c is RadioButton rb && rb != _radLoaiPhongAll && rb.Checked)
+                {
+                    return rb.Tag as string ?? rb.Text;
+                }
+            }
+            return "Tất cả";
+        }
+
         private void ApDungBoLoc()
         {
             var ketQua = _danhSachGoc.AsEnumerable();
 
             // 1. Lọc theo trạng thái
-            if (_cboLocTrangThai.SelectedIndex > 0)
+            string tt = LayTrangThaiDangChon();
+            if (tt != "Tất cả")
             {
-                string tt = _cboLocTrangThai.SelectedItem?.ToString() ?? "";
-                ketQua = ketQua.Where(p => p.TrangThai == tt);
+                ketQua = ketQua.Where(p => string.Equals(p.TrangThai, tt, StringComparison.OrdinalIgnoreCase));
             }
 
-            // 2. Lọc theo loại phòng
-            if (_cboLocLoaiPhong.SelectedIndex > 0)
+            // 2. Lọc theo loại phòng (Động từ DB)
+            string lp = LayLoaiPhongDangChon();
+            if (lp != "Tất cả")
             {
-                string lp = _cboLocLoaiPhong.SelectedItem?.ToString() ?? "";
-                ketQua = ketQua.Where(p => p.TenLoaiPhong.Equals(lp, StringComparison.OrdinalIgnoreCase));
+                ketQua = ketQua.Where(p => string.Equals(p.TenLoaiPhong, lp, StringComparison.OrdinalIgnoreCase));
             }
 
-            // 3. Tìm theo số phòng
+            // 3. Tìm theo mã phòng hoặc tên loại phòng
             string tuKhoa = _txtTimKiem.Text.Trim();
             if (!string.IsNullOrEmpty(tuKhoa))
             {
-                ketQua = ketQua.Where(p => p.SoPhong.Contains(tuKhoa, StringComparison.OrdinalIgnoreCase));
+                ketQua = ketQua.Where(p =>
+                    (!string.IsNullOrEmpty(p.SoPhong) && p.SoPhong.Contains(tuKhoa, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(p.TenLoaiPhong) && p.TenLoaiPhong.Contains(tuKhoa, StringComparison.OrdinalIgnoreCase))
+                );
             }
 
-            bool gomTheoTang = _cboCheDoXem.SelectedIndex == 0;
+            bool gomTheoTang = _radXemTheoTang.Checked;
             _mapCanvas.SetData(ketQua.ToList(), gomTheoTang);
         }
 
@@ -235,20 +333,21 @@ namespace HotelManagement.Forms
             switch (phong.TrangThai)
             {
                 case "Trống":
-                    _lblPhongTrangThaiBadge.BackColor = Color.FromArgb(220, 252, 231);
-                    _lblPhongTrangThaiBadge.ForeColor = Color.FromArgb(22, 101, 52);
+                    _lblPhongTrangThaiBadge.BackColor = AppTheme.StatusSuccessBg;
+                    _lblPhongTrangThaiBadge.ForeColor = AppTheme.StatusSuccessText;
                     break;
                 case "Đang ở":
-                    _lblPhongTrangThaiBadge.BackColor = Color.FromArgb(254, 226, 226);
-                    _lblPhongTrangThaiBadge.ForeColor = Color.FromArgb(153, 27, 27);
+                    _lblPhongTrangThaiBadge.BackColor = AppTheme.StatusDangerBg;
+                    _lblPhongTrangThaiBadge.ForeColor = AppTheme.StatusDangerText;
                     break;
                 case "Đang dọn":
-                    _lblPhongTrangThaiBadge.BackColor = Color.FromArgb(254, 243, 199);
-                    _lblPhongTrangThaiBadge.ForeColor = Color.FromArgb(146, 64, 14);
+                    _lblPhongTrangThaiBadge.BackColor = AppTheme.StatusWarningBg;
+                    _lblPhongTrangThaiBadge.ForeColor = AppTheme.StatusWarningText;
                     break;
                 case "Bảo trì":
-                    _lblPhongTrangThaiBadge.BackColor = Color.FromArgb(241, 245, 249);
-                    _lblPhongTrangThaiBadge.ForeColor = Color.FromArgb(71, 85, 105);
+                default:
+                    _lblPhongTrangThaiBadge.BackColor = AppTheme.StatusNeutralBg;
+                    _lblPhongTrangThaiBadge.ForeColor = AppTheme.StatusNeutralText;
                     break;
             }
 
@@ -280,10 +379,23 @@ namespace HotelManagement.Forms
             }
             else if (phong.TrangThai == "Trống")
             {
-                _lblThongTinPhu.Text = "Phòng sẵn sàng đón khách.";
-                _btnThaoTacChinh.Text = "📝 Tạo đặt phòng mới";
-                _btnThaoTacChinh.BackColor = Color.FromArgb(40, 167, 69);
-                _btnThaoTacChinh.Visible = true;
+                // Kiểm tra xem phòng có booking đã xác nhận đang chờ check-in không
+                var maBookingCho = await _datPhongService.LayMaBookingChoCheckInCuaPhongAsync(phong.Id);
+                if (!string.IsNullOrEmpty(maBookingCho))
+                {
+                    _maBookingCuaPhongDangChon = maBookingCho;
+                    _lblThongTinPhu.Text = $"⏳ Có booking chờ nhận: {maBookingCho}";
+                    _btnThaoTacChinh.Text = "🛎️ Xác nhận Check-in (Nhận phòng)";
+                    _btnThaoTacChinh.BackColor = Color.FromArgb(0, 123, 255);
+                    _btnThaoTacChinh.Visible = true;
+                }
+                else
+                {
+                    _lblThongTinPhu.Text = "Phòng sẵn sàng đón khách.";
+                    _btnThaoTacChinh.Text = "📝 Tạo đặt phòng mới";
+                    _btnThaoTacChinh.BackColor = Color.FromArgb(40, 167, 69);
+                    _btnThaoTacChinh.Visible = true;
+                }
 
                 _btnDoiSangDangDon.Visible = true;
                 _btnDoiSangBaoTri.Visible = true;
@@ -339,7 +451,14 @@ namespace HotelManagement.Forms
                     await MoCheckOutChoPhongAsync(phong);
                     break;
                 case "Trống":
-                    MoDatPhong();
+                    if (!string.IsNullOrEmpty(_maBookingCuaPhongDangChon))
+                    {
+                        MoCheckInChoBooking(_maBookingCuaPhongDangChon);
+                    }
+                    else
+                    {
+                        MoDatPhong();
+                    }
                     break;
                 case "Đang dọn":
                     var hoiDon = MessageBox.Show(
@@ -360,6 +479,20 @@ namespace HotelManagement.Forms
                     }
                     break;
             }
+        }
+
+        private void MoCheckInChoBooking(string maBooking)
+        {
+            if (_taiKhoanDangNhap == null)
+            {
+                MessageBox.Show("Không có thông tin tài khoản đăng nhập.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using var frm = new FormCheckIn(_taiKhoanDangNhap, maBooking);
+            frm.ShowDialog(this);
+
+            _ = TaiDuLieuSoDoAsync();
         }
 
         private async Task MoCheckOutChoPhongAsync(PhongDto phong)
@@ -436,6 +569,16 @@ namespace HotelManagement.Forms
         private void HienThiContextMenu(PhongDto phong, Point screenLocation)
         {
             _ = ChonPhongAsync(phong);
+
+            _mnuCtxCheckIn.Visible = (phong.TrangThai == "Trống");
+            if (!string.IsNullOrEmpty(_maBookingCuaPhongDangChon) && _phongDangChon?.Id == phong.Id)
+            {
+                _mnuCtxCheckIn.Text = $"🛎️ Xác nhận Check-in ({_maBookingCuaPhongDangChon})...";
+            }
+            else
+            {
+                _mnuCtxCheckIn.Text = "🛎️ Xác nhận Check-in...";
+            }
 
             _mnuCtxCheckOut.Visible = (phong.TrangThai == "Đang ở");
             _mnuCtxDatPhong.Visible = (phong.TrangThai == "Trống");

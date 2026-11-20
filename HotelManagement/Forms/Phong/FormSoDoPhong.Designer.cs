@@ -10,9 +10,13 @@ namespace HotelManagement.Forms
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                components.Dispose();
+                _debounceTimer?.Dispose();
+                if (components != null)
+                {
+                    components.Dispose();
+                }
             }
             base.Dispose(disposing);
         }
@@ -22,7 +26,8 @@ namespace HotelManagement.Forms
         // Panels
         private Panel _pnlTop = null!;
         private FlowLayoutPanel _pnlThongKe = null!;
-        private FlowLayoutPanel _pnlBoLoc = null!;
+        private Panel _pnlLeftFilter = null!;
+        private FlowLayoutPanel _flpLeftContent = null!;
         private Panel _pnlRight = null!;
         private Panel _pnlCanvasContainer = null!;
         private RoomMapCanvas _mapCanvas = null!;
@@ -34,13 +39,31 @@ namespace HotelManagement.Forms
         private Label _lblStatDangDon = null!;
         private Label _lblStatBaoTri = null!;
         private Label _lblStatTyLe = null!;
-
-        // Controls Bộ lọc
-        private ComboBox _cboLocTrangThai = null!;
-        private ComboBox _cboLocLoaiPhong = null!;
-        private ComboBox _cboCheDoXem = null!;
-        private TextBox _txtTimKiem = null!;
         private Button _btnLamMoi = null!;
+
+        // Controls Bộ lọc bên trái (Phần A)
+        private Label _lblFilterHeader = null!;
+        private Label _lblTimKiemHeader = null!;
+        private TextBox _txtTimKiem = null!;
+
+        private GroupBox _grpLocTrangThai = null!;
+        private FlowLayoutPanel _flpTrangThai = null!;
+        private RadioButton _radStatusAll = null!;
+        private RadioButton _radStatusTrong = null!;
+        private RadioButton _radStatusDangO = null!;
+        private RadioButton _radStatusDangDon = null!;
+        private RadioButton _radStatusBaoTri = null!;
+
+        private GroupBox _grpLocLoaiPhong = null!;
+        private FlowLayoutPanel _flpLoaiPhong = null!;
+        private RadioButton _radLoaiPhongAll = null!;
+
+        private GroupBox _grpCheDoXem = null!;
+        private FlowLayoutPanel _flpCheDoXem = null!;
+        private RadioButton _radXemTheoTang = null!;
+        private RadioButton _radXemLuoi = null!;
+
+        private Button _btnDatLaiBoLoc = null!;
 
         // Controls Sidebar Chi tiết & Thao tác nhanh
         private Label _lblChiTietHeader = null!;
@@ -59,6 +82,7 @@ namespace HotelManagement.Forms
 
         // Context Menu
         private ContextMenuStrip _ctxMenuPhong = null!;
+        private ToolStripMenuItem _mnuCtxCheckIn = null!;
         private ToolStripMenuItem _mnuCtxCheckOut = null!;
         private ToolStripMenuItem _mnuCtxDatPhong = null!;
         private ToolStripSeparator _mnuCtxSep1 = null!;
@@ -74,179 +98,237 @@ namespace HotelManagement.Forms
             this.components = new System.ComponentModel.Container();
 
             // Form cấu hình
+            AppTheme.ApplyFormStyle(this);
             this.Text = "Sơ đồ phòng trực quan - Khách sạn";
             this.Size = new Size(1360, 800);
             this.MinimumSize = new Size(1100, 650);
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.Font = new Font("Segoe UI", 9.5f, FontStyle.Regular);
-            this.BackColor = Color.FromArgb(248, 249, 250);
+            this.BackColor = AppTheme.Background;
 
-            // ================= 1. Top Panel: Thống kê & Bộ lọc =================
+            // ================= 1. Top Panel: Thanh Thống kê & Nút Làm mới =================
             _pnlTop = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 125,
-                BackColor = Color.White,
-                Padding = new Padding(18, 10, 18, 10)
+                Height = 54,
+                BackColor = AppTheme.Surface,
+                Padding = new Padding(16, 8, 16, 8)
             };
 
-            // Thước kẻ phân cách dưới panel top
-            _pnlTop.Paint += (s, e) =>
-            {
-                using var pen = new Pen(Color.FromArgb(226, 232, 240), 1);
-                e.Graphics.DrawLine(pen, 0, _pnlTop.Height - 1, _pnlTop.Width, _pnlTop.Height - 1);
-            };
-
-            // 1.1 Panel Thống kê (Hàng trên) dùng FlowLayoutPanel tự giãn cách rộng rãi
             _pnlThongKe = new FlowLayoutPanel
             {
-                Dock = DockStyle.Top,
-                Height = 44,
+                Dock = DockStyle.Left,
+                Height = 38,
+                AutoSize = true,
                 BackColor = Color.Transparent,
                 WrapContents = false,
                 AutoScroll = false,
                 Padding = new Padding(0)
             };
 
-            _lblStatTong = TaoLabelThongKe("Tổng: 0 phòng", Color.FromArgb(71, 85, 105), Color.FromArgb(241, 245, 249));
-            _lblStatTrong = TaoLabelThongKe("● Trống: 0", Color.FromArgb(22, 101, 52), Color.FromArgb(220, 252, 231));
-            _lblStatDangO = TaoLabelThongKe("● Đang ở: 0", Color.FromArgb(153, 27, 27), Color.FromArgb(254, 226, 226));
-            _lblStatDangDon = TaoLabelThongKe("● Đang dọn: 0", Color.FromArgb(146, 64, 14), Color.FromArgb(254, 243, 199));
-            _lblStatBaoTri = TaoLabelThongKe("● Bảo trì: 0", Color.FromArgb(51, 65, 85), Color.FromArgb(241, 245, 249));
-            _lblStatTyLe = TaoLabelThongKe("● Lấp đầy: 0%", Color.FromArgb(30, 64, 175), Color.FromArgb(224, 231, 255));
+            _lblStatTong = TaoLabelThongKe("Tổng: 0 phòng", AppTheme.TextPrimary, AppTheme.SurfaceSecondary);
+            _lblStatTrong = TaoLabelThongKe("● Trống: 0", AppTheme.StatusSuccessText, AppTheme.StatusSuccessBg);
+            _lblStatDangO = TaoLabelThongKe("● Đang ở: 0", AppTheme.StatusDangerText, AppTheme.StatusDangerBg);
+            _lblStatDangDon = TaoLabelThongKe("● Đang dọn: 0", AppTheme.StatusWarningText, AppTheme.StatusWarningBg);
+            _lblStatBaoTri = TaoLabelThongKe("● Bảo trì: 0", AppTheme.StatusNeutralText, AppTheme.StatusNeutralBg);
+            _lblStatTyLe = TaoLabelThongKe("● Lấp đầy: 0%", AppTheme.Primary, AppTheme.PrimaryLight);
 
-            _lblStatTong.Margin = new Padding(0, 4, 16, 4);
-            _lblStatTrong.Margin = new Padding(0, 4, 16, 4);
-            _lblStatDangO.Margin = new Padding(0, 4, 16, 4);
-            _lblStatDangDon.Margin = new Padding(0, 4, 16, 4);
-            _lblStatBaoTri.Margin = new Padding(0, 4, 16, 4);
-            _lblStatTyLe.Margin = new Padding(0, 4, 0, 4);
+            _lblStatTong.Margin = new Padding(0, 2, 12, 2);
+            _lblStatTrong.Margin = new Padding(0, 2, 12, 2);
+            _lblStatDangO.Margin = new Padding(0, 2, 12, 2);
+            _lblStatDangDon.Margin = new Padding(0, 2, 12, 2);
+            _lblStatBaoTri.Margin = new Padding(0, 2, 12, 2);
+            _lblStatTyLe.Margin = new Padding(0, 2, 0, 2);
 
             _pnlThongKe.Controls.AddRange(new Control[] {
                 _lblStatTong, _lblStatTrong, _lblStatDangO, _lblStatDangDon, _lblStatBaoTri, _lblStatTyLe
             });
 
-            // 1.2 Panel Bộ lọc & Tìm kiếm (Hàng dưới) dùng FlowLayoutPanel với khoảng cách lớn không bị đè
-            _pnlBoLoc = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Bottom,
-                Height = 50,
-                BackColor = Color.Transparent,
-                WrapContents = false,
-                AutoScroll = false,
-                Padding = new Padding(0)
-            };
-
-            var lblLocTrangThai = new Label
-            {
-                Text = "Trạng thái:",
-                AutoSize = true,
-                Margin = new Padding(0, 10, 8, 0),
-                ForeColor = Color.FromArgb(71, 85, 105)
-            };
-            _cboLocTrangThai = new ComboBox
-            {
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Width = 155,
-                Margin = new Padding(0, 6, 24, 0),
-                Font = new Font("Segoe UI", 9.5f)
-            };
-            _cboLocTrangThai.Items.AddRange(new object[] { "Tất cả trạng thái", "Trống", "Đang ở", "Đang dọn", "Bảo trì" });
-            _cboLocTrangThai.SelectedIndex = 0;
-
-            var lblLocLoaiPhong = new Label
-            {
-                Text = "Loại phòng:",
-                AutoSize = true,
-                Margin = new Padding(0, 10, 8, 0),
-                ForeColor = Color.FromArgb(71, 85, 105)
-            };
-            _cboLocLoaiPhong = new ComboBox
-            {
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Width = 175,
-                Margin = new Padding(0, 6, 24, 0),
-                Font = new Font("Segoe UI", 9.5f)
-            };
-
-            var lblCheDo = new Label
-            {
-                Text = "Chế độ xem:",
-                AutoSize = true,
-                Margin = new Padding(0, 10, 8, 0),
-                ForeColor = Color.FromArgb(71, 85, 105)
-            };
-            _cboCheDoXem = new ComboBox
-            {
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Width = 185,
-                Margin = new Padding(0, 6, 24, 0),
-                Font = new Font("Segoe UI", 9.5f)
-            };
-            _cboCheDoXem.Items.AddRange(new object[] { "Gom nhóm theo Tầng", "Lưới phẳng tổng thể" });
-            _cboCheDoXem.SelectedIndex = 0;
-
-            var lblTimKiem = new Label
-            {
-                Text = "Tìm số phòng:",
-                AutoSize = true,
-                Margin = new Padding(0, 10, 8, 0),
-                ForeColor = Color.FromArgb(71, 85, 105)
-            };
-            _txtTimKiem = new TextBox
-            {
-                Width = 145,
-                Margin = new Padding(0, 6, 20, 0),
-                Font = new Font("Segoe UI", 9.5f),
-                PlaceholderText = "Nhập số phòng..."
-            };
-
             _btnLamMoi = new Button
             {
                 Text = "🔄 Làm mới (F5)",
-                Width = 135,
-                Height = 31,
-                Margin = new Padding(0, 4, 0, 0),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(241, 245, 249),
-                ForeColor = Color.FromArgb(30, 41, 59),
+                Width = 140,
+                Height = 36,
+                Dock = DockStyle.Right,
+                Margin = new Padding(0),
                 Cursor = Cursors.Hand
             };
-            _btnLamMoi.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
+            AppTheme.ApplySecondaryButton(_btnLamMoi);
 
-            _pnlBoLoc.Controls.AddRange(new Control[] {
-                lblLocTrangThai, _cboLocTrangThai,
-                lblLocLoaiPhong, _cboLocLoaiPhong,
-                lblCheDo, _cboCheDoXem,
-                lblTimKiem, _txtTimKiem,
-                _btnLamMoi
+            _pnlTop.Controls.Add(_pnlThongKe);
+            _pnlTop.Controls.Add(_btnLamMoi);
+
+            // ================= 2. Left Filter Panel: Bộ lọc & Tìm kiếm (Phần A) =================
+            _pnlLeftFilter = new Panel
+            {
+                Dock = DockStyle.Left,
+                Width = 245,
+                BackColor = AppTheme.Surface,
+                Padding = new Padding(14, 12, 14, 12),
+                AutoScroll = true
+            };
+
+            _flpLeftContent = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                AutoScroll = true,
+                BackColor = Color.Transparent,
+                Padding = new Padding(0)
+            };
+
+            int itemW = 215;
+
+            _lblFilterHeader = new Label
+            {
+                Text = "🔍 BỘ LỌC PHÒNG",
+                Width = itemW,
+                Font = AppTheme.FontSubHeader,
+                ForeColor = AppTheme.Primary,
+                Margin = new Padding(0, 0, 0, 8),
+                AutoSize = false,
+                Height = 22
+            };
+
+            _lblTimKiemHeader = new Label
+            {
+                Text = "Tìm kiếm số phòng / loại:",
+                Width = itemW,
+                Font = AppTheme.FontSmallBold,
+                ForeColor = AppTheme.TextSecondary,
+                Margin = new Padding(0, 4, 0, 4),
+                AutoSize = true
+            };
+
+            _txtTimKiem = new TextBox
+            {
+                Width = itemW,
+                PlaceholderText = "Nhập mã phòng, loại...",
+                Margin = new Padding(0, 0, 0, 10)
+            };
+            AppTheme.ApplyTextBox(_txtTimKiem);
+
+            // 2.1 GroupBox lọc theo trạng thái
+            _grpLocTrangThai = new GroupBox
+            {
+                Text = "Trạng thái phòng",
+                Width = itemW,
+                AutoSize = true,
+                Font = AppTheme.FontBodyBold,
+                ForeColor = AppTheme.TextPrimary,
+                Margin = new Padding(0, 0, 0, 10),
+                Padding = new Padding(10, 8, 10, 8)
+            };
+
+            _flpTrangThai = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                AutoSize = true,
+                BackColor = Color.Transparent
+            };
+
+            _radStatusAll = TaoRadioButton("Tất cả trạng thái", true, AppTheme.TextPrimary);
+            _radStatusTrong = TaoRadioButton("● Trống (Sẵn sàng)", false, AppTheme.StatusSuccessText);
+            _radStatusDangO = TaoRadioButton("● Đang ở", false, AppTheme.StatusDangerText);
+            _radStatusDangDon = TaoRadioButton("● Đang dọn", false, AppTheme.StatusWarningText);
+            _radStatusBaoTri = TaoRadioButton("● Bảo trì", false, AppTheme.StatusNeutralText);
+
+            _flpTrangThai.Controls.AddRange(new Control[] {
+                _radStatusAll, _radStatusTrong, _radStatusDangO, _radStatusDangDon, _radStatusBaoTri
+            });
+            _grpLocTrangThai.Controls.Add(_flpTrangThai);
+
+            // 2.2 GroupBox lọc theo loại phòng (Động từ DB)
+            _grpLocLoaiPhong = new GroupBox
+            {
+                Text = "Loại phòng",
+                Width = itemW,
+                AutoSize = true,
+                Font = AppTheme.FontBodyBold,
+                ForeColor = AppTheme.TextPrimary,
+                Margin = new Padding(0, 0, 0, 10),
+                Padding = new Padding(10, 8, 10, 8)
+            };
+
+            _flpLoaiPhong = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                AutoSize = true,
+                BackColor = Color.Transparent
+            };
+
+            _radLoaiPhongAll = TaoRadioButton("Tất cả loại phòng", true, AppTheme.TextPrimary);
+            _flpLoaiPhong.Controls.Add(_radLoaiPhongAll);
+            _grpLocLoaiPhong.Controls.Add(_flpLoaiPhong);
+
+            // 2.3 GroupBox Chế độ hiển thị
+            _grpCheDoXem = new GroupBox
+            {
+                Text = "Chế độ hiển thị",
+                Width = itemW,
+                AutoSize = true,
+                Font = AppTheme.FontBodyBold,
+                ForeColor = AppTheme.TextPrimary,
+                Margin = new Padding(0, 0, 0, 10),
+                Padding = new Padding(10, 8, 10, 8)
+            };
+
+            _flpCheDoXem = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                AutoSize = true,
+                BackColor = Color.Transparent
+            };
+
+            _radXemTheoTang = TaoRadioButton("Gom nhóm theo Tầng", true, AppTheme.TextPrimary);
+            _radXemLuoi = TaoRadioButton("Lưới phẳng tổng thể", false, AppTheme.TextPrimary);
+            _flpCheDoXem.Controls.AddRange(new Control[] { _radXemTheoTang, _radXemLuoi });
+            _grpCheDoXem.Controls.Add(_flpCheDoXem);
+
+            // 2.4 Nút Đặt lại bộ lọc
+            _btnDatLaiBoLoc = new Button
+            {
+                Text = "✖ Đặt lại bộ lọc",
+                Width = itemW,
+                Height = 32,
+                Margin = new Padding(0, 4, 0, 10),
+                Cursor = Cursors.Hand
+            };
+            AppTheme.ApplySecondaryButton(_btnDatLaiBoLoc);
+
+            _flpLeftContent.Controls.AddRange(new Control[] {
+                _lblFilterHeader,
+                _lblTimKiemHeader,
+                _txtTimKiem,
+                _grpLocTrangThai,
+                _grpLocLoaiPhong,
+                _grpCheDoXem,
+                _btnDatLaiBoLoc
             });
 
-            _pnlTop.Controls.Add(_pnlBoLoc);
-            _pnlTop.Controls.Add(_pnlThongKe);
+            _pnlLeftFilter.Controls.Add(_flpLeftContent);
 
-            // ================= 2. Right Sidebar Panel: Thông tin phòng & Thao tác nhanh =================
+            // ================= 3. Right Sidebar Panel: Thông tin phòng & Thao tác nhanh =================
             _pnlRight = new Panel
             {
                 Dock = DockStyle.Right,
-                Width = 340,
-                BackColor = Color.White,
+                Width = 330,
+                BackColor = AppTheme.Surface,
                 Padding = new Padding(15)
-            };
-
-            // Thước kẻ phân cách trái panel right
-            _pnlRight.Paint += (s, e) =>
-            {
-                using var pen = new Pen(Color.FromArgb(226, 232, 240), 1);
-                e.Graphics.DrawLine(pen, 0, 0, 0, _pnlRight.Height);
             };
 
             _lblChiTietHeader = new Label
             {
                 Text = "THÔNG TIN & THAO TÁC",
                 UseMnemonic = false,
-                Font = new Font("Segoe UI", 10.5f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(30, 41, 59),
+                Font = AppTheme.FontSubHeader,
+                ForeColor = AppTheme.TextPrimary,
                 Location = new Point(15, 15),
                 AutoSize = true
             };
@@ -255,21 +337,16 @@ namespace HotelManagement.Forms
             _pnlCardPhong = new Panel
             {
                 Location = new Point(15, 45),
-                Width = 300,
+                Width = 295,
                 Height = 140,
-                BackColor = Color.FromArgb(248, 250, 252)
-            };
-            _pnlCardPhong.Paint += (s, e) =>
-            {
-                using var pen = new Pen(Color.FromArgb(226, 232, 240), 1);
-                e.Graphics.DrawRectangle(pen, 0, 0, _pnlCardPhong.Width - 1, _pnlCardPhong.Height - 1);
+                BackColor = AppTheme.SurfaceAlt
             };
 
             _lblPhongSoPhong = new Label
             {
                 Text = "Chưa chọn phòng",
-                Font = new Font("Segoe UI", 16f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(15, 23, 42),
+                Font = AppTheme.FontHeader,
+                ForeColor = AppTheme.TextPrimary,
                 Location = new Point(12, 10),
                 AutoSize = true
             };
@@ -277,10 +354,10 @@ namespace HotelManagement.Forms
             _lblPhongTrangThaiBadge = new Label
             {
                 Text = "--",
-                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(100, 116, 139),
-                BackColor = Color.FromArgb(241, 245, 249),
-                Location = new Point(15, 52),
+                Font = AppTheme.FontSmallBold,
+                ForeColor = AppTheme.TextSecondary,
+                BackColor = AppTheme.SurfaceSecondary,
+                Location = new Point(15, 50),
                 AutoSize = false,
                 Size = new Size(110, 24),
                 TextAlign = ContentAlignment.MiddleCenter
@@ -289,17 +366,17 @@ namespace HotelManagement.Forms
             _lblPhongLoaiPhong = new Label
             {
                 Text = "Loại phòng: --",
-                Font = new Font("Segoe UI", 9.5f),
-                ForeColor = Color.FromArgb(71, 85, 105),
-                Location = new Point(15, 83),
+                Font = AppTheme.FontBody,
+                ForeColor = AppTheme.TextSecondary,
+                Location = new Point(15, 82),
                 AutoSize = true
             };
 
             _lblThongTinPhu = new Label
             {
                 Text = "Booking hiện tại: --",
-                Font = new Font("Segoe UI", 9f, FontStyle.Italic),
-                ForeColor = Color.FromArgb(100, 116, 139),
+                Font = AppTheme.FontCaption,
+                ForeColor = AppTheme.TextMuted,
                 Location = new Point(15, 108),
                 AutoSize = true
             };
@@ -313,70 +390,61 @@ namespace HotelManagement.Forms
             {
                 Text = "🛎️ Thực hiện Check-out",
                 Location = new Point(15, 200),
-                Width = 300,
-                Height = 44,
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(220, 53, 69),
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI", 10.5f, FontStyle.Bold),
-                Cursor = Cursors.Hand,
+                Width = 295,
+                Height = 42,
                 Visible = false
             };
-            _btnThaoTacChinh.FlatAppearance.BorderSize = 0;
+            AppTheme.ApplyDangerButton(_btnThaoTacChinh);
 
             // Nút chuyển trạng thái nhanh
             var lblNhanh = new Label
             {
                 Text = "Chuyển nhanh trạng thái phòng:",
-                Font = new Font("Segoe UI", 9f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(71, 85, 105),
-                Location = new Point(15, 258),
+                Font = AppTheme.FontSmallBold,
+                ForeColor = AppTheme.TextSecondary,
+                Location = new Point(15, 255),
                 AutoSize = true
             };
 
-            _btnDoiSangTrong = TaoButtonPhu("● Đánh dấu đã dọn / Sẵn sàng (Trống)", 285, Color.FromArgb(22, 101, 52), Color.FromArgb(240, 253, 244), Color.FromArgb(187, 247, 208));
-            _btnDoiSangDangDon = TaoButtonPhu("● Chuyển sang Đang dọn", 328, Color.FromArgb(146, 64, 14), Color.FromArgb(254, 243, 199), Color.FromArgb(253, 230, 138));
-            _btnDoiSangBaoTri = TaoButtonPhu("● Chuyển sang Bảo trì phòng", 371, Color.FromArgb(51, 65, 85), Color.FromArgb(241, 245, 249), Color.FromArgb(203, 213, 225));
+            _btnDoiSangTrong = TaoButtonPhu("● Đánh dấu đã dọn / Sẵn sàng (Trống)", 280, AppTheme.StatusSuccessText, AppTheme.StatusSuccessBg, AppTheme.StatusSuccessBorder);
+            _btnDoiSangDangDon = TaoButtonPhu("● Chuyển sang Đang dọn", 322, AppTheme.StatusWarningText, AppTheme.StatusWarningBg, AppTheme.StatusWarningBorder);
+            _btnDoiSangBaoTri = TaoButtonPhu("● Chuyển sang Bảo trì phòng", 364, AppTheme.StatusNeutralText, AppTheme.StatusNeutralBg, AppTheme.StatusNeutralBorder);
 
             _btnMoFormPhong = new Button
             {
                 Text = "⚙️ Mở danh mục Quản lý phòng",
-                Location = new Point(15, 422),
-                Width = 300,
+                Location = new Point(15, 415),
+                Width = 295,
                 Height = 35,
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(248, 250, 252),
-                ForeColor = Color.FromArgb(51, 65, 85),
-                Font = new Font("Segoe UI", 9f),
                 Cursor = Cursors.Hand
             };
-            _btnMoFormPhong.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
+            AppTheme.ApplySecondaryButton(_btnMoFormPhong);
 
             // GroupBox chú thích màu trạng thái (CK_Phong_TrangThai)
             _grpChuThich = new GroupBox
             {
                 Text = "Chú thích 4 trạng thái (CK_Phong_TrangThai)",
-                Location = new Point(15, 470),
-                Width = 300,
-                Height = 160,
-                Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(71, 85, 105)
+                Location = new Point(15, 465),
+                Width = 295,
+                Height = 155,
+                Font = AppTheme.FontSmallBold,
+                ForeColor = AppTheme.TextSecondary
             };
 
-            var lblLegTrong = TaoItemChuThich("● Trống", "Phòng sẵn sàng đón khách mới", 24, Color.FromArgb(22, 101, 52));
-            var lblLegDangO = TaoItemChuThich("● Đang ở", "Đang có khách lưu trú", 54, Color.FromArgb(153, 27, 27));
-            var lblLegDangDon = TaoItemChuThich("● Đang dọn", "Vừa check-out, đang vệ sinh", 84, Color.FromArgb(146, 64, 14));
-            var lblLegBaoTri = TaoItemChuThich("● Bảo trì", "Sửa chữa hoặc dừng phục vụ", 114, Color.FromArgb(71, 85, 105));
+            var lblLegTrong = TaoItemChuThich("● Trống", "Phòng sẵn sàng đón khách mới", 24, AppTheme.StatusSuccessText);
+            var lblLegDangO = TaoItemChuThich("● Đang ở", "Đang có khách lưu trú", 54, AppTheme.StatusDangerText);
+            var lblLegDangDon = TaoItemChuThich("● Đang dọn", "Vừa check-out, đang vệ sinh", 84, AppTheme.StatusWarningText);
+            var lblLegBaoTri = TaoItemChuThich("● Bảo trì", "Sửa chữa hoặc dừng phục vụ", 114, AppTheme.StatusNeutralText);
 
             _grpChuThich.Controls.AddRange(new Control[] { lblLegTrong, lblLegDangO, lblLegDangDon, lblLegBaoTri });
 
             _lblHuongDanThaoTac = new Label
             {
-                Text = "💡 Mẹo: Nhấp chuột đúp vào phòng để mở thao tác nhanh (Check-out hoặc Đặt phòng). Chuột phải để mở menu tác vụ.",
-                Font = new Font("Segoe UI", 8f, FontStyle.Italic),
-                ForeColor = Color.FromArgb(100, 116, 139),
-                Location = new Point(15, 640),
-                Width = 300,
+                Text = "💡 Mẹo: Nhấp đúp vào phòng để thao tác nhanh (Check-out hoặc Đặt phòng). Chuột phải để mở menu tác vụ.",
+                Font = AppTheme.FontCaption,
+                ForeColor = AppTheme.TextMuted,
+                Location = new Point(15, 630),
+                Width = 295,
                 Height = 45
             };
 
@@ -387,25 +455,26 @@ namespace HotelManagement.Forms
                 _btnMoFormPhong, _grpChuThich, _lblHuongDanThaoTac
             });
 
-            // ================= 3. Center: GDI+ Room Map Canvas =================
+            // ================= 4. Center: GDI+ Room Map Canvas =================
             _pnlCanvasContainer = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.FromArgb(248, 249, 250),
-                Padding = new Padding(15)
+                BackColor = AppTheme.Background,
+                Padding = new Padding(12)
             };
 
             _mapCanvas = new RoomMapCanvas
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.FromArgb(248, 249, 250)
+                BackColor = AppTheme.Background
             };
 
             _pnlCanvasContainer.Controls.Add(_mapCanvas);
 
-            // ================= 4. Context Menu Chuột Phải =================
+            // ================= 5. Context Menu Chuột Phải =================
             _ctxMenuPhong = new ContextMenuStrip(this.components);
 
+            _mnuCtxCheckIn = new ToolStripMenuItem("🛎️ Xác nhận Check-in...");
             _mnuCtxCheckOut = new ToolStripMenuItem("🛎️ Thực hiện Check-out...");
             _mnuCtxDatPhong = new ToolStripMenuItem("📝 Tạo đặt phòng cho phòng này...");
             _mnuCtxSep1 = new ToolStripSeparator();
@@ -422,6 +491,7 @@ namespace HotelManagement.Forms
             _mnuCtxQuanLyPhong = new ToolStripMenuItem("⚙️ Mở quản lý phòng");
 
             _ctxMenuPhong.Items.AddRange(new ToolStripItem[] {
+                _mnuCtxCheckIn,
                 _mnuCtxCheckOut,
                 _mnuCtxDatPhong,
                 _mnuCtxSep1,
@@ -430,9 +500,10 @@ namespace HotelManagement.Forms
                 _mnuCtxQuanLyPhong
             });
 
-            // Ghép toàn bộ vào Form
+            // Ghép toàn bộ vào Form theo thứ tự Docking chuẩn WinForms
             this.Controls.Add(_pnlCanvasContainer);
             this.Controls.Add(_pnlRight);
+            this.Controls.Add(_pnlLeftFilter);
             this.Controls.Add(_pnlTop);
         }
 
@@ -442,12 +513,27 @@ namespace HotelManagement.Forms
             {
                 Text = text,
                 AutoSize = true,
-                Padding = new Padding(14, 7, 14, 7),
-                Font = new Font("Segoe UI", 9.2f, FontStyle.Bold),
+                Padding = new Padding(12, 6, 12, 6),
+                Font = AppTheme.FontSmallBold,
                 ForeColor = foreColor,
                 BackColor = backColor
             };
             return lbl;
+        }
+
+        private static RadioButton TaoRadioButton(string text, bool isChecked, Color foreColor)
+        {
+            return new RadioButton
+            {
+                Text = text,
+                Checked = isChecked,
+                ForeColor = foreColor,
+                Font = AppTheme.FontBody,
+                AutoSize = true,
+                Cursor = Cursors.Hand,
+                Margin = new Padding(2, 3, 2, 3),
+                BackColor = Color.Transparent
+            };
         }
 
         private static Button TaoButtonPhu(string text, int top, Color foreColor, Color backColor, Color borderColor)
@@ -456,12 +542,12 @@ namespace HotelManagement.Forms
             {
                 Text = text,
                 Location = new Point(15, top),
-                Width = 300,
+                Width = 295,
                 Height = 35,
                 FlatStyle = FlatStyle.Flat,
                 BackColor = backColor,
                 ForeColor = foreColor,
-                Font = new Font("Segoe UI", 8.8f, FontStyle.Bold),
+                Font = AppTheme.FontSmallBold,
                 Cursor = Cursors.Hand,
                 TextAlign = ContentAlignment.MiddleLeft,
                 Padding = new Padding(8, 0, 0, 0),
@@ -478,7 +564,7 @@ namespace HotelManagement.Forms
                 Text = $"{title}: {desc}",
                 Location = new Point(12, top),
                 AutoSize = true,
-                Font = new Font("Segoe UI", 8.5f),
+                Font = AppTheme.FontSmall,
                 ForeColor = color
             };
             return lbl;

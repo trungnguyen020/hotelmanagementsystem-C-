@@ -60,11 +60,11 @@ namespace HotelManagement.Forms
             var pnlFilter = new GroupBox { Text = "Tìm phòng trống", Dock = DockStyle.Top, Height = 80 };
             
             var lblNgayNhan = new Label { Text = "Ngày nhận:", Location = new Point(20, 30), AutoSize = true };
-            _dtpNgayNhan = new DateTimePicker { Location = new Point(100, 27), Width = 120, Format = DateTimePickerFormat.Short };
+            _dtpNgayNhan = new DateTimePicker { Location = new Point(100, 27), Width = 120, Format = DateTimePickerFormat.Short, MinDate = DateTime.Today };
             
             var lblNgayTra = new Label { Text = "Ngày trả:", Location = new Point(240, 30), AutoSize = true };
-            _dtpNgayTra = new DateTimePicker { Location = new Point(310, 27), Width = 120, Format = DateTimePickerFormat.Short };
-            _dtpNgayTra.Value = DateTime.Now.AddDays(1);
+            _dtpNgayTra = new DateTimePicker { Location = new Point(310, 27), Width = 120, Format = DateTimePickerFormat.Short, MinDate = DateTime.Today.AddDays(1) };
+            _dtpNgayTra.Value = DateTime.Today.AddDays(1);
 
             var lblLoaiPhong = new Label { Text = "Loại phòng:", Location = new Point(450, 30), AutoSize = true };
             _cboLoaiPhong = new ComboBox { Location = new Point(530, 27), Width = 150, DropDownStyle = ComboBoxStyle.DropDownList };

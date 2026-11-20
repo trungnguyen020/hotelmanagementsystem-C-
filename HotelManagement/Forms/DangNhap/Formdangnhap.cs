@@ -14,6 +14,7 @@ namespace HotelManagement
         {
             InitializeComponent();
             CapNhatNgonNgu();
+            Shown += (_, _) => txtTenDangNhap.Focus();
         }
 
         private async void BtnDangNhap_Click(object? sender, EventArgs e)

@@ -151,6 +151,8 @@ namespace HotelManagement.Forms
 
             // Label AutoSize rộng ra theo font mới -> dời ô nhập theo mép label để không đè chữ
             AppTheme.AlignInputAfterLabel(lblTimKiem, _txtTimKiem);
+            _btnTimKiem.Left = _txtTimKiem.Right + 10;
+            _btnTimKiem.Top = _txtTimKiem.Top - 1;
             AppTheme.AlignInputAfterLabel(lblTen, _txtTen);
             AppTheme.AlignInputAfterLabel(lblGia, _numGia);
             AppTheme.AlignInputAfterLabel(lblSucChua, _numSucChua);

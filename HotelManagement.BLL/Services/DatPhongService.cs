@@ -56,8 +56,8 @@ namespace HotelManagement.BLL.Services
             if (ngayNhan >= ngayTra)
                 return (false, "Ngày nhận phòng phải trước ngày trả phòng.", null);
 
-            if (ngayNhan < DateOnly.FromDateTime(DateTime.Today))
-                return (false, "Ngày nhận phòng không được ở quá khứ.", null);
+            if (ngayNhan < DateOnly.FromDateTime(DateTime.Now))
+                return (false, "Ngày nhận phòng không được trước thời điểm hiện tại.", null);
 
             // Khách đang lưu trú (đã check-in) chỉ được đặt phòng mới sau khi check-out thành công
             var bookingDangLuuTru = await _unitOfWork.DatPhongRepository
@@ -181,8 +181,8 @@ namespace HotelManagement.BLL.Services
             if (ngayNhan >= ngayTra)
                 return (false, "Ngày nhận phòng phải trước ngày trả phòng.", null);
 
-            if (ngayNhan < DateOnly.FromDateTime(DateTime.Today))
-                return (false, "Ngày nhận phòng không được ở quá khứ.", null);
+            if (ngayNhan < DateOnly.FromDateTime(DateTime.Now))
+                return (false, "Ngày nhận phòng không được trước thời điểm hiện tại.", null);
 
             // Kiểm tra xem khách có đang lưu trú không
             var bookingDangLuuTru = await _unitOfWork.DatPhongRepository
@@ -611,6 +611,29 @@ namespace HotelManagement.BLL.Services
             {
                 var danhSachDangO = await _unitOfWork.DatPhongRepository.FindAsync(dp => dp.Trangthai == "Đã check-in");
                 foreach (var dp in danhSachDangO)
+                {
+                    var dayDu = await _unitOfWork.DatPhongRepository.GetChiTietDayDuAsync(dp.IdDatphong);
+                    if (dayDu != null && dayDu.ChiTietDatPhongs.Any(ct => ct.IdPhong == idPhong))
+                    {
+                        return dayDu.Mabooking;
+                    }
+                }
+            }
+            catch
+            {
+                // Fallback nếu có lỗi xảy ra
+            }
+            return null;
+        }
+
+        public async Task<string?> LayMaBookingChoCheckInCuaPhongAsync(int idPhong)
+        {
+            try
+            {
+                var today = DateOnly.FromDateTime(DateTime.Today);
+                var danhSachCho = await _unitOfWork.DatPhongRepository.FindAsync(dp =>
+                    dp.Trangthai == "Đã xác nhận" && dp.NgaynhanDukien <= today && today < dp.NgaytraDukien);
+                foreach (var dp in danhSachCho)
                 {
                     var dayDu = await _unitOfWork.DatPhongRepository.GetChiTietDayDuAsync(dp.IdDatphong);
                     if (dayDu != null && dayDu.ChiTietDatPhongs.Any(ct => ct.IdPhong == idPhong))

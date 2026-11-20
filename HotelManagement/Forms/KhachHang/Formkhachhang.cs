@@ -1,5 +1,6 @@
 using HotelManagement.BLL.DTOs;
 using HotelManagement.BLL.Services;
+using HotelManagement.Models.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManagement.Forms
@@ -11,18 +12,21 @@ namespace HotelManagement.Forms
     /// </summary>
     public partial class FormKhachHang : Form
     {
+        private readonly TaiKhoan? _taiKhoanDangNhap;
         private readonly IServiceScope _scope;
         private readonly IKhachHangService _khachHangService;
 
         private int? _idDangChon;
 
-        public FormKhachHang()
+        public FormKhachHang(TaiKhoan? taiKhoanDangNhap = null)
         {
+            _taiKhoanDangNhap = taiKhoanDangNhap;
             _scope = Program.ServiceProvider.CreateScope();
             _khachHangService = _scope.ServiceProvider.GetRequiredService<IKhachHangService>();
 
             InitializeComponent();
 
+            _dgv.CellDoubleClick += (_, _) => MoDatPhongChoKhachHang();
             Load += async (_, _) => await TaiDanhSachAsync();
             FormClosed += (_, _) => _scope.Dispose();
         }
@@ -217,6 +221,31 @@ namespace HotelManagement.Forms
             {
                 await TaiDanhSachAsync();
             }
+        }
+
+        private void MoDatPhongChoKhachHang()
+        {
+            var khachHang = _dgv.CurrentRow?.DataBoundItem as KhachHangDto;
+            if (khachHang == null && _idDangChon.HasValue)
+            {
+                khachHang = new KhachHangDto
+                {
+                    IdKhachHang = _idDangChon.Value,
+                    Ten = _txtTen.Text.Trim(),
+                    Cccd = _txtCccd.Text.Trim(),
+                    Sdt = _txtSdt.Text.Trim(),
+                    Email = _txtEmail.Text.Trim()
+                };
+            }
+
+            if (khachHang == null)
+            {
+                MessageBox.Show("Vui lòng chọn một khách hàng từ danh sách để đặt phòng.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using var frmDatPhong = new FormDatPhong(_taiKhoanDangNhap, khachHang);
+            frmDatPhong.ShowDialog(this);
         }
     }
 }

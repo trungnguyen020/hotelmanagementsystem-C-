@@ -42,6 +42,7 @@ namespace HotelManagement.Forms
         private Button _btnSua = null!;
         private Button _btnXoa = null!;
         private Button _btnLamMoi = null!;
+        private Button _btnDatPhong = null!;
 
         // Quản lý tài khoản khách hàng dành cho Admin/Lễ tân
         private Label _lblTaiKhoanInfo = null!;
@@ -68,14 +69,14 @@ namespace HotelManagement.Forms
             var pnlTop = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 50,
-                Padding = new Padding(12, 10, 12, 10),
+                Height = 52,
+                Padding = new Padding(14, 10, 14, 10),
                 BackColor = AppTheme.Surface
             };
 
-            var lblTimKiem = new Label { Text = "Tìm kiếm:", Location = new Point(12, 14), AutoSize = true };
-            _txtTimKiem = new TextBox { Location = new Point(85, 11), Width = 320 };
-            _btnTimKiem = new Button { Text = "Tìm", Location = new Point(415, 9), Width = 90, Height = 30 };
+            var lblTimKiem = new Label { Text = "Tìm kiếm:", AutoSize = true };
+            _txtTimKiem = new TextBox { Width = 320, PlaceholderText = "Nhập tên, số điện thoại, CCCD..." };
+            _btnTimKiem = new Button { Text = "Tìm", Width = 90, Height = 32, Cursor = Cursors.Hand };
             _btnTimKiem.Click += async (_, _) => await TimKiemAsync();
 
             pnlTop.Controls.AddRange(new Control[] { lblTimKiem, _txtTimKiem, _btnTimKiem });
@@ -182,22 +183,24 @@ namespace HotelManagement.Forms
             _chkCoNgaySinh.CheckedChanged += (_, _) => _dtpNgaySinh.Enabled = _chkCoNgaySinh.Checked;
 
             int yNut = 122;
-            _btnThem = new Button { Text = "Thêm", Location = new Point(0, yNut), Width = 90, Height = 34, Cursor = Cursors.Hand };
-            _btnSua = new Button { Text = "Sửa", Location = new Point(98, yNut), Width = 90, Height = 34, Cursor = Cursors.Hand };
-            _btnXoa = new Button { Text = "Xóa", Location = new Point(196, yNut), Width = 90, Height = 34, Cursor = Cursors.Hand };
-            _btnLamMoi = new Button { Text = "Làm mới", Location = new Point(294, yNut), Width = 95, Height = 34, Cursor = Cursors.Hand };
+            _btnThem = new Button { Text = "Thêm", Location = new Point(0, yNut), Width = 85, Height = 34, Cursor = Cursors.Hand };
+            _btnSua = new Button { Text = "Sửa", Location = new Point(92, yNut), Width = 85, Height = 34, Cursor = Cursors.Hand };
+            _btnXoa = new Button { Text = "Xóa", Location = new Point(184, yNut), Width = 85, Height = 34, Cursor = Cursors.Hand };
+            _btnLamMoi = new Button { Text = "Làm mới", Location = new Point(276, yNut), Width = 90, Height = 34, Cursor = Cursors.Hand };
+            _btnDatPhong = new Button { Text = "🛎️ Đặt phòng", Location = new Point(374, yNut), Width = 125, Height = 34, Cursor = Cursors.Hand };
 
             _btnThem.Click += async (_, _) => await ThemAsync();
             _btnSua.Click += async (_, _) => await SuaAsync();
             _btnXoa.Click += async (_, _) => await XoaAsync();
             _btnLamMoi.Click += (_, _) => LamMoiForm();
+            _btnDatPhong.Click += (_, _) => MoDatPhongChoKhachHang();
 
             pnlThongTinKhach.Controls.AddRange(new Control[]
             {
                 lblTen, _txtTen, lblCccd, _txtCccd,
                 lblSdt, _txtSdt, lblEmail, _txtEmail,
                 lblGioiTinh, _cboGioiTinh, _chkCoNgaySinh, _dtpNgaySinh,
-                _btnThem, _btnSua, _btnXoa, _btnLamMoi
+                _btnThem, _btnSua, _btnXoa, _btnLamMoi, _btnDatPhong
             });
 
             pnlBottom.Controls.AddRange(new Control[] { pnlThongTinKhach, grpTaiKhoan });
@@ -239,6 +242,7 @@ namespace HotelManagement.Forms
 
             AppTheme.ApplyPrimaryButton(_btnTimKiem);
             AppTheme.ApplyPrimaryButton(_btnThem);
+            AppTheme.ApplyPrimaryButton(_btnDatPhong);
             AppTheme.ApplySecondaryButton(_btnSua);
             AppTheme.ApplySecondaryButton(_btnXoa);
             AppTheme.ApplySecondaryButton(_btnLamMoi);
@@ -262,7 +266,10 @@ namespace HotelManagement.Forms
             _chkCoNgaySinh.Left = _cboGioiTinh.Right + 24;
             _dtpNgaySinh.Left = _chkCoNgaySinh.Right + 8;
 
-            AppTheme.AlignInputAfterLabel(lblTimKiem, _txtTimKiem);
+            // Canh lề chuẩn cho thanh tìm kiếm (Top): nhãn, ô nhập và nút đều được canh giữa dọc và cách đều ngang
+            lblTimKiem.Location = new Point(14, (pnlTop.Height - lblTimKiem.Height) / 2);
+            _txtTimKiem.Location = new Point(lblTimKiem.Right + 8, (pnlTop.Height - _txtTimKiem.Height) / 2);
+            _btnTimKiem.Location = new Point(_txtTimKiem.Right + 10, (pnlTop.Height - _btnTimKiem.Height) / 2);
         }
 
         #endregion

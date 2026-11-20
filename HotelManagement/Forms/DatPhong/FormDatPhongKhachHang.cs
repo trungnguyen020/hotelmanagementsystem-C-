@@ -25,6 +25,16 @@ namespace HotelManagement.Forms
             InitializeComponent();
             SetupGridColumns();
 
+            dtpNgayNhan.ValueChanged += (_, _) =>
+            {
+                if (dtpNgayTra.Value <= dtpNgayNhan.Value)
+                {
+                    dtpNgayTra.Value = dtpNgayNhan.Value.Date.AddDays(1);
+                }
+                dtpNgayTra.MinDate = dtpNgayNhan.Value.Date.AddDays(1);
+                _ = TimPhongTrongAsync();
+            };
+
             this.Load += async (_, _) =>
             {
                 dtpNgayNhan.Value = DateTime.Today;
@@ -267,6 +277,23 @@ namespace HotelManagement.Forms
 
             var ngayNhan = DateOnly.FromDateTime(dtpNgayNhan.Value);
             var ngayTra = DateOnly.FromDateTime(dtpNgayTra.Value);
+
+            if (ngayNhan < DateOnly.FromDateTime(DateTime.Now))
+            {
+                lblThongBao.ForeColor = AppTheme.StatusDangerText;
+                lblThongBao.Text = "Ngày nhận phòng không được trước thời điểm hiện tại.";
+                MessageBox.Show("Ngày nhận phòng không được trước thời điểm hiện tại.", "Lỗi hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (ngayTra <= ngayNhan)
+            {
+                lblThongBao.ForeColor = AppTheme.StatusDangerText;
+                lblThongBao.Text = "Ngày trả phòng phải sau ngày nhận phòng.";
+                MessageBox.Show("Ngày trả phòng phải sau ngày nhận phòng.", "Lỗi hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             int soKhach = (int)numSoKhach.Value;
 
             var xacNhan = MessageBox.Show(

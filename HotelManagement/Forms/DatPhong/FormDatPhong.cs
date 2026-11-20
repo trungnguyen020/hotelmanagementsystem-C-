@@ -27,9 +27,10 @@ namespace HotelManagement.Forms
 
         private BindingList<Phongtrongdto> _dsPhongChon = new();
 
-        public FormDatPhong(TaiKhoan taiKhoanDangNhap)
+        public FormDatPhong(TaiKhoan? taiKhoanDangNhap = null, KhachHangDto? khachHangBanDau = null)
         {
-            _taiKhoanDangNhap = taiKhoanDangNhap;
+            _taiKhoanDangNhap = taiKhoanDangNhap ?? new TaiKhoan();
+            _khachHangDuocChon = khachHangBanDau;
             _scope = Program.ServiceProvider.CreateScope();
             _datPhongService = _scope.ServiceProvider.GetRequiredService<IDatPhongService>();
             _khachHangService = _scope.ServiceProvider.GetRequiredService<IKhachHangService>();
@@ -37,9 +38,27 @@ namespace HotelManagement.Forms
             _emailService = _scope.ServiceProvider.GetRequiredService<IEmailService>();
 
             InitializeComponent();
+
+            _dtpNgayNhan.ValueChanged += (_, _) =>
+            {
+                if (_dtpNgayTra.Value <= _dtpNgayNhan.Value)
+                {
+                    _dtpNgayTra.Value = _dtpNgayNhan.Value.Date.AddDays(1);
+                }
+                _dtpNgayTra.MinDate = _dtpNgayNhan.Value.Date.AddDays(1);
+                TinhTongTien();
+            };
             
             FormClosed += (_, _) => _scope.Dispose();
-            Load += async (_, _) => await LoadDataAsync();
+            Load += async (_, _) =>
+            {
+                await LoadDataAsync();
+                if (_khachHangDuocChon != null)
+                {
+                    _txtTimKhachHang.Text = _khachHangDuocChon.Ten;
+                    _lblThongTinKhachHang.Text = $"Họ tên: {_khachHangDuocChon.Ten}\nCCCD: {_khachHangDuocChon.Cccd}\nSĐT: {_khachHangDuocChon.Sdt}";
+                }
+            };
         }
 
         private async Task LoadDataAsync()
@@ -160,13 +179,13 @@ namespace HotelManagement.Forms
 
             if (ngayNhan >= ngayTra)
             {
-                MessageBox.Show("Ngày trả phòng phải sau ngày nhận phòng.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Ngày trả phòng phải sau ngày nhận phòng.", "Lỗi hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            if (ngayNhan < DateOnly.FromDateTime(DateTime.Today))
+            if (ngayNhan < DateOnly.FromDateTime(DateTime.Now))
             {
-                MessageBox.Show("Ngày nhận phòng không được ở quá khứ.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Ngày nhận phòng không được trước thời điểm hiện tại.", "Lỗi hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 

@@ -221,7 +221,9 @@ namespace HotelManagement
             {
                 Location = new Point(30, 142),
                 Size = new Size(380, 32),
-                PlaceholderText = "Nhập tài khoản nhân sự..."
+                PlaceholderText = "Nhập tài khoản nhân sự...",
+                TabIndex = 0,
+                TabStop = true
             };
             AppTheme.ApplyTextBox(txtTenDangNhap);
 
@@ -240,7 +242,9 @@ namespace HotelManagement
                 Location = new Point(30, 216),
                 Size = new Size(380, 32),
                 UseSystemPasswordChar = true,
-                PlaceholderText = "Nhập mật khẩu..."
+                PlaceholderText = "Nhập mật khẩu...",
+                TabIndex = 1,
+                TabStop = true
             };
             AppTheme.ApplyTextBox(txtMatKhau);
 
@@ -250,7 +254,9 @@ namespace HotelManagement
                 Text = "ĐĂNG NHẬP",
                 Location = new Point(30, 266),
                 Size = new Size(380, 44),
-                Cursor = Cursors.Hand
+                Cursor = Cursors.Hand,
+                TabIndex = 2,
+                TabStop = true
             };
             AppTheme.ApplyPrimaryButton(btnDangNhap);
             btnDangNhap.Click += BtnDangNhap_Click;
@@ -276,7 +282,9 @@ namespace HotelManagement
                 LinkColor = AppTheme.Primary,
                 ActiveLinkColor = AppTheme.PrimaryActive,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Cursor = Cursors.Hand
+                Cursor = Cursors.Hand,
+                TabIndex = 3,
+                TabStop = true
             };
             _lnkDangKy.LinkClicked += (s, e) =>
             {
@@ -296,21 +304,24 @@ namespace HotelManagement
                 UseMnemonic = false
             };
 
-            // Thêm controls vào Card
+            _btnLangVi.TabIndex = 4;
+            _btnLangEn.TabIndex = 5;
+
+            // Thêm controls vào Card theo đúng thứ tự hiển thị và TabIndex hợp lý
             pnlCard.Controls.AddRange(new Control[]
             {
-                _lblFooter,
-                _lnkDangKy,
-                lblThongBao,
-                btnDangNhap,
-                txtMatKhau,
-                _lblMatKhau,
                 txtTenDangNhap,
+                txtMatKhau,
+                btnDangNhap,
+                _lnkDangKy,
+                _btnLangVi,
+                _btnLangEn,
                 _lblTenDangNhap,
+                _lblMatKhau,
+                lblThongBao,
                 pnlCardDivider,
                 _lblTieuDe,
-                _btnLangEn,
-                _btnLangVi
+                _lblFooter
             });
 
             pnlLoginSide.Controls.Add(pnlCard);
