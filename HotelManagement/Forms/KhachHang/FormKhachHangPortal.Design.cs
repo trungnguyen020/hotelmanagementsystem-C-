@@ -239,17 +239,20 @@ namespace HotelManagement.Forms
                 tabThongTin
             });
 
-            // ================= 5. Nút icon Trợ lý AI góc phải nổi bật (FAB) =================
+            // ================= 5. Nút icon Trợ lý AI góc phải nổi bật (FAB tròn/gọn) =================
             btnFloatingAi = new Button
             {
-                Text = "🤖 Trợ lý AI",
-                Size = new Size(130, 42),
+                Text = "🤖",
+                Size = new Size(46, 46),
                 Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
                 Cursor = Cursors.Hand,
-                Font = AppTheme.FontBodyBold
+                Font = new Font("Segoe UI Emoji", 15F, FontStyle.Regular, GraphicsUnit.Point)
             };
-            btnFloatingAi.Location = new Point(this.ClientSize.Width - 150, this.ClientSize.Height - 80);
+            // Đặt nổi phía trên thanh footer (Height - 120) và góc sát mép phải (Width - 65) để không đè lên nút xác nhận
+            btnFloatingAi.Location = new Point(this.ClientSize.Width - 65, this.ClientSize.Height - 120);
             AppTheme.ApplyPrimaryButton(btnFloatingAi);
+            var tipAi = new ToolTip();
+            tipAi.SetToolTip(btnFloatingAi, "Trợ lý ảo AI - Hỗ trợ đặt phòng & giải đáp 24/7");
             btnFloatingAi.Click += (s, e) => BatTatChatDrawer();
 
             // ================= 6. StatusStrip =================

@@ -95,6 +95,8 @@ internal static class Program
                         HotelManagement.BLL.Services.KhachHangService>();
             services.AddScoped<HotelManagement.BLL.Services.INhanSuService,
                         HotelManagement.BLL.Services.NhanSuService>();
+            services.AddScoped<HotelManagement.BLL.Services.IDichVuService,
+                        HotelManagement.BLL.Services.DichVuService>();
             services.AddScoped<IDatPhongService, DatPhongService>();
             services.AddScoped<IHoaDonService, HoaDonService>();
             services.AddScoped<IHoaDonPdfService, HoaDonPdfService>();

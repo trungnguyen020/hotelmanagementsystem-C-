@@ -26,6 +26,7 @@ namespace HotelManagement
         private ToolStripMenuItem mnuQuanLyPhong = null!;
         private ToolStripMenuItem mnuPhong = null!;
         private ToolStripMenuItem mnuLoaiPhong = null!;
+        private ToolStripMenuItem mnuDichVu = null!;
         private ToolStripMenuItem mnuSoDoPhongTop = null!;
         private ToolStripMenuItem mnuQuanLyDatPhong = null!;
         private ToolStripMenuItem mnuDatPhong = null!;
@@ -99,6 +100,14 @@ namespace HotelManagement
                 form.ShowDialog(this);
             };
             mnuQuanLyPhong.DropDownItems.Add(mnuLoaiPhong);
+
+            mnuDichVu = new ToolStripMenuItem("Quản lý dịch vụ");
+            mnuDichVu.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormDichVu();
+                form.ShowDialog(this);
+            };
+            mnuQuanLyPhong.DropDownItems.Add(mnuDichVu);
 
             mnuImportPhong = new ToolStripMenuItem("Import phòng từ Excel");
             mnuImportPhong.Click += (_, _) =>
@@ -413,6 +422,7 @@ namespace HotelManagement
             ThemNhomSidebar("DANH MỤC");
             ThemNutSidebar(mnuPhong);
             ThemNutSidebar(mnuLoaiPhong);
+            ThemNutSidebar(mnuDichVu);
             ThemNutSidebar(mnuKhachHang);
             ThemNutSidebar(mnuQuanLyNhanSu);
             ThemNutSidebar(mnuImportPhong);

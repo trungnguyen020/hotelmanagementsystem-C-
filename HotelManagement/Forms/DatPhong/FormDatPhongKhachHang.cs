@@ -18,12 +18,14 @@ namespace HotelManagement.Forms
         private readonly TaiKhoan _taiKhoanDangNhap;
         private KhachHang? _khachHang;
         private List<Phongtrongdto> _danhSachPhongTrong = new();
+        private List<DichVuDto> _danhSachDichVu = new();
 
         public FormDatPhongKhachHang(TaiKhoan taiKhoanDangNhap)
         {
             _taiKhoanDangNhap = taiKhoanDangNhap ?? throw new ArgumentNullException(nameof(taiKhoanDangNhap));
             InitializeComponent();
             SetupGridColumns();
+            SetupServiceGridColumns();
 
             dtpNgayNhan.ValueChanged += (_, _) =>
             {
@@ -41,6 +43,7 @@ namespace HotelManagement.Forms
                 dtpNgayTra.Value = DateTime.Today.AddDays(1);
                 await TaiThongTinKhachHangAsync();
                 await TaiDanhSachLoaiPhongAsync();
+                await TaiDanhSachDichVuAsync();
                 await TimPhongTrongAsync();
             };
         }
@@ -106,6 +109,83 @@ namespace HotelManagement.Forms
                     dgvPhongTrong.CommitEdit(DataGridViewDataErrorContexts.Commit);
                 }
             };
+        }
+
+        private void SetupServiceGridColumns()
+        {
+            dgvDichVu.Columns.Clear();
+
+            var chkCol = new DataGridViewCheckBoxColumn
+            {
+                Name = "Chon",
+                HeaderText = "Chọn",
+                Width = 50,
+                ReadOnly = false
+            };
+            dgvDichVu.Columns.Add(chkCol);
+
+            dgvDichVu.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "TenDichVu",
+                HeaderText = "Tên dịch vụ",
+                DataPropertyName = "TenDichVu",
+                ReadOnly = true
+            });
+
+            dgvDichVu.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "MucGia",
+                HeaderText = "Đơn giá (VNĐ)",
+                DataPropertyName = "MucGia",
+                ReadOnly = true,
+                Width = 110,
+                DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" }
+            });
+
+            dgvDichVu.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "SoLuong",
+                HeaderText = "SL",
+                Width = 45,
+                ReadOnly = false
+            });
+
+            dgvDichVu.CellValueChanged += (s, e) =>
+            {
+                if (e.ColumnIndex == 0 || e.ColumnIndex == 3)
+                {
+                    CapNhatTongTienDuKien();
+                }
+            };
+
+            dgvDichVu.CurrentCellDirtyStateChanged += (s, e) =>
+            {
+                if (dgvDichVu.IsCurrentCellDirty && dgvDichVu.CurrentCell.ColumnIndex == 0)
+                {
+                    dgvDichVu.CommitEdit(DataGridViewDataErrorContexts.Commit);
+                }
+            };
+        }
+
+        private async Task TaiDanhSachDichVuAsync()
+        {
+            try
+            {
+                using var scope = Program.ServiceProvider.CreateScope();
+                var dvService = scope.ServiceProvider.GetRequiredService<IDichVuService>();
+                _danhSachDichVu = await dvService.LayDanhSachAsync();
+
+                dgvDichVu.Rows.Clear();
+                foreach (var dv in _danhSachDichVu)
+                {
+                    int rowIndex = dgvDichVu.Rows.Add(false, dv.TenDichVu, dv.MucGia, 1);
+                    dgvDichVu.Rows[rowIndex].Tag = dv;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "[FormDatPhongKhachHang] Không thể tải danh sách dịch vụ: {Message}", ex.Message);
+            }
         }
 
         private async Task TaiThongTinKhachHangAsync()
@@ -228,7 +308,7 @@ namespace HotelManagement.Forms
         private void CapNhatTongTienDuKien()
         {
             int soPhongDaChon = 0;
-            decimal tongTien = 0;
+            decimal tongTienPhong = 0;
             int soDem = (dtpNgayTra.Value.Date - dtpNgayNhan.Value.Date).Days;
             if (soDem <= 0) soDem = 1;
 
@@ -238,11 +318,31 @@ namespace HotelManagement.Forms
                 if (isChecked && row.Tag is Phongtrongdto p)
                 {
                     soPhongDaChon++;
-                    tongTien += (p.Gia * soDem);
+                    tongTienPhong += (p.Gia * soDem);
                 }
             }
 
-            lblTongTienDuKien.Text = $"Đã chọn: {soPhongDaChon} phòng ({soDem} đêm) | Ước tính: {tongTien:N0} VNĐ";
+            int soDichVuDaChon = 0;
+            decimal tongTienDichVu = 0;
+
+            foreach (DataGridViewRow row in dgvDichVu.Rows)
+            {
+                bool isChecked = Convert.ToBoolean(row.Cells["Chon"].Value);
+                if (isChecked && row.Tag is DichVuDto dv)
+                {
+                    int sl = 1;
+                    if (int.TryParse(row.Cells["SoLuong"].Value?.ToString(), out int parsedSl) && parsedSl > 0)
+                    {
+                        sl = parsedSl;
+                    }
+                    soDichVuDaChon++;
+                    tongTienDichVu += (dv.MucGia * sl);
+                }
+            }
+
+            decimal tongCong = tongTienPhong + tongTienDichVu;
+            string thongTinDichVu = soDichVuDaChon > 0 ? $" + {soDichVuDaChon} dịch vụ ({tongTienDichVu:N0} đ)" : "";
+            lblTongTienDuKien.Text = $"Đã chọn: {soPhongDaChon} phòng ({soDem} đêm){thongTinDichVu} | Ước tính: {tongCong:N0} VNĐ";
         }
 
         private async void BtnXacNhanDat_Click(object? sender, EventArgs e)
@@ -275,6 +375,22 @@ namespace HotelManagement.Forms
                 return;
             }
 
+            // Thu thập các dịch vụ kèm theo đã chọn (nếu có)
+            var dsDichVuChon = new List<(int IdDichVu, int SoLuong)>();
+            foreach (DataGridViewRow row in dgvDichVu.Rows)
+            {
+                bool isChecked = Convert.ToBoolean(row.Cells["Chon"].Value);
+                if (isChecked && row.Tag is DichVuDto dv)
+                {
+                    int sl = 1;
+                    if (int.TryParse(row.Cells["SoLuong"].Value?.ToString(), out int parsedSl) && parsedSl > 0)
+                    {
+                        sl = parsedSl;
+                    }
+                    dsDichVuChon.Add((dv.IdDichVu, sl));
+                }
+            }
+
             var ngayNhan = DateOnly.FromDateTime(dtpNgayNhan.Value);
             var ngayTra = DateOnly.FromDateTime(dtpNgayTra.Value);
 
@@ -296,8 +412,9 @@ namespace HotelManagement.Forms
 
             int soKhach = (int)numSoKhach.Value;
 
+            string chiTietDv = dsDichVuChon.Any() ? $"\n- Kèm theo {dsDichVuChon.Count} dịch vụ đã chọn" : "";
             var xacNhan = MessageBox.Show(
-                $"Xác nhận đặt {dsIdPhong.Count} phòng từ ngày {ngayNhan:dd/MM/yyyy} đến {ngayTra:dd/MM/yyyy} cho {soKhach} khách?",
+                $"Xác nhận đặt {dsIdPhong.Count} phòng từ ngày {ngayNhan:dd/MM/yyyy} đến {ngayTra:dd/MM/yyyy} cho {soKhach} khách?{chiTietDv}",
                 "Xác nhận đặt phòng",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
@@ -316,7 +433,7 @@ namespace HotelManagement.Forms
                 var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
                 var (success, message, maBooking) = await datPhongService.KhachHangDatPhongAsync(
-                    idKhachHang, ngayNhan, ngayTra, soKhach, dsIdPhong);
+                    idKhachHang, ngayNhan, ngayTra, soKhach, dsIdPhong, dsDichVuChon);
 
                 if (!success)
                 {

@@ -164,7 +164,8 @@ namespace HotelManagement.BLL.Services
         }
 
         public async Task<(bool Success, string Message, string? MaBooking)> KhachHangDatPhongAsync(
-            int idKhachHang, DateOnly ngayNhan, DateOnly ngayTra, int soNguoi, List<int> danhSachIdPhong)
+            int idKhachHang, DateOnly ngayNhan, DateOnly ngayTra, int soNguoi, List<int> danhSachIdPhong,
+            List<(int IdDichVu, int SoLuong)>? danhSachDichVu = null)
         {
             if (danhSachIdPhong == null || !danhSachIdPhong.Any())
                 return (false, "Vui lòng chọn ít nhất 1 phòng để đặt.", null);
@@ -275,6 +276,29 @@ namespace HotelManagement.BLL.Services
                     };
 
                     datPhong.ChiTietDatPhongs.Add(ctDatPhong);
+                }
+
+                // Thêm các dịch vụ kèm theo mà khách hàng đã chọn (nếu có)
+                if (danhSachDichVu != null && danhSachDichVu.Any())
+                {
+                    foreach (var dvChon in danhSachDichVu)
+                    {
+                        if (dvChon.IdDichVu <= 0 || dvChon.SoLuong <= 0) continue;
+                        var dvEntity = await _unitOfWork.DichVuRepository.GetByIdAsync(dvChon.IdDichVu);
+                        if (dvEntity != null)
+                        {
+                            var ctDichVu = new HotelManagement.Models.Entities.ChiTietDichVu
+                            {
+                                IdDatphong = datPhong.IdDatphong,
+                                IdDichvu = dvChon.IdDichVu,
+                                Soluong = dvChon.SoLuong,
+                                Dongia = dvEntity.Mucgia,
+                                Thoigian = DateTime.Now,
+                                CreatedAt = DateTime.Now
+                            };
+                            await _unitOfWork.ChiTietDichVuRepository.AddAsync(ctDichVu);
+                        }
+                    }
                 }
 
                 await _unitOfWork.SaveChangesAsync();

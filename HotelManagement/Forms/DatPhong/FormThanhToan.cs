@@ -40,6 +40,44 @@ namespace HotelManagement.Forms
 
             InitializeComponent();
 
+            _btnMienPhiDichVu.Click += (_, _) =>
+            {
+                if (_hoaDonHienTai != null)
+                {
+                    _numGiamGia.Value = Math.Min(_hoaDonHienTai.TienDichVu, _numGiamGia.Maximum);
+                    _lblGhiChuKhuyenMai.Text = "✓ Đã áp dụng: Miễn phí 100% tiền dịch vụ";
+                    _lblGhiChuKhuyenMai.ForeColor = AppTheme.StatusSuccessText;
+                }
+            };
+
+            _btnGiam10.Click += (_, _) =>
+            {
+                if (_hoaDonHienTai != null)
+                {
+                    decimal tong = _hoaDonHienTai.TienPhong + _hoaDonHienTai.TienDichVu;
+                    _numGiamGia.Value = Math.Min(Math.Round(tong * 0.1m, 0), _numGiamGia.Maximum);
+                    _lblGhiChuKhuyenMai.Text = "✓ Đã áp dụng: Giảm 10% tổng hóa đơn";
+                    _lblGhiChuKhuyenMai.ForeColor = AppTheme.StatusSuccessText;
+                }
+            };
+
+            _btnGiam20.Click += (_, _) =>
+            {
+                if (_hoaDonHienTai != null)
+                {
+                    decimal tong = _hoaDonHienTai.TienPhong + _hoaDonHienTai.TienDichVu;
+                    _numGiamGia.Value = Math.Min(Math.Round(tong * 0.2m, 0), _numGiamGia.Maximum);
+                    _lblGhiChuKhuyenMai.Text = "✓ Đã áp dụng: Giảm 20% tổng hóa đơn";
+                    _lblGhiChuKhuyenMai.ForeColor = AppTheme.StatusSuccessText;
+                }
+            };
+
+            _btnHuyKm.Click += (_, _) =>
+            {
+                _numGiamGia.Value = 0;
+                _lblGhiChuKhuyenMai.Text = string.Empty;
+            };
+
             _btnHuyPdf.Click += (_, _) =>
             {
                 _btnHuyPdf.Enabled = false;
@@ -181,7 +219,26 @@ namespace HotelManagement.Forms
 
                 CapNhatTongTien();
 
-                if (dto.TrangThaiThanhtoan == "Đã thanh toán")
+                bool daThanhToan = (dto.TrangThaiThanhtoan == "Đã thanh toán");
+                _btnMienPhiDichVu.Enabled = !daThanhToan;
+                _btnGiam10.Enabled = !daThanhToan;
+                _btnGiam20.Enabled = !daThanhToan;
+                _btnHuyKm.Enabled = !daThanhToan;
+
+                if (dto.GiamGia > 0 && dto.GiamGia == dto.TienDichVu)
+                {
+                    _lblGhiChuKhuyenMai.Text = "✓ Đã áp dụng: Miễn phí 100% tiền dịch vụ";
+                }
+                else if (dto.GiamGia > 0)
+                {
+                    _lblGhiChuKhuyenMai.Text = $"✓ Đã áp dụng: Khuyến mãi/Giảm giá {dto.GiamGia:N0} đ";
+                }
+                else
+                {
+                    _lblGhiChuKhuyenMai.Text = string.Empty;
+                }
+
+                if (daThanhToan)
                 {
                     _btnXacNhan.Enabled = false;
                     _btnXacNhan.Text = "Hóa đơn đã thanh toán";

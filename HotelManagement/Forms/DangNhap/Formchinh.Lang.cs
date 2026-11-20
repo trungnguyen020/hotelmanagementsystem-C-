@@ -55,6 +55,7 @@ namespace HotelManagement
                 if (mnuQuanLyPhong != null) mnuQuanLyPhong.Text = LanguageManager.GetString("FormChinh_Menu_QuanLyPhong");
                 if (mnuPhong != null) mnuPhong.Text = LanguageManager.GetString("FormChinh_Menu_DanhSachPhong");
                 if (mnuLoaiPhong != null) mnuLoaiPhong.Text = LanguageManager.GetString("FormChinh_Menu_LoaiPhong");
+                if (mnuDichVu != null) mnuDichVu.Text = LanguageManager.GetString("FormChinh_Menu_DichVu", "Quản lý dịch vụ");
                 if (mnuImportPhong != null) mnuImportPhong.Text = LanguageManager.GetString("FormChinh_Menu_ImportPhong", "Import phòng từ Excel");
                 if (mnuSoDoPhongTop != null) mnuSoDoPhongTop.Text = LanguageManager.GetString("FormChinh_Menu_SoDoPhong");
                 if (mnuQuanLyDatPhong != null) mnuQuanLyDatPhong.Text = LanguageManager.GetString("FormChinh_Menu_QuanLyDatPhong");

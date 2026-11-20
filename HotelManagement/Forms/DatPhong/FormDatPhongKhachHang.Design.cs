@@ -40,6 +40,9 @@ namespace HotelManagement.Forms
 
         private GroupBox grpDanhSachPhong = null!;
         private DataGridView dgvPhongTrong = null!;
+        private Panel pnlCenterContent = null!;
+        private GroupBox grpDichVu = null!;
+        private DataGridView dgvDichVu = null!;
         private Panel pnlBottomAction = null!;
         private Panel pnlInfoLeft = null!;
         private Label lblTongTienDuKien = null!;
@@ -244,7 +247,47 @@ namespace HotelManagement.Forms
                 BackColor = Color.Transparent
             };
 
-            // ================= 3. Nhóm danh sách phòng trống & Nút Đặt phòng (Dock Fill) =================
+            // ================= 3. Khối trung tâm: Danh sách phòng trống & Dịch vụ kèm theo =================
+            pnlCenterContent = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.Transparent,
+                Padding = new Padding(0)
+            };
+
+            // 3.1. Nhóm dịch vụ kèm theo (Bên phải, Width = 380)
+            grpDichVu = new GroupBox
+            {
+                Text = "Dịch vụ kèm theo (Tùy chọn)",
+                Font = AppTheme.FontBodyBold,
+                ForeColor = AppTheme.Primary,
+                Dock = DockStyle.Right,
+                Width = 380,
+                BackColor = AppTheme.Surface,
+                Padding = new Padding(8, 8, 8, 8)
+            };
+
+            dgvDichVu = new DataGridView
+            {
+                Dock = DockStyle.Fill,
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
+                ReadOnly = false,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                MultiSelect = false,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+            };
+            AppTheme.ApplyDataGridView(dgvDichVu);
+            grpDichVu.Controls.Add(dgvDichVu);
+
+            var pnlCenterSplitter = new Panel
+            {
+                Dock = DockStyle.Right,
+                Width = 10,
+                BackColor = Color.Transparent
+            };
+
+            // 3.2. Nhóm danh sách phòng trống (Bên trái, Dock Fill)
             grpDanhSachPhong = new GroupBox
             {
                 Text = "Danh sách phòng trống khả dụng (Chọn 1 hoặc nhiều phòng để đặt)",
@@ -255,7 +298,26 @@ namespace HotelManagement.Forms
                 Padding = new Padding(12, 8, 12, 10)
             };
 
-            // Thanh thao tác dưới đáy: Luôn luôn hiển thị rõ ràng trên màn hình
+            // Bảng danh sách phòng trống
+            dgvPhongTrong = new DataGridView
+            {
+                Dock = DockStyle.Fill,
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
+                ReadOnly = false,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                MultiSelect = true,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+            };
+            AppTheme.ApplyDataGridView(dgvPhongTrong);
+            grpDanhSachPhong.Controls.Add(dgvPhongTrong);
+
+            pnlCenterContent.Controls.Add(grpDanhSachPhong);
+            pnlCenterContent.Controls.Add(pnlCenterSplitter);
+            pnlCenterContent.Controls.Add(grpDichVu);
+            grpDanhSachPhong.BringToFront();
+
+            // ================= 4. Thanh thao tác dưới đáy: Luôn luôn hiển thị rõ ràng trên màn hình =================
             pnlBottomAction = new Panel
             {
                 Dock = DockStyle.Bottom,
@@ -307,28 +369,20 @@ namespace HotelManagement.Forms
             pnlBottomAction.Controls.Add(pnlInfoLeft);
             pnlBottomAction.Controls.Add(btnXacNhanDat);
 
-            // Bảng danh sách phòng trống
-            dgvPhongTrong = new DataGridView
+            var pnlBottomSpacer = new Panel
             {
-                Dock = DockStyle.Fill,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                ReadOnly = false,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                MultiSelect = true,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+                Dock = DockStyle.Bottom,
+                Height = 8,
+                BackColor = Color.Transparent
             };
-            AppTheme.ApplyDataGridView(dgvPhongTrong);
-
-            grpDanhSachPhong.Controls.Add(dgvPhongTrong);
-            grpDanhSachPhong.Controls.Add(pnlBottomAction);
-            dgvPhongTrong.BringToFront();
 
             // Ghép toàn bộ vào pnlContainer
-            pnlContainer.Controls.Add(grpDanhSachPhong);
+            pnlContainer.Controls.Add(pnlCenterContent);
+            pnlContainer.Controls.Add(pnlBottomSpacer);
+            pnlContainer.Controls.Add(pnlBottomAction);
             pnlContainer.Controls.Add(pnlMidSpacer);
             pnlContainer.Controls.Add(pnlTopArea);
-            grpDanhSachPhong.BringToFront();
+            pnlCenterContent.BringToFront();
 
             this.Controls.Add(pnlContainer);
         }

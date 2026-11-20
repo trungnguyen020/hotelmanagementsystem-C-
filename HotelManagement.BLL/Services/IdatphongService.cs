@@ -18,7 +18,8 @@ namespace HotelManagement.BLL.Services
         /// Áp dụng mức cô lập Serializable trong transaction để ngăn chặn race condition/đặt trùng phòng.
         /// </summary>
         Task<(bool Success, string Message, string? MaBooking)> KhachHangDatPhongAsync(
-            int idKhachHang, DateOnly ngayNhan, DateOnly ngayTra, int soNguoi, List<int> danhSachIdPhong);
+            int idKhachHang, DateOnly ngayNhan, DateOnly ngayTra, int soNguoi, List<int> danhSachIdPhong,
+            List<(int IdDichVu, int SoLuong)>? danhSachDichVu = null);
 
         /// <summary>
         /// Tra cứu chi tiết đơn đặt phòng bằng mã booking phục vụ hiển thị màn hình Check-in (DCKLTTQ-71).

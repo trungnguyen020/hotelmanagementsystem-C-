@@ -34,6 +34,11 @@ namespace HotelManagement.Forms
         private Label _lblTienPhongVal = null!;
         private Label _lblTienDichVuVal = null!;
         private NumericUpDown _numGiamGia = null!;
+        private Button _btnMienPhiDichVu = null!;
+        private Button _btnGiam10 = null!;
+        private Button _btnGiam20 = null!;
+        private Button _btnHuyKm = null!;
+        private Label _lblGhiChuKhuyenMai = null!;
         private Label _lblTongCongVal = null!;
 
         // UI Controls - Hình thức thanh toán
@@ -185,9 +190,9 @@ namespace HotelManagement.Forms
             // ================= 3. GroupBox: Chi phí hóa đơn =================
             var grpChiPhi = new GroupBox
             {
-                Text = "Chi tiết chi phí hóa đơn",
+                Text = "Chi tiết chi phí hóa đơn & Khuyến mãi",
                 Location = new Point(20, 235),
-                Size = new Size(825, 175),
+                Size = new Size(825, 200),
                 Font = AppTheme.FontBodyBold
             };
 
@@ -207,7 +212,7 @@ namespace HotelManagement.Forms
 
             _numGiamGia = new NumericUpDown
             {
-                Width = 200,
+                Width = 140,
                 Minimum = 0,
                 Maximum = 1000000000,
                 Increment = 10000,
@@ -215,6 +220,72 @@ namespace HotelManagement.Forms
             };
             AppTheme.ApplyNumericUpDown(_numGiamGia);
             _numGiamGia.ValueChanged += (_, _) => CapNhatTongTien();
+
+            var flpKm = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = true,
+                AutoSize = true,
+                Margin = new Padding(0)
+            };
+
+            _btnMienPhiDichVu = new Button
+            {
+                Text = "🎁 Miễn phí dịch vụ",
+                AutoSize = true,
+                Height = 28,
+                Cursor = Cursors.Hand,
+                Font = AppTheme.FontSmallBold,
+                Margin = new Padding(8, 0, 4, 0)
+            };
+            AppTheme.ApplyPrimaryButton(_btnMienPhiDichVu);
+
+            _btnGiam10 = new Button
+            {
+                Text = "🏷️ Giảm 10%",
+                AutoSize = true,
+                Height = 28,
+                Cursor = Cursors.Hand,
+                Font = AppTheme.FontSmallBold,
+                Margin = new Padding(4, 0, 4, 0)
+            };
+            AppTheme.ApplySecondaryButton(_btnGiam10);
+
+            _btnGiam20 = new Button
+            {
+                Text = "🏷️ Giảm 20%",
+                AutoSize = true,
+                Height = 28,
+                Cursor = Cursors.Hand,
+                Font = AppTheme.FontSmallBold,
+                Margin = new Padding(4, 0, 4, 0)
+            };
+            AppTheme.ApplySecondaryButton(_btnGiam20);
+
+            _btnHuyKm = new Button
+            {
+                Text = "❌ Xóa KM",
+                AutoSize = true,
+                Height = 28,
+                Cursor = Cursors.Hand,
+                Font = AppTheme.FontSmallBold,
+                Margin = new Padding(4, 0, 4, 0)
+            };
+            AppTheme.ApplySecondaryButton(_btnHuyKm);
+
+            _lblGhiChuKhuyenMai = new Label
+            {
+                Text = string.Empty,
+                AutoSize = true,
+                Font = AppTheme.FontSmallBold,
+                ForeColor = AppTheme.StatusSuccessText,
+                Margin = new Padding(8, 5, 0, 0)
+            };
+
+            flpKm.Controls.AddRange(new Control[] {
+                _numGiamGia, _btnMienPhiDichVu, _btnGiam10, _btnGiam20, _btnHuyKm, _lblGhiChuKhuyenMai
+            });
 
             _lblTongCongVal = new Label
             {
@@ -238,8 +309,8 @@ namespace HotelManagement.Forms
             tblChiPhi.Controls.Add(TaoNhanChiPhi("2. Tiền dịch vụ phát sinh:"), 0, 1);
             tblChiPhi.Controls.Add(_lblTienDichVuVal, 1, 1);
 
-            tblChiPhi.Controls.Add(TaoNhanChiPhi("3. Giảm giá / Chiết khấu (VNĐ):"), 0, 2);
-            tblChiPhi.Controls.Add(_numGiamGia, 1, 2);
+            tblChiPhi.Controls.Add(TaoNhanChiPhi("3. Khuyến mãi / Giảm giá (VNĐ):"), 0, 2);
+            tblChiPhi.Controls.Add(flpKm, 1, 2);
 
             tblChiPhi.Controls.Add(TaoNhanChiPhi("TỔNG TIỀN PHẢI TRẢ:", bold: true), 0, 3);
             tblChiPhi.Controls.Add(_lblTongCongVal, 1, 3);
@@ -250,7 +321,7 @@ namespace HotelManagement.Forms
             var grpHinhThuc = new GroupBox
             {
                 Text = "Hình thức thanh toán",
-                Location = new Point(20, 420),
+                Location = new Point(20, 445),
                 Size = new Size(825, 280),
                 Font = AppTheme.FontBodyBold
             };
