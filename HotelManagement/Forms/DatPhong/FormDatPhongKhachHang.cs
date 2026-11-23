@@ -214,6 +214,7 @@ namespace HotelManagement.Forms
                     lblSdtKhach.Text = "SĐT: Chưa cập nhật";
                     lblEmailKhach.Text = "Email: Chưa cập nhật";
                 }
+                CanChinhThongTinKhach();
             }
             catch (Exception ex)
             {

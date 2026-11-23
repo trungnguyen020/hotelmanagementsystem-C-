@@ -29,7 +29,7 @@ namespace HotelManagement.Forms
         private void KhoiTaoGiaoDien()
         {
             Text = _dtoGoc == null ? "Thêm mới phòng" : "Cập nhật phòng";
-            Width = 480;
+            Width = 520;
             Height = 330;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
@@ -48,7 +48,7 @@ namespace HotelManagement.Forms
 
             int y = 65;
             int lblX = 24;
-            int inputX = 150;
+            int inputX = 180;
             int inputW = 280;
             int spacing = 45;
 

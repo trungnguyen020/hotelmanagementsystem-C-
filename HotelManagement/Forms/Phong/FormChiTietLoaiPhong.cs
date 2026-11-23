@@ -28,7 +28,7 @@ namespace HotelManagement.Forms
         private void KhoiTaoGiaoDien()
         {
             Text = _dtoGoc == null ? "Thêm mới loại phòng" : "Cập nhật loại phòng";
-            Width = 520;
+            Width = 560;
             Height = 440;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
@@ -47,8 +47,8 @@ namespace HotelManagement.Forms
 
             int y = 65;
             int lblX = 24;
-            int inputX = 160;
-            int inputW = 310;
+            int inputX = 210;
+            int inputW = 300;
             int spacing = 45;
 
             var lblTen = new Label { Text = "Tên loại phòng (*):", Location = new Point(lblX, y + 4), AutoSize = true };
@@ -106,8 +106,8 @@ namespace HotelManagement.Forms
             AppTheme.ApplyTextBox(_txtMoTa);
 
             y += 85;
-            _btnLuu = new Button { Text = "💾 Lưu", Location = new Point(inputX + 70, y), Width = 110, Height = 36 };
-            _btnHuy = new Button { Text = "✕ Hủy", Location = new Point(inputX + 190, y), Width = 110, Height = 36 };
+            _btnLuu = new Button { Text = "💾 Lưu", Location = new Point(inputX + 60, y), Width = 110, Height = 36 };
+            _btnHuy = new Button { Text = "✕ Hủy", Location = new Point(inputX + 180, y), Width = 110, Height = 36 };
 
             AppTheme.ApplyPrimaryButton(_btnLuu);
             AppTheme.ApplySecondaryButton(_btnHuy);

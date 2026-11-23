@@ -34,7 +34,7 @@ namespace HotelManagement.Forms
         private void KhoiTaoGiaoDien()
         {
             Text = _dtoGoc == null ? "Thêm mới nhân sự" : "Cập nhật nhân sự";
-            Width = 500;
+            Width = 560;
             Height = _dtoGoc == null ? 480 : 380;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
@@ -53,8 +53,8 @@ namespace HotelManagement.Forms
 
             int y = 65;
             int lblX = 24;
-            int inputX = 160;
-            int inputW = 290;
+            int inputX = 200;
+            int inputW = 310;
             int spacing = 42;
 
             var lblHoTen = new Label { Text = "Họ và tên (*):", Location = new Point(lblX, y + 4), AutoSize = true };

@@ -128,6 +128,7 @@ namespace HotelManagement.Forms
                 lblSdtKhach,
                 lblEmailKhach
             });
+            CanChinhThongTinKhach();
 
             var pnlTopSpacer = new Panel
             {
@@ -385,6 +386,15 @@ namespace HotelManagement.Forms
             pnlCenterContent.BringToFront();
 
             this.Controls.Add(pnlContainer);
+        }
+
+        public void CanChinhThongTinKhach()
+        {
+            if (lblHoTenKhach == null || lblCccdKhach == null || lblSdtKhach == null || lblEmailKhach == null) return;
+            lblHoTenKhach.Location = new Point(16, 28);
+            lblCccdKhach.Location = new Point(lblHoTenKhach.Right + 20, 28);
+            lblSdtKhach.Location = new Point(lblCccdKhach.Right + 20, 28);
+            lblEmailKhach.Location = new Point(lblSdtKhach.Right + 20, 28);
         }
 
         #endregion

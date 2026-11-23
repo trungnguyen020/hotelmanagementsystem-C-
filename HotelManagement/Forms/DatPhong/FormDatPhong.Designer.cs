@@ -57,35 +57,61 @@ namespace HotelManagement.Forms
             WindowState = FormWindowState.Maximized;
 
             // --- Pannel Filter ---
-            var pnlFilter = new GroupBox { Text = "Tìm phòng trống", Dock = DockStyle.Top, Height = 80 };
+            var pnlFilter = new GroupBox { Text = "Tìm phòng trống", Dock = DockStyle.Top, Height = 80, Font = AppTheme.FontBodyBold, ForeColor = AppTheme.Primary };
             
-            var lblNgayNhan = new Label { Text = "Ngày nhận:", Location = new Point(20, 30), AutoSize = true };
-            _dtpNgayNhan = new DateTimePicker { Location = new Point(100, 27), Width = 120, Format = DateTimePickerFormat.Short, MinDate = DateTime.Today };
+            var lblNgayNhan = new Label { Text = "Ngày nhận:", AutoSize = true, Font = AppTheme.FontBody, ForeColor = AppTheme.TextPrimary };
+            _dtpNgayNhan = new DateTimePicker { Width = 130, Format = DateTimePickerFormat.Short, MinDate = DateTime.Today };
+            AppTheme.ApplyDateTimePicker(_dtpNgayNhan);
             
-            var lblNgayTra = new Label { Text = "Ngày trả:", Location = new Point(240, 30), AutoSize = true };
-            _dtpNgayTra = new DateTimePicker { Location = new Point(310, 27), Width = 120, Format = DateTimePickerFormat.Short, MinDate = DateTime.Today.AddDays(1) };
+            var lblNgayTra = new Label { Text = "Ngày trả:", AutoSize = true, Font = AppTheme.FontBody, ForeColor = AppTheme.TextPrimary };
+            _dtpNgayTra = new DateTimePicker { Width = 130, Format = DateTimePickerFormat.Short, MinDate = DateTime.Today.AddDays(1) };
             _dtpNgayTra.Value = DateTime.Today.AddDays(1);
+            AppTheme.ApplyDateTimePicker(_dtpNgayTra);
 
-            var lblLoaiPhong = new Label { Text = "Loại phòng:", Location = new Point(450, 30), AutoSize = true };
-            _cboLoaiPhong = new ComboBox { Location = new Point(530, 27), Width = 150, DropDownStyle = ComboBoxStyle.DropDownList };
+            var lblLoaiPhong = new Label { Text = "Loại phòng:", AutoSize = true, Font = AppTheme.FontBody, ForeColor = AppTheme.TextPrimary };
+            _cboLoaiPhong = new ComboBox { Width = 160, DropDownStyle = ComboBoxStyle.DropDownList };
+            AppTheme.ApplyComboBox(_cboLoaiPhong);
             
-            var lblSoKhach = new Label { Text = "Số khách:", Location = new Point(700, 30), AutoSize = true };
-            _numSoKhach = new NumericUpDown { Location = new Point(770, 27), Width = 60, Minimum = 1, Maximum = 50, Value = 1 };
+            var lblSoKhach = new Label { Text = "Số khách:", AutoSize = true, Font = AppTheme.FontBody, ForeColor = AppTheme.TextPrimary };
+            _numSoKhach = new NumericUpDown { Width = 65, Minimum = 1, Maximum = 50, Value = 1 };
+            AppTheme.ApplyNumericUpDown(_numSoKhach);
             
-            _btnTimPhong = new Button { Text = "Tìm phòng", Location = new Point(850, 25), Width = 100, Height = 30 };
+            _btnTimPhong = new Button { Text = "🔍 Tìm phòng", Width = 120, Height = 34 };
+            AppTheme.ApplyPrimaryButton(_btnTimPhong);
             _btnTimPhong.Click += async (_, _) => await TimPhongAsync();
+
+            void CanChinhFilter()
+            {
+                lblNgayNhan.Location = new Point(16, 34);
+                _dtpNgayNhan.Location = new Point(lblNgayNhan.Right + 8, 30);
+
+                lblNgayTra.Location = new Point(_dtpNgayNhan.Right + 18, 34);
+                _dtpNgayTra.Location = new Point(lblNgayTra.Right + 8, 30);
+
+                lblLoaiPhong.Location = new Point(_dtpNgayTra.Right + 18, 34);
+                _cboLoaiPhong.Location = new Point(lblLoaiPhong.Right + 8, 30);
+
+                lblSoKhach.Location = new Point(_cboLoaiPhong.Right + 18, 34);
+                _numSoKhach.Location = new Point(lblSoKhach.Right + 8, 30);
+
+                _btnTimPhong.Location = new Point(_numSoKhach.Right + 20, 28);
+            }
+            pnlFilter.Resize += (_, _) => CanChinhFilter();
 
             pnlFilter.Controls.AddRange(new Control[] {
                 lblNgayNhan, _dtpNgayNhan, lblNgayTra, _dtpNgayTra,
                 lblLoaiPhong, _cboLoaiPhong, lblSoKhach, _numSoKhach, _btnTimPhong
             });
+            CanChinhFilter();
 
             // --- Panel Khách Hàng ---
-            var pnlKhachHang = new GroupBox { Text = "Khách hàng", Dock = DockStyle.Left, Width = 300 };
+            var pnlKhachHang = new GroupBox { Text = "Khách hàng", Dock = DockStyle.Left, Width = 300, Font = AppTheme.FontBodyBold, ForeColor = AppTheme.Primary };
             
-            var lblTimKH = new Label { Text = "Nhập CCCD / SĐT:", Location = new Point(10, 30), AutoSize = true };
-            _txtTimKhachHang = new TextBox { Location = new Point(10, 50), Width = 180 };
-            _btnTimKhachHang = new Button { Text = "Tra cứu", Location = new Point(200, 48), Width = 80, Height = 30 };
+            var lblTimKH = new Label { Text = "Nhập CCCD / SĐT:", Location = new Point(14, 28), AutoSize = true, Font = AppTheme.FontBody, ForeColor = AppTheme.TextPrimary };
+            _txtTimKhachHang = new TextBox { Location = new Point(14, 52), Width = 175 };
+            AppTheme.ApplyTextBox(_txtTimKhachHang);
+            _btnTimKhachHang = new Button { Text = "Tra cứu", Location = new Point(198, 50), Width = 85, Height = 30 };
+            AppTheme.ApplySecondaryButton(_btnTimKhachHang);
             _btnTimKhachHang.Click += async (_, _) => await TimKhachHangAsync();
 
             _lblThongTinKhachHang = new Label 
