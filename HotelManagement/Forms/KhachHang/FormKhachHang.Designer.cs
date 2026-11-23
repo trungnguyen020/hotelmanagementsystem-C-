@@ -1,20 +1,14 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using HotelManagement.Common;
 
 namespace HotelManagement.Forms
 {
     partial class FormKhachHang
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private System.ComponentModel.IContainer components = null!;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -26,33 +20,31 @@ namespace HotelManagement.Forms
 
         #region Windows Form Designer generated code
 
-        private DataGridView _dgv = null!;
+        private Panel _pnlTop = null!;
         private TextBox _txtTimKiem = null!;
-        private Button _btnTimKiem = null!;
-
-        private TextBox _txtTen = null!;
-        private TextBox _txtCccd = null!;
-        private TextBox _txtEmail = null!;
-        private TextBox _txtSdt = null!;
-        private ComboBox _cboGioiTinh = null!;
-        private DateTimePicker _dtpNgaySinh = null!;
-        private CheckBox _chkCoNgaySinh = null!;
-
-        private Button _btnThem = null!;
-        private Button _btnSua = null!;
-        private Button _btnXoa = null!;
-        private Button _btnLamMoi = null!;
         private Button _btnDatPhong = null!;
+        private Button _btnXuatExcel = null!;
+        private Button _btnThemMoi = null!;
+        private DataGridView _dgv = null!;
 
-        // Quản lý tài khoản khách hàng dành cho Admin/Lễ tân
-        private Label _lblTaiKhoanInfo = null!;
-        private Button _btnDatLaiMk = null!;
-        private Button _btnKhoaMoKhoa = null!;
+        private DataGridViewTextBoxColumn _colMaKH = null!;
+        private DataGridViewTextBoxColumn _colTen = null!;
+        private DataGridViewTextBoxColumn _colSdt = null!;
+        private DataGridViewTextBoxColumn _colCccd = null!;
+        private DataGridViewTextBoxColumn _colEmail = null!;
+        private DataGridViewTextBoxColumn _colGioiTinh = null!;
+        private DataGridViewTextBoxColumn _colNgaySinh = null!;
+        private DataGridViewTextBoxColumn _colTaiKhoan = null!;
+        private DataGridViewTextBoxColumn _colTrangThaiTK = null!;
+        private DataGridViewImageColumn _colEdit = null!;
+        private DataGridViewImageColumn _colDelete = null!;
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
+        // Menu ngữ cảnh cho tài khoản khách hàng
+        private ContextMenuStrip _ctxMenu = null!;
+        private ToolStripMenuItem _mnuDatPhong = null!;
+        private ToolStripMenuItem _mnuDatLaiMk = null!;
+        private ToolStripMenuItem _mnuKhoaMoKhoa = null!;
+
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
@@ -63,149 +55,70 @@ namespace HotelManagement.Forms
             Width = 1150;
             Height = 720;
             StartPosition = FormStartPosition.CenterParent;
+            WindowState = FormWindowState.Maximized;
             MinimumSize = new Size(950, 600);
 
-            // ================= 1. Thanh tìm kiếm (Top) =================
-            var pnlTop = new Panel
+            // ================= 1. Top Bar =================
+            _pnlTop = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 52,
-                Padding = new Padding(14, 10, 14, 10),
+                Height = 60,
+                Padding = new Padding(16, 12, 16, 12),
                 BackColor = AppTheme.Surface
             };
 
-            var lblTimKiem = new Label { Text = "Tìm kiếm:", AutoSize = true };
-            _txtTimKiem = new TextBox { Width = 320, PlaceholderText = "Nhập tên, số điện thoại, CCCD..." };
-            _btnTimKiem = new Button { Text = "Tìm", Width = 90, Height = 32, Cursor = Cursors.Hand };
-            _btnTimKiem.Click += async (_, _) => await TimKiemAsync();
-
-            pnlTop.Controls.AddRange(new Control[] { lblTimKiem, _txtTimKiem, _btnTimKiem });
-
-            // ================= 2. Vùng điều khiển & Nhập liệu (Bottom) =================
-            var pnlBottom = new Panel
+            _txtTimKiem = new TextBox
             {
-                Dock = DockStyle.Bottom,
-                Height = 185,
-                Padding = new Padding(12, 6, 12, 6),
-                BackColor = AppTheme.Surface
+                PlaceholderText = "🔍 Tìm tên, SĐT, CCCD...",
+                Location = new Point(16, 14),
+                Width = 320,
+                Height = 32
             };
+            AppTheme.ApplyTextBox(_txtTimKiem);
 
-            // --- 2.1 GroupBox Quản lý tài khoản (Nằm bên phải, luôn cố định và rõ ràng) ---
-            var grpTaiKhoan = new GroupBox
+            _btnDatPhong = new Button
             {
-                Text = "Tài khoản khách hàng",
-                Dock = DockStyle.Right,
-                Width = 390,
-                Font = AppTheme.FontBodyBold,
-                ForeColor = AppTheme.Primary,
-                Padding = new Padding(10)
+                Text = "🏨 Đặt phòng",
+                Size = new Size(120, 34),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
             };
+            AppTheme.ApplyPrimaryButton(_btnDatPhong);
 
-            _lblTaiKhoanInfo = new Label
+            _btnXuatExcel = new Button
             {
-                Text = "Chưa chọn khách hàng",
-                Location = new Point(15, 25),
-                Size = new Size(360, 48),
-                AutoSize = false,
-                Font = AppTheme.FontBody,
-                ForeColor = AppTheme.TextPrimary
+                Text = "Xuất file Excel",
+                Size = new Size(130, 34),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
             };
+            AppTheme.ApplyExcelButton(_btnXuatExcel);
 
-            _btnDatLaiMk = new Button
+            _btnThemMoi = new Button
             {
-                Text = "🔑 Đặt lại MK (123456)",
-                Location = new Point(15, 82),
-                Width = 175,
-                Height = 34,
-                Visible = false,
-                Cursor = Cursors.Hand
+                Text = "+ Thêm mới",
+                Size = new Size(120, 34),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
             };
-            _btnDatLaiMk.Click += async (_, _) => await DatLaiMatKhauAsync();
+            AppTheme.ApplyAddButton(_btnThemMoi);
 
-            _btnKhoaMoKhoa = new Button
+            void CanChinhTopNut()
             {
-                Text = "🔒 Khóa tài khoản",
-                Location = new Point(200, 82),
-                Width = 175,
-                Height = 34,
-                Visible = false,
-                Cursor = Cursors.Hand
-            };
-            _btnKhoaMoKhoa.Click += async (_, _) => await ChuyenTrangThaiTaiKhoanAsync();
+                _btnThemMoi.Location = new Point(_pnlTop.ClientSize.Width - _btnThemMoi.Width - 16, 13);
+                _btnXuatExcel.Location = new Point(_btnThemMoi.Left - _btnXuatExcel.Width - 12, 13);
+                _btnDatPhong.Location = new Point(_btnXuatExcel.Left - _btnDatPhong.Width - 12, 13);
+            }
+            _pnlTop.Resize += (s, e) => CanChinhTopNut();
+            CanChinhTopNut();
 
-            grpTaiKhoan.Controls.AddRange(new Control[] { _lblTaiKhoanInfo, _btnDatLaiMk, _btnKhoaMoKhoa });
+            _pnlTop.Controls.AddRange(new Control[] { _txtTimKiem, _btnDatPhong, _btnXuatExcel, _btnThemMoi });
 
-            // --- 2.2 Vùng nhập thông tin khách hàng (Nằm bên trái) ---
-            var pnlThongTinKhach = new Panel
-            {
-                Dock = DockStyle.Fill,
-                Padding = new Padding(0, 0, 15, 0)
-            };
+            // ================= 2. Context Menu =================
+            _ctxMenu = new ContextMenuStrip();
+            _mnuDatPhong = new ToolStripMenuItem("🏨 Đặt phòng cho khách này");
+            _mnuDatLaiMk = new ToolStripMenuItem("🔑 Đặt lại mật khẩu (về 123456)");
+            _mnuKhoaMoKhoa = new ToolStripMenuItem("🔒 Khóa / Mở khóa tài khoản");
+            _ctxMenu.Items.AddRange(new ToolStripItem[] { _mnuDatPhong, new ToolStripSeparator(), _mnuDatLaiMk, _mnuKhoaMoKhoa });
 
-            int lblWidth = 115;
-            var lblTen = new Label { Text = "Tên khách hàng:", Location = new Point(0, 10), AutoSize = true };
-            _txtTen = new TextBox { Location = new Point(lblWidth, 7), Width = 230 };
-
-            var lblCccd = new Label { Text = "CCCD:", Location = new Point(360, 10), AutoSize = true };
-            _txtCccd = new TextBox { Location = new Point(415, 7), Width = 160 };
-
-            var lblSdt = new Label { Text = "Số điện thoại:", Location = new Point(0, 44), AutoSize = true };
-            _txtSdt = new TextBox { Location = new Point(lblWidth, 41), Width = 160 };
-
-            var lblEmail = new Label { Text = "Email:", Location = new Point(320, 44), AutoSize = true };
-            _txtEmail = new TextBox { Location = new Point(375, 41), Width = 200 };
-
-            var lblGioiTinh = new Label { Text = "Giới tính:", Location = new Point(0, 78), AutoSize = true };
-            _cboGioiTinh = new ComboBox
-            {
-                Location = new Point(lblWidth, 75),
-                Width = 100,
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            _cboGioiTinh.Items.AddRange(new object[] { "", "Nam", "Nữ" });
-            _cboGioiTinh.SelectedIndex = 0;
-
-            _chkCoNgaySinh = new CheckBox
-            {
-                Text = "Ngày sinh:",
-                Location = new Point(245, 78),
-                AutoSize = true,
-                Checked = false
-            };
-            _dtpNgaySinh = new DateTimePicker
-            {
-                Location = new Point(340, 75),
-                Width = 140,
-                Format = DateTimePickerFormat.Custom,
-                CustomFormat = "dd/MM/yyyy",
-                Enabled = false
-            };
-            _chkCoNgaySinh.CheckedChanged += (_, _) => _dtpNgaySinh.Enabled = _chkCoNgaySinh.Checked;
-
-            int yNut = 122;
-            _btnThem = new Button { Text = "Thêm", Location = new Point(0, yNut), Width = 85, Height = 34, Cursor = Cursors.Hand };
-            _btnSua = new Button { Text = "Sửa", Location = new Point(92, yNut), Width = 85, Height = 34, Cursor = Cursors.Hand };
-            _btnXoa = new Button { Text = "Xóa", Location = new Point(184, yNut), Width = 85, Height = 34, Cursor = Cursors.Hand };
-            _btnLamMoi = new Button { Text = "Làm mới", Location = new Point(276, yNut), Width = 90, Height = 34, Cursor = Cursors.Hand };
-            _btnDatPhong = new Button { Text = "🛎️ Đặt phòng", Location = new Point(374, yNut), Width = 125, Height = 34, Cursor = Cursors.Hand };
-
-            _btnThem.Click += async (_, _) => await ThemAsync();
-            _btnSua.Click += async (_, _) => await SuaAsync();
-            _btnXoa.Click += async (_, _) => await XoaAsync();
-            _btnLamMoi.Click += (_, _) => LamMoiForm();
-            _btnDatPhong.Click += (_, _) => MoDatPhongChoKhachHang();
-
-            pnlThongTinKhach.Controls.AddRange(new Control[]
-            {
-                lblTen, _txtTen, lblCccd, _txtCccd,
-                lblSdt, _txtSdt, lblEmail, _txtEmail,
-                lblGioiTinh, _cboGioiTinh, _chkCoNgaySinh, _dtpNgaySinh,
-                _btnThem, _btnSua, _btnXoa, _btnLamMoi, _btnDatPhong
-            });
-
-            pnlBottom.Controls.AddRange(new Control[] { pnlThongTinKhach, grpTaiKhoan });
-
-            // ================= 3. DataGridView (Fill ở giữa) =================
+            // ================= 3. DataGridView =================
             _dgv = new DataGridView
             {
                 Dock = DockStyle.Fill,
@@ -214,62 +127,116 @@ namespace HotelManagement.Forms
                 AllowUserToDeleteRows = false,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
                 MultiSelect = false,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+                AutoGenerateColumns = false,
+                RowHeadersVisible = false,
+                ContextMenuStrip = _ctxMenu,
+                BackgroundColor = AppTheme.Surface
             };
-            _dgv.SelectionChanged += Dgv_SelectionChanged;
-
-            // Thứ tự Add: Fill sau cùng để Dock hoạt động chính xác
-            Controls.Add(_dgv);
-            Controls.Add(pnlBottom);
-            Controls.Add(pnlTop);
-
-            AppTheme.ApplyLabel(lblTimKiem);
-            AppTheme.ApplyLabel(lblTen);
-            AppTheme.ApplyLabel(lblCccd);
-            AppTheme.ApplyLabel(lblSdt);
-            AppTheme.ApplyLabel(lblEmail);
-            AppTheme.ApplyLabel(lblGioiTinh);
-
-            AppTheme.ApplyTextBox(_txtTimKiem);
-            AppTheme.ApplyTextBox(_txtTen);
-            AppTheme.ApplyTextBox(_txtCccd);
-            AppTheme.ApplyTextBox(_txtSdt);
-            AppTheme.ApplyTextBox(_txtEmail);
-            AppTheme.ApplyComboBox(_cboGioiTinh);
-            AppTheme.ApplyDateTimePicker(_dtpNgaySinh);
-            AppTheme.ApplyCheckBox(_chkCoNgaySinh);
             AppTheme.ApplyDataGridView(_dgv);
+            _dgv.RowTemplate.Height = 36;
+            _dgv.ColumnHeadersHeight = 40;
 
-            AppTheme.ApplyPrimaryButton(_btnTimKiem);
-            AppTheme.ApplyPrimaryButton(_btnThem);
-            AppTheme.ApplyPrimaryButton(_btnDatPhong);
-            AppTheme.ApplySecondaryButton(_btnSua);
-            AppTheme.ApplySecondaryButton(_btnXoa);
-            AppTheme.ApplySecondaryButton(_btnLamMoi);
-            AppTheme.ApplySecondaryButton(_btnDatLaiMk);
-            AppTheme.ApplySecondaryButton(_btnKhoaMoKhoa);
+            _colMaKH = new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "IdKhachHang",
+                HeaderText = "Mã KH",
+                Width = 80,
+                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            };
 
-            // Label AutoSize rộng ra theo font mới -> canh ô nhập theo mép label, giữ cột thẳng hàng
-            int cotNhapTrai = Math.Max(lblTen.Right, Math.Max(lblSdt.Right, lblGioiTinh.Right)) + 8;
-            _txtTen.Left = cotNhapTrai;
-            _txtSdt.Left = cotNhapTrai;
-            _cboGioiTinh.Left = cotNhapTrai;
+            _colTen = new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Ten",
+                HeaderText = "Họ và tên",
+                Width = 180,
+                DefaultCellStyle = { Font = AppTheme.FontBodyBold }
+            };
 
-            // Cột phải phải nằm sau mép phải của ô rộng nhất bên trái
-            lblCccd.Left = _txtTen.Right + 24;
-            lblEmail.Left = lblCccd.Left;
+            _colSdt = new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Sdt",
+                HeaderText = "Số điện thoại",
+                Width = 120,
+                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            };
 
-            int cotNhapPhai = Math.Max(lblCccd.Right, lblEmail.Right) + 8;
-            _txtCccd.Left = cotNhapPhai;
-            _txtEmail.Left = cotNhapPhai;
+            _colCccd = new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Cccd",
+                HeaderText = "CCCD",
+                Width = 120,
+                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            };
 
-            _chkCoNgaySinh.Left = _cboGioiTinh.Right + 24;
-            _dtpNgaySinh.Left = _chkCoNgaySinh.Right + 8;
+            _colEmail = new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Email",
+                HeaderText = "Email",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                MinimumWidth = 140
+            };
 
-            // Canh lề chuẩn cho thanh tìm kiếm (Top): nhãn, ô nhập và nút đều được canh giữa dọc và cách đều ngang
-            lblTimKiem.Location = new Point(14, (pnlTop.Height - lblTimKiem.Height) / 2);
-            _txtTimKiem.Location = new Point(lblTimKiem.Right + 8, (pnlTop.Height - _txtTimKiem.Height) / 2);
-            _btnTimKiem.Location = new Point(_txtTimKiem.Right + 10, (pnlTop.Height - _btnTimKiem.Height) / 2);
+            _colGioiTinh = new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "GioiTinh",
+                HeaderText = "Giới tính",
+                Width = 85,
+                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            };
+
+            _colNgaySinh = new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "NgaySinh",
+                HeaderText = "Ngày sinh",
+                Width = 100,
+                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter, Format = "dd/MM/yyyy" }
+            };
+
+            _colTaiKhoan = new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "TenTaiKhoan",
+                HeaderText = "Tài khoản",
+                Width = 110,
+                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            };
+
+            _colTrangThaiTK = new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "TrangThaiTaiKhoan",
+                HeaderText = "TT Tài khoản",
+                Width = 110,
+                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            };
+
+            _colEdit = new DataGridViewImageColumn
+            {
+                HeaderText = "Cập nhật",
+                Image = EmbeddedImages.EditSmall,
+                Width = 70,
+                ImageLayout = DataGridViewImageCellLayout.Zoom,
+                Description = "Sửa",
+                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            };
+
+            _colDelete = new DataGridViewImageColumn
+            {
+                HeaderText = "Xóa",
+                Image = EmbeddedImages.DeleteSmall,
+                Width = 60,
+                ImageLayout = DataGridViewImageCellLayout.Zoom,
+                Description = "Xóa",
+                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            };
+
+            _dgv.Columns.AddRange(new DataGridViewColumn[]
+            {
+                _colMaKH, _colTen, _colSdt, _colCccd, _colEmail,
+                _colGioiTinh, _colNgaySinh, _colTaiKhoan, _colTrangThaiTK,
+                _colEdit, _colDelete
+            });
+
+            Controls.Add(_dgv);
+            Controls.Add(_pnlTop);
         }
 
         #endregion

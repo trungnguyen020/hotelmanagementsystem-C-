@@ -29,8 +29,14 @@
   <ItemGroup>
     <None Remove="Resources\Logo.png" />
     <None Remove="Resources\brackground.png" />
+    <None Remove="Resources\avatar.png" />
+    <None Remove="Resources\edit.png" />
+    <None Remove="Resources\delete.png" />
     <EmbeddedResource Include="Resources\Logo.png" LogicalName="HotelManagement.Resources.logo.png" />
     <EmbeddedResource Include="Resources\brackground.png" LogicalName="HotelManagement.Resources.background.png" />
+    <EmbeddedResource Include="Resources\avatar.png" LogicalName="HotelManagement.Resources.avatar.png" />
+    <EmbeddedResource Include="Resources\edit.png" LogicalName="HotelManagement.Resources.edit.png" />
+    <EmbeddedResource Include="Resources\delete.png" LogicalName="HotelManagement.Resources.delete.png" />
   </ItemGroup>
 
   <PropertyGroup>

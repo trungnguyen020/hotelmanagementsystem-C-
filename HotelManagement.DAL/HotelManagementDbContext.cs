@@ -303,6 +303,9 @@ public partial class HotelManagementDbContext : DbContext
             entity.Property(e => e.Mucgia)
                 .HasColumnType("decimal(12, 2)")
                 .HasColumnName("mucgia");
+            entity.Property(e => e.Giatheogio)
+                .HasColumnType("decimal(12, 2)")
+                .HasColumnName("giatheogio");
             entity.Property(e => e.Succhua).HasColumnName("succhua");
             entity.Property(e => e.Ten)
                 .HasMaxLength(100)

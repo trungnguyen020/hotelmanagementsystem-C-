@@ -4,20 +4,19 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using HotelManagement.BLL.DTOs;
 using HotelManagement.BLL.Services;
+using HotelManagement.Common;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManagement.Forms
 {
     /// <summary>
     /// Form Quản lý danh mục Dịch vụ trong hệ thống khách sạn.
-    /// Cho phép xem danh sách, tìm kiếm, thêm, sửa, xóa dịch vụ phát sinh.
+    /// Thiết kế hiện đại với thanh công cụ trên cùng và thao tác sửa/xóa trực tiếp trong dòng.
     /// </summary>
     public partial class FormDichVu : Form
     {
         private readonly IServiceScope _scope;
         private readonly IDichVuService _dichVuService;
-
-        private int? _idDangChon;
         private readonly System.Windows.Forms.Timer _debounceTimer = new();
 
         public FormDichVu()
@@ -28,17 +27,21 @@ namespace HotelManagement.Forms
             InitializeComponent();
 
             _debounceTimer.Interval = 300;
-            _debounceTimer.Tick += async (s, e) =>
+            _debounceTimer.Tick += async (_, _) =>
             {
                 _debounceTimer.Stop();
                 await TimKiemAsync();
             };
 
-            _txtTimKiem.TextChanged += (s, e) =>
+            _txtTimKiem.TextChanged += (_, _) =>
             {
                 _debounceTimer.Stop();
                 _debounceTimer.Start();
             };
+
+            _btnThemMoi.Click += async (_, _) => await ThemMoiAsync();
+            _btnXuatExcel.Click += async (_, _) => await ExcelExportHelper.XuatDataGridViewRaExcelAsync(_dgv, "Dịch vụ", "DanhSachDichVu", this);
+            _dgv.CellContentClick += Dgv_CellContentClick;
 
             Load += async (_, _) => await TaiDanhSachAsync();
             FormClosed += (_, _) =>
@@ -53,11 +56,12 @@ namespace HotelManagement.Forms
             try
             {
                 var danhSach = await _dichVuService.LayDanhSachAsync();
-                GanDuLieuLuoi(danhSach);
+                _dgv.DataSource = danhSach;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải danh sách dịch vụ: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi tải danh sách dịch vụ: " + ex.Message, "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -65,125 +69,94 @@ namespace HotelManagement.Forms
         {
             try
             {
-                var ketQua = await _dichVuService.TimKiemAsync(_txtTimKiem.Text);
-                GanDuLieuLuoi(ketQua);
+                string tuKhoa = _txtTimKiem.Text.Trim();
+                var ketQua = await _dichVuService.TimKiemAsync(tuKhoa);
+                _dgv.DataSource = ketQua;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tìm kiếm dịch vụ: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi tìm kiếm dịch vụ: " + ex.Message, "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void GanDuLieuLuoi(List<DichVuDto> danhSach)
+        private async Task ThemMoiAsync()
         {
-            _dgv.DataSource = null;
-            _dgv.DataSource = danhSach;
-
-            if (_dgv.Columns["IdDichVu"] != null)
+            using var dlg = new FormChiTietDichVu();
+            if (dlg.ShowDialog(this) == DialogResult.OK)
             {
-                _dgv.Columns["IdDichVu"].HeaderText = "Mã DV";
-                _dgv.Columns["IdDichVu"].Width = 90;
-            }
-            if (_dgv.Columns["TenDichVu"] != null)
-            {
-                _dgv.Columns["TenDichVu"].HeaderText = "Tên dịch vụ";
-            }
-            if (_dgv.Columns["MucGia"] != null)
-            {
-                _dgv.Columns["MucGia"].HeaderText = "Đơn giá (VNĐ)";
-                _dgv.Columns["MucGia"].DefaultCellStyle.Format = "N0";
-                _dgv.Columns["MucGia"].Width = 180;
-            }
-        }
-
-        private void Dgv_SelectionChanged(object? sender, EventArgs e)
-        {
-            if (_dgv.CurrentRow?.DataBoundItem is not DichVuDto dto) return;
-
-            _idDangChon = dto.IdDichVu;
-            _txtTen.Text = dto.TenDichVu;
-            _numGia.Value = Math.Min(dto.MucGia, _numGia.Maximum);
-        }
-
-        private async Task ThemAsync()
-        {
-            try
-            {
-                var dto = new DichVuDto
+                try
                 {
-                    TenDichVu = _txtTen.Text.Trim(),
-                    MucGia = _numGia.Value
-                };
-
-                await _dichVuService.ThemAsync(dto);
-                MessageBox.Show("Thêm dịch vụ thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LamMoiForm();
-                await TaiDanhSachAsync();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Lỗi thêm", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-        }
-
-        private async Task SuaAsync()
-        {
-            if (_idDangChon is null)
-            {
-                MessageBox.Show("Vui lòng chọn dịch vụ cần sửa từ danh sách.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            try
-            {
-                var dto = new DichVuDto
+                    await _dichVuService.ThemAsync(dlg.DtoKetQua);
+                    MessageBox.Show("Thêm dịch vụ thành công.", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    await TaiDanhSachAsync();
+                }
+                catch (InvalidOperationException ex)
                 {
-                    IdDichVu = _idDangChon.Value,
-                    TenDichVu = _txtTen.Text.Trim(),
-                    MucGia = _numGia.Value
-                };
-
-                await _dichVuService.CapNhatAsync(dto);
-                MessageBox.Show("Cập nhật dịch vụ thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                await TaiDanhSachAsync();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Lỗi sửa", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Có lỗi xảy ra: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
-        private async Task XoaAsync()
+        private async void Dgv_CellContentClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (_idDangChon is null)
-            {
-                MessageBox.Show("Vui lòng chọn dịch vụ cần xóa từ danh sách.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
+            if (e.RowIndex < 0 || e.RowIndex >= _dgv.Rows.Count) return;
 
-            var hoi = MessageBox.Show($"Bạn có chắc chắn muốn xóa dịch vụ '{_txtTen.Text}'?", "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (hoi != DialogResult.Yes) return;
+            if (_dgv.Rows[e.RowIndex].DataBoundItem is not DichVuDto dto) return;
 
-            try
+            // 1. Nhấn nút Sửa
+            if (e.ColumnIndex == _colEdit.Index)
             {
-                await _dichVuService.XoaAsync(_idDangChon.Value);
-                MessageBox.Show("Đã xóa dịch vụ thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LamMoiForm();
-                await TaiDanhSachAsync();
+                using var dlg = new FormChiTietDichVu(dto);
+                if (dlg.ShowDialog(this) == DialogResult.OK)
+                {
+                    try
+                    {
+                        await _dichVuService.CapNhatAsync(dlg.DtoKetQua);
+                        MessageBox.Show("Cập nhật dịch vụ thành công.", "Thông báo",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        await TaiDanhSachAsync();
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Có lỗi xảy ra: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
             }
-            catch (Exception ex)
+            // 2. Nhấn nút Xóa
+            else if (e.ColumnIndex == _colDelete.Index)
             {
-                MessageBox.Show(ex.Message, "Lỗi xóa", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-        }
+                var xacNhan = MessageBox.Show(
+                    $"Bạn có chắc chắn muốn xóa dịch vụ '{dto.TenDichVu}'?", "Xác nhận xóa",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-        private void LamMoiForm()
-        {
-            _idDangChon = null;
-            _txtTen.Clear();
-            _numGia.Value = 0;
-            _dgv.ClearSelection();
-            _txtTen.Focus();
+                if (xacNhan != DialogResult.Yes) return;
+
+                try
+                {
+                    await _dichVuService.XoaAsync(dto.IdDichVu);
+                    MessageBox.Show("Xóa dịch vụ thành công.", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    await TaiDanhSachAsync();
+                }
+                catch (InvalidOperationException ex)
+                {
+                    MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Có lỗi xảy ra: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
     }
 }

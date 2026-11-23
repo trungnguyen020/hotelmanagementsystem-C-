@@ -86,27 +86,15 @@ namespace HotelManagement
             mnuQuanLyPhong = new ToolStripMenuItem("Quản lý phòng");
             
             mnuPhong = new ToolStripMenuItem("Danh sách phòng");
-            mnuPhong.Click += (_, _) =>
-            {
-                using var form = new HotelManagement.Forms.FormPhong(_taiKhoanDangNhap);
-                form.ShowDialog(this);
-            };
+            mnuPhong.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormPhong(_taiKhoanDangNhap));
             mnuQuanLyPhong.DropDownItems.Add(mnuPhong);
 
             mnuLoaiPhong = new ToolStripMenuItem("Loại phòng");
-            mnuLoaiPhong.Click += (_, _) =>
-            {
-                using var form = new HotelManagement.Forms.FormLoaiPhong();
-                form.ShowDialog(this);
-            };
+            mnuLoaiPhong.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormLoaiPhong());
             mnuQuanLyPhong.DropDownItems.Add(mnuLoaiPhong);
 
             mnuDichVu = new ToolStripMenuItem("Quản lý dịch vụ");
-            mnuDichVu.Click += (_, _) =>
-            {
-                using var form = new HotelManagement.Forms.FormDichVu();
-                form.ShowDialog(this);
-            };
+            mnuDichVu.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormDichVu());
             mnuQuanLyPhong.DropDownItems.Add(mnuDichVu);
 
             mnuImportPhong = new ToolStripMenuItem("Import phòng từ Excel");
@@ -121,93 +109,53 @@ namespace HotelManagement
 
             // --- 1.2 Sơ đồ phòng ---
             mnuSoDoPhongTop = new ToolStripMenuItem("Sơ đồ phòng");
-            mnuSoDoPhongTop.Click += (_, _) =>
-            {
-                using var form = new HotelManagement.Forms.FormSoDoPhong(_taiKhoanDangNhap);
-                form.ShowDialog(this);
-            };
+            mnuSoDoPhongTop.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormSoDoPhong(_taiKhoanDangNhap));
             menuChinh.Items.Add(mnuSoDoPhongTop);
 
             // --- 1.3 Quản lý đặt phòng ---
             mnuQuanLyDatPhong = new ToolStripMenuItem("Quản lý đặt phòng");
 
             mnuDatPhong = new ToolStripMenuItem("Đặt phòng mới");
-            mnuDatPhong.Click += (_, _) =>
-            {
-                using var form = new HotelManagement.Forms.FormDatPhong(_taiKhoanDangNhap);
-                form.ShowDialog(this);
-            };
+            mnuDatPhong.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormDatPhong(_taiKhoanDangNhap));
             mnuQuanLyDatPhong.DropDownItems.Add(mnuDatPhong);
 
             mnuCheckIn = new ToolStripMenuItem("Check-in (Nhận phòng)");
-            mnuCheckIn.Click += (_, _) =>
-            {
-                using var form = new HotelManagement.Forms.FormCheckIn(_taiKhoanDangNhap);
-                form.ShowDialog(this);
-            };
+            mnuCheckIn.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormCheckIn(_taiKhoanDangNhap));
             mnuQuanLyDatPhong.DropDownItems.Add(mnuCheckIn);
 
             mnuCheckOut = new ToolStripMenuItem("Check-out (Trả phòng)");
-            mnuCheckOut.Click += (_, _) =>
-            {
-                using var form = new HotelManagement.Forms.FormCheckOut(_taiKhoanDangNhap);
-                form.ShowDialog(this);
-            };
+            mnuCheckOut.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormCheckOut(_taiKhoanDangNhap));
             mnuQuanLyDatPhong.DropDownItems.Add(mnuCheckOut);
 
             mnuThanhToan = new ToolStripMenuItem("Thanh toán hóa đơn");
-            mnuThanhToan.Click += (_, _) =>
-            {
-                using var form = new HotelManagement.Forms.FormThanhToan();
-                form.ShowDialog(this);
-            };
+            mnuThanhToan.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormThanhToan());
             mnuQuanLyDatPhong.DropDownItems.Add(mnuThanhToan);
 
             menuChinh.Items.Add(mnuQuanLyDatPhong);
 
             // --- 1.4 Quản lý khách hàng ---
             mnuKhachHang = new ToolStripMenuItem("Quản lý khách hàng");
-            mnuKhachHang.Click += (_, _) =>
-            {
-                using var form = new HotelManagement.Forms.FormKhachHang(_taiKhoanDangNhap);
-                form.ShowDialog(this);
-            };
+            mnuKhachHang.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormKhachHang(_taiKhoanDangNhap));
             menuChinh.Items.Add(mnuKhachHang);
 
             // --- 1.5 Quản lý nhân sự (Admin) ---
             mnuQuanLyNhanSu = new ToolStripMenuItem("Quản lý nhân sự");
-            mnuQuanLyNhanSu.Click += (_, _) =>
-            {
-                using var form = new HotelManagement.Forms.FormNhanSu();
-                form.ShowDialog(this);
-            };
+            mnuQuanLyNhanSu.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormNhanSu());
             menuChinh.Items.Add(mnuQuanLyNhanSu);
 
             // --- 1.6 Báo cáo doanh thu (Admin) ---
             mnuBaoCao = new ToolStripMenuItem("Báo cáo doanh thu");
-            mnuBaoCao.Click += (_, _) =>
-            {
-                using var form = new HotelManagement.Forms.FormBaoCaoDoanhThu(_taiKhoanDangNhap);
-                form.ShowDialog(this);
-            };
+            mnuBaoCao.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormBaoCaoDoanhThu(_taiKhoanDangNhap));
             menuChinh.Items.Add(mnuBaoCao);
 
             // --- 1.7 Dashboard biểu đồ LiveCharts2 (Admin - DCKLTTQ-84) ---
             mnuDashboard = new ToolStripMenuItem("Dashboard thống kê");
-            mnuDashboard.Click += (_, _) =>
-            {
-                using var form = new HotelManagement.Forms.FormDashboard();
-                form.ShowDialog(this);
-            };
+            mnuDashboard.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormDashboard());
             menuChinh.Items.Add(mnuDashboard);
 
             // --- 1.8 Lịch sử thông báo (DCKLTTQ-82) ---
             mnuLichSuThongBao = new ToolStripMenuItem("Lịch sử thông báo");
-            mnuLichSuThongBao.Click += (_, _) =>
-            {
-                using var form = new HotelManagement.Forms.FormLichSuThongBao();
-                form.ShowDialog(this);
-            };
+            mnuLichSuThongBao.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormLichSuThongBao());
             menuChinh.Items.Add(mnuLichSuThongBao);
 
             // --- 1.9 Mở chế độ Kiosk (DCKLTTQ-107 - Cửa sổ độc lập không chặn) ---
@@ -239,31 +187,36 @@ namespace HotelManagement
             _pnlTopBar = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 65,
-                BackColor = AppTheme.Surface,
-                Padding = new Padding(24, 0, 24, 0)
+                Height = 60,
+                BackColor = Color.FromArgb(46, 125, 50),
+                Padding = new Padding(20, 0, 20, 0)
             };
-            _pnlTopBar.Paint += (s, e) =>
+
+            var picHeaderLogo = new PictureBox
             {
-                using var pen = new Pen(AppTheme.BorderLight, 1);
-                e.Graphics.DrawLine(pen, 0, _pnlTopBar.Height - 1, _pnlTopBar.Width, _pnlTopBar.Height - 1);
+                Image = EmbeddedImages.Logo,
+                Size = new Size(36, 36),
+                Location = new Point(16, 12),
+                SizeMode = PictureBoxSizeMode.Zoom,
+                BackColor = Color.Transparent
             };
 
             _lblHotelTitle = new Label
             {
-                Text = "RESORT & HOTEL MANAGEMENT SYSTEM",
-                Font = AppTheme.FontSubHeader,
-                ForeColor = AppTheme.Primary,
+                Text = "Hotel Management",
+                Font = new Font("Segoe UI", 16f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(255, 140, 105),
                 AutoSize = true,
-                Location = new Point(24, 22)
+                Location = new Point(58, 14),
+                BackColor = Color.Transparent
             };
 
             _lblUserInfoBadge = new Label
             {
-                Text = $"👤 {_taiKhoanDangNhap.IdNhansuNavigation.Hoten} ({_taiKhoanDangNhap.IdVaitroNavigation.TenVaitro})",
+                Text = $"👤 {_taiKhoanDangNhap.IdNhansuNavigation?.Hoten ?? _taiKhoanDangNhap.TenDangnhap} ({_taiKhoanDangNhap.IdVaitroNavigation?.TenVaitro ?? "Admin"})",
                 Font = AppTheme.FontBodyBold,
-                ForeColor = AppTheme.Primary,
-                BackColor = AppTheme.PrimaryLight,
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(30, 95, 35),
                 Padding = new Padding(12, 6, 12, 6),
                 AutoSize = true,
                 Anchor = AnchorStyles.Top | AnchorStyles.Right
@@ -274,9 +227,10 @@ namespace HotelManagement
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 Width = 145,
                 Font = AppTheme.FontSmallBold,
-                BackColor = AppTheme.Surface,
-                ForeColor = AppTheme.TextPrimary,
-                Cursor = Cursors.Hand
+                BackColor = Color.FromArgb(30, 95, 35),
+                ForeColor = Color.White,
+                Cursor = Cursors.Hand,
+                FlatStyle = FlatStyle.Flat
             };
             _cboLanguage.Items.AddRange(new object[] { "Tiếng Việt (VI)", "English (EN)" });
             _cboLanguage.SelectedIndex = HotelManagement.Localization.LanguageManager.CurrentLanguage == HotelManagement.Localization.AppLanguage.English ? 1 : 0;
@@ -289,6 +243,7 @@ namespace HotelManagement
                 }
             };
 
+            _pnlTopBar.Controls.Add(picHeaderLogo);
             _pnlTopBar.Controls.Add(_lblHotelTitle);
             _pnlTopBar.Controls.Add(_lblUserInfoBadge);
             _pnlTopBar.Controls.Add(_cboLanguage);
@@ -296,8 +251,8 @@ namespace HotelManagement
             void CanChinhTopBar()
             {
                 if (_pnlTopBar == null || _cboLanguage == null || _lblUserInfoBadge == null) return;
-                _cboLanguage.Location = new Point(_pnlTopBar.ClientSize.Width - _cboLanguage.Width - 24, 18);
-                _lblUserInfoBadge.Location = new Point(_cboLanguage.Left - _lblUserInfoBadge.Width - 16, 16);
+                _cboLanguage.Location = new Point(_pnlTopBar.ClientSize.Width - _cboLanguage.Width - 24, 15);
+                _lblUserInfoBadge.Location = new Point(_cboLanguage.Left - _lblUserInfoBadge.Width - 16, 13);
             }
 
             _pnlTopBar.Resize += (s, e) => CanChinhTopBar();
@@ -314,40 +269,55 @@ namespace HotelManagement
             _pnlSidebarHeader = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 188,
+                Height = 175,
                 BackColor = AppTheme.Surface
             };
 
+            var lnkSidebarDangXuat = new LinkLabel
+            {
+                Text = "Đăng xuất",
+                LinkColor = Color.FromArgb(0, 122, 255),
+                ActiveLinkColor = Color.FromArgb(0, 80, 180),
+                VisitedLinkColor = Color.FromArgb(0, 122, 255),
+                Font = AppTheme.FontCaption,
+                Location = new Point(12, 10),
+                AutoSize = true,
+                Cursor = Cursors.Hand
+            };
+            lnkSidebarDangXuat.LinkClicked += MnuDangXuat_Click;
+
             _picSidebarLogo = new PictureBox
             {
-                Image = EmbeddedImages.Logo,
-                Size = new Size(96, 96),
-                Location = new Point((_pnlSidebar.Width - 96) / 2, 16),
+                Image = EmbeddedImages.Avatar,
+                Size = new Size(76, 76),
+                Location = new Point((_pnlSidebar.Width - 76) / 2, 28),
                 SizeMode = PictureBoxSizeMode.Zoom,
                 BackColor = AppTheme.Surface
             };
 
+            string tenNguoiDung = _taiKhoanDangNhap.IdNhansuNavigation?.Hoten ?? _taiKhoanDangNhap.TenDangnhap;
             var lblSidebarTen = new Label
             {
-                Text = "Khách sạn DCKLTTQ",
+                Text = tenNguoiDung,
                 Font = AppTheme.FontBodyBold,
-                ForeColor = AppTheme.Primary,
+                ForeColor = AppTheme.TextPrimary,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Location = new Point(8, 118),
+                Location = new Point(8, 110),
                 Size = new Size(_pnlSidebar.Width - 16, 24)
             };
 
+            string vaiTro = _taiKhoanDangNhap.IdVaitroNavigation?.TenVaitro ?? "Quản trị viên";
             var lblSidebarPhu = new Label
             {
-                Text = "HỆ THỐNG QUẢN LÝ",
+                Text = vaiTro,
                 Font = AppTheme.FontCaption,
                 ForeColor = AppTheme.TextMuted,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Location = new Point(8, 144),
+                Location = new Point(8, 136),
                 Size = new Size(_pnlSidebar.Width - 16, 20)
             };
 
-            _pnlSidebarHeader.Controls.AddRange(new Control[] { _picSidebarLogo, lblSidebarTen, lblSidebarPhu });
+            _pnlSidebarHeader.Controls.AddRange(new Control[] { lnkSidebarDangXuat, _picSidebarLogo, lblSidebarTen, lblSidebarPhu });
 
             _pnlSidebarNav = new FlowLayoutPanel
             {
@@ -467,7 +437,7 @@ namespace HotelManagement
 
             _lblStatusUser = new ToolStripStatusLabel
             {
-                Text = $"Hệ thống đang hoạt động • Người dùng: {_taiKhoanDangNhap.TenDangnhap} ({_taiKhoanDangNhap.IdVaitroNavigation.TenVaitro})",
+                Text = $"Hệ thống đang hoạt động • Người dùng: {_taiKhoanDangNhap.TenDangnhap} ({_taiKhoanDangNhap.IdVaitroNavigation?.TenVaitro ?? "Admin"})",
                 TextAlign = ContentAlignment.MiddleLeft
             };
 

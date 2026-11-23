@@ -1,22 +1,23 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using HotelManagement.BLL.DTOs;
 using HotelManagement.BLL.Services;
+using HotelManagement.Common;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManagement.Forms
 {
     /// <summary>
     /// Form CRUD Nhân sự (DCKLTTQ-68) — mở từ menu "Quản lý nhân sự" của FormChinh.
-    /// Giao diện khai báo trong FormNhanSu.Designer.cs.
-    /// Tự tạo scope DI riêng, dispose khi đóng Form.
-    /// Tính năng bổ sung: checkbox "Tạo tài khoản Lễ tân" — khi tick sẽ hiện thêm
-    /// ô Tên đăng nhập và Mật khẩu, Service sẽ tạo TaiKhoan atomic cùng NhanSu.
+    /// Thiết kế hiện đại với thanh công cụ trên cùng và thao tác sửa/xóa trực tiếp trong dòng.
     /// </summary>
     public partial class FormNhanSu : Form
     {
         private readonly IServiceScope _scope;
         private readonly INhanSuService _nhanSuService;
-
-        private int? _idDangChon;
+        private readonly System.Windows.Forms.Timer _debounceTimer = new();
 
         public FormNhanSu()
         {
@@ -25,195 +26,134 @@ namespace HotelManagement.Forms
 
             InitializeComponent();
 
-            Load += async (_, _) => await TaiDanhSachAsync();
-            FormClosed += (_, _) => _scope.Dispose();
-        }
+            _debounceTimer.Interval = 300;
+            _debounceTimer.Tick += async (_, _) =>
+            {
+                _debounceTimer.Stop();
+                await TimKiemAsync();
+            };
 
-        private void CapNhatHienThiTaiKhoan()
-        {
-            bool hienThi = _chkTaoTaiKhoan.Checked;
-            _lblTenDangNhap.Visible = hienThi;
-            _txtTenDangNhap.Visible = hienThi;
-            _lblMatKhau.Visible = hienThi;
-            _txtMatKhau.Visible = hienThi;
+            _txtTimKiem.TextChanged += (_, _) =>
+            {
+                _debounceTimer.Stop();
+                _debounceTimer.Start();
+            };
+
+            _btnThemMoi.Click += async (_, _) => await ThemMoiAsync();
+            _btnXuatExcel.Click += async (_, _) => await ExcelExportHelper.XuatDataGridViewRaExcelAsync(_dgv, "Nhân sự", "DanhSachNhanSu", this);
+            _mnuDatLaiMk.Click += async (_, _) => await DatLaiMatKhauAsync();
+
+            _dgv.CellContentClick += Dgv_CellContentClick;
+
+            Load += async (_, _) => await TaiDanhSachAsync();
+            FormClosed += (_, _) =>
+            {
+                _debounceTimer.Dispose();
+                _scope.Dispose();
+            };
         }
 
         private async Task TaiDanhSachAsync()
         {
-            var danhSach = await _nhanSuService.GetAllAsync();
-            GanDuLieuLuoi(danhSach);
+            try
+            {
+                var danhSach = await _nhanSuService.GetAllAsync();
+                _dgv.DataSource = danhSach;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải danh sách nhân sự: " + ex.Message, "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private async Task TimKiemAsync()
         {
-            var ketQua = await _nhanSuService.TimKiemAsync(_txtTimKiem.Text);
-            GanDuLieuLuoi(ketQua);
-        }
-
-        private void GanDuLieuLuoi(List<NhanSuDto> danhSach)
-        {
-            _dgv.DataSource = null;
-            _dgv.DataSource = danhSach;
-
-            if (_dgv.Columns["IdNhanSu"] != null) _dgv.Columns["IdNhanSu"].Visible = false;
-            if (_dgv.Columns["HoTen"] != null) _dgv.Columns["HoTen"].HeaderText = "Họ tên";
-            if (_dgv.Columns["Cccd"] != null) _dgv.Columns["Cccd"].HeaderText = "CCCD";
-            if (_dgv.Columns["Sdt"] != null) _dgv.Columns["Sdt"].HeaderText = "Số điện thoại";
-            if (_dgv.Columns["NgaySinh"] != null) _dgv.Columns["NgaySinh"].HeaderText = "Ngày sinh";
-            if (_dgv.Columns["TenTaiKhoanHienThi"] != null) _dgv.Columns["TenTaiKhoanHienThi"].HeaderText = "Tài khoản";
-            if (_dgv.Columns["TrangThaiTaiKhoan"] != null) _dgv.Columns["TrangThaiTaiKhoan"].HeaderText = "TT Tài khoản";
-
-            // Ẩn các cột không cần hiển thị trên grid
-            if (_dgv.Columns["TaoTaiKhoanLeTan"] != null) _dgv.Columns["TaoTaiKhoanLeTan"].Visible = false;
-            if (_dgv.Columns["TenDangNhap"] != null) _dgv.Columns["TenDangNhap"].Visible = false;
-            if (_dgv.Columns["MatKhau"] != null) _dgv.Columns["MatKhau"].Visible = false;
-        }
-
-        private void Dgv_SelectionChanged(object? sender, EventArgs e)
-        {
-            if (_dgv.CurrentRow?.DataBoundItem is not NhanSuDto dto) return;
-
-            _idDangChon = dto.IdNhanSu;
-            _txtHoTen.Text = dto.HoTen;
-            _txtCccd.Text = dto.Cccd;
-            _txtSdt.Text = dto.Sdt;
-            _dtpNgaySinh.Value = dto.NgaySinh.ToDateTime(TimeOnly.MinValue);
-
-            // Hiển thị thông tin tài khoản nếu đã có
-            if (!string.IsNullOrEmpty(dto.TenTaiKhoanHienThi))
+            try
             {
-                _lblTaiKhoanInfo.Text = $"📋 Tài khoản: {dto.TenTaiKhoanHienThi} — Trạng thái: {dto.TrangThaiTaiKhoan}";
-                _chkTaoTaiKhoan.Enabled = false; // Đã có TK → không cho tick thêm
-                _chkTaoTaiKhoan.Checked = false;
-                
-                // Ẩn nút "Đặt lại MK" nếu tài khoản đang chọn chính là Admin
-                if (dto.TenTaiKhoanHienThi?.ToLower() == "admin")
+                string tuKhoa = _txtTimKiem.Text.Trim();
+                var ketQua = await _nhanSuService.TimKiemAsync(tuKhoa);
+                _dgv.DataSource = ketQua;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tìm kiếm nhân sự: " + ex.Message, "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task ThemMoiAsync()
+        {
+            using var dlg = new FormChiTietNhanSu();
+            if (dlg.ShowDialog(this) == DialogResult.OK)
+            {
+                var (success, message) = await _nhanSuService.AddAsync(dlg.DtoKetQua);
+                MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
+                    MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+
+                if (success)
+                    await TaiDanhSachAsync();
+            }
+        }
+
+        private async void Dgv_CellContentClick(object? sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.RowIndex >= _dgv.Rows.Count) return;
+
+            if (_dgv.Rows[e.RowIndex].DataBoundItem is not NhanSuDto dto) return;
+
+            // 1. Nhấn nút Sửa
+            if (e.ColumnIndex == _colEdit.Index)
+            {
+                using var dlg = new FormChiTietNhanSu(dto);
+                if (dlg.ShowDialog(this) == DialogResult.OK)
                 {
-                    _btnDatLaiMk.Visible = false;
-                }
-                else
-                {
-                    _btnDatLaiMk.Visible = true;
+                    var (success, message) = await _nhanSuService.UpdateAsync(dlg.DtoKetQua);
+                    MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
+                        MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+
+                    if (success)
+                        await TaiDanhSachAsync();
                 }
             }
-            else
+            // 2. Nhấn nút Xóa
+            else if (e.ColumnIndex == _colDelete.Index)
             {
-                _lblTaiKhoanInfo.Text = "(Chưa có tài khoản)";
-                _chkTaoTaiKhoan.Enabled = true;
-                _chkTaoTaiKhoan.Checked = false;
-                
-                _btnDatLaiMk.Visible = false;
-            }
+                var xacNhan = MessageBox.Show(
+                    $"Bạn có chắc chắn muốn xóa nhân sự '{dto.HoTen}'?", "Xác nhận xóa",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-            // Xóa thông tin tài khoản khi chọn row (vì chỉ tạo TK lúc thêm mới)
-            _txtTenDangNhap.Clear();
-            _txtMatKhau.Clear();
-        }
+                if (xacNhan != DialogResult.Yes) return;
 
-        private async Task ThemAsync()
-        {
-            var dto = LayDtoTuForm(0);
-            var (success, message) = await _nhanSuService.AddAsync(dto);
-            MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
-                MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+                var (success, message) = await _nhanSuService.DeleteAsync(dto.IdNhanSu);
+                MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
+                    MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
 
-            if (success)
-            {
-                LamMoiForm();
-                await TaiDanhSachAsync();
-            }
-        }
-
-        private async Task SuaAsync()
-        {
-            if (_idDangChon is null)
-            {
-                MessageBox.Show("Vui lòng chọn một nhân sự trong danh sách để sửa.", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            // Khi sửa, không cho phép tạo TK (chỉ sửa thông tin nhân sự)
-            var dto = LayDtoTuForm(_idDangChon.Value);
-            dto.TaoTaiKhoanLeTan = false; // Bỏ qua, chỉ cập nhật thông tin nhân sự
-
-            var (success, message) = await _nhanSuService.UpdateAsync(dto);
-            MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
-                MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
-
-            if (success)
-            {
-                LamMoiForm();
-                await TaiDanhSachAsync();
-            }
-        }
-
-        private async Task XoaAsync()
-        {
-            if (_idDangChon is null)
-            {
-                MessageBox.Show("Vui lòng chọn một nhân sự trong danh sách để xóa.", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            var xacNhan = MessageBox.Show(
-                "Bạn có chắc chắn muốn xóa nhân sự đã chọn?", "Xác nhận xóa",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (xacNhan != DialogResult.Yes) return;
-
-            var (success, message) = await _nhanSuService.DeleteAsync(_idDangChon.Value);
-            MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
-                MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
-
-            if (success)
-            {
-                LamMoiForm();
-                await TaiDanhSachAsync();
+                if (success)
+                    await TaiDanhSachAsync();
             }
         }
 
         private async Task DatLaiMatKhauAsync()
         {
-            if (_idDangChon is null) return;
+            if (_dgv.CurrentRow?.DataBoundItem is not NhanSuDto dto) return;
+
+            if (dto.TenTaiKhoanHienThi?.ToLower() == "admin")
+            {
+                MessageBox.Show("Không thể đặt lại mật khẩu cho tài khoản Quản trị viên (Admin) từ đây.", "Cảnh báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
             var xacNhan = MessageBox.Show(
-                "Bạn có chắc chắn muốn đặt lại mật khẩu thành 'letan123'?", "Xác nhận",
+                $"Bạn có chắc chắn muốn đặt lại mật khẩu cho nhân sự '{dto.HoTen}' thành 'letan123'?", "Xác nhận",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                
+
             if (xacNhan != DialogResult.Yes) return;
 
-            var (success, message) = await _nhanSuService.DatLaiMatKhauTaiKhoanAsync(_idDangChon.Value, "letan123");
+            var (success, message) = await _nhanSuService.DatLaiMatKhauTaiKhoanAsync(dto.IdNhanSu, "letan123");
             MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
                 MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
-        }
-
-        private NhanSuDto LayDtoTuForm(int id) => new()
-        {
-            IdNhanSu = id,
-            HoTen = _txtHoTen.Text,
-            Cccd = _txtCccd.Text,
-            Sdt = _txtSdt.Text,
-            NgaySinh = DateOnly.FromDateTime(_dtpNgaySinh.Value),
-            TaoTaiKhoanLeTan = _chkTaoTaiKhoan.Checked,
-            TenDangNhap = _txtTenDangNhap.Text,
-            MatKhau = _txtMatKhau.Text
-        };
-
-        private void LamMoiForm()
-        {
-            _idDangChon = null;
-            _txtHoTen.Clear();
-            _txtCccd.Clear();
-            _txtSdt.Clear();
-            _dtpNgaySinh.Value = DateTime.Today;
-            _chkTaoTaiKhoan.Checked = false;
-            _chkTaoTaiKhoan.Enabled = true;
-            _txtTenDangNhap.Clear();
-            _txtMatKhau.Clear();
-            _lblTaiKhoanInfo.Text = "";
-            _btnDatLaiMk.Visible = false;
-            _dgv.ClearSelection();
         }
     }
 }

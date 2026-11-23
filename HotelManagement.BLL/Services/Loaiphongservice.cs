@@ -53,6 +53,7 @@ namespace HotelManagement.BLL.Services
             {
                 Ten = dto.TenLoaiPhong.Trim(),
                 Mucgia = dto.Gia,
+                Giatheogio = dto.GiaTheoGio,
                 Succhua = dto.SucChua,
                 Mota = dto.MoTa?.Trim()
             };
@@ -71,6 +72,7 @@ namespace HotelManagement.BLL.Services
 
             entity.Ten = dto.TenLoaiPhong.Trim();
             entity.Mucgia = dto.Gia;
+            entity.Giatheogio = dto.GiaTheoGio;
             entity.Succhua = dto.SucChua;
             entity.Mota = dto.MoTa?.Trim();
 
@@ -122,6 +124,7 @@ namespace HotelManagement.BLL.Services
             Id = entity.IdLoaiphong,
             TenLoaiPhong = entity.Ten,
             Gia = entity.Mucgia,
+            GiaTheoGio = entity.Giatheogio ?? 0,
             SucChua = entity.Succhua,
             MoTa = entity.Mota
         };

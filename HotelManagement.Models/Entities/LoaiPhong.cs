@@ -11,6 +11,8 @@ public partial class LoaiPhong
 
     public decimal Mucgia { get; set; }
 
+    public decimal? Giatheogio { get; set; }
+
     public int Succhua { get; set; }
 
     public string? Mota { get; set; }

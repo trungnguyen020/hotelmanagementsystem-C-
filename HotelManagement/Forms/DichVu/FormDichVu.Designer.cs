@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using HotelManagement.Common;
 
 namespace HotelManagement.Forms
 {
@@ -19,17 +20,17 @@ namespace HotelManagement.Forms
 
         #region Windows Form Designer generated code
 
-        private DataGridView _dgv = null!;
+        private Panel _pnlTop = null!;
         private TextBox _txtTimKiem = null!;
-        private Button _btnTimKiem = null!;
+        private Button _btnXuatExcel = null!;
+        private Button _btnThemMoi = null!;
+        private DataGridView _dgv = null!;
 
-        private TextBox _txtTen = null!;
-        private NumericUpDown _numGia = null!;
-
-        private Button _btnThem = null!;
-        private Button _btnSua = null!;
-        private Button _btnXoa = null!;
-        private Button _btnLamMoi = null!;
+        private DataGridViewTextBoxColumn _colMaDV = null!;
+        private DataGridViewTextBoxColumn _colTenDV = null!;
+        private DataGridViewTextBoxColumn _colGia = null!;
+        private DataGridViewImageColumn _colEdit = null!;
+        private DataGridViewImageColumn _colDelete = null!;
 
         private void InitializeComponent()
         {
@@ -38,90 +39,124 @@ namespace HotelManagement.Forms
             AppTheme.ApplyFormStyle(this);
 
             Text = "Quản lý dịch vụ";
-            Width = 1000;
-            Height = 700;
+            Width = 1050;
+            Height = 720;
             StartPosition = FormStartPosition.CenterParent;
             WindowState = FormWindowState.Maximized;
             MinimumSize = new Size(880, 580);
 
-            var lblTimKiem = new Label { Text = "Tìm kiếm:", Location = new Point(12, 15), AutoSize = true };
-            AppTheme.ApplyLabel(lblTimKiem);
-            _txtTimKiem = new TextBox { Location = new Point(80, 12), Width = 300 };
-            _btnTimKiem = new Button { Text = "Tìm", Location = new Point(390, 10), Width = 90, Height = 30 };
-            _btnTimKiem.Click += async (_, _) => await TimKiemAsync();
+            // ================= 1. Top Bar =================
+            _pnlTop = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 60,
+                Padding = new Padding(16, 12, 16, 12),
+                BackColor = AppTheme.Surface
+            };
 
+            _txtTimKiem = new TextBox
+            {
+                PlaceholderText = "🔍 Tìm kiếm dịch vụ...",
+                Location = new Point(16, 14),
+                Width = 320,
+                Height = 32
+            };
+            AppTheme.ApplyTextBox(_txtTimKiem);
+
+            _btnXuatExcel = new Button
+            {
+                Text = "Xuất file Excel",
+                Size = new Size(130, 34),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
+            };
+            AppTheme.ApplyExcelButton(_btnXuatExcel);
+
+            _btnThemMoi = new Button
+            {
+                Text = "+ Thêm mới",
+                Size = new Size(120, 34),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
+            };
+            AppTheme.ApplyAddButton(_btnThemMoi);
+
+            void CanChinhTopNut()
+            {
+                _btnThemMoi.Location = new Point(_pnlTop.ClientSize.Width - _btnThemMoi.Width - 16, 13);
+                _btnXuatExcel.Location = new Point(_btnThemMoi.Left - _btnXuatExcel.Width - 12, 13);
+            }
+            _pnlTop.Resize += (s, e) => CanChinhTopNut();
+            CanChinhTopNut();
+
+            _pnlTop.Controls.AddRange(new Control[] { _txtTimKiem, _btnXuatExcel, _btnThemMoi });
+
+            // ================= 2. DataGridView =================
             _dgv = new DataGridView
             {
-                Location = new Point(12, 48),
-                Width = 960,
-                Height = 460,
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom,
+                Dock = DockStyle.Fill,
                 ReadOnly = true,
                 AllowUserToAddRows = false,
                 AllowUserToDeleteRows = false,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
                 MultiSelect = false,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+                AutoGenerateColumns = false,
+                RowHeadersVisible = false,
+                BackgroundColor = AppTheme.Surface
             };
-            _dgv.SelectionChanged += Dgv_SelectionChanged;
+            AppTheme.ApplyDataGridView(_dgv);
+            _dgv.RowTemplate.Height = 36;
+            _dgv.ColumnHeadersHeight = 40;
 
-            int yNhap = 525;
-            var lblTen = new Label { Text = "Tên dịch vụ:", Location = new Point(12, yNhap), AutoSize = true, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
-            AppTheme.ApplyLabel(lblTen);
-            _txtTen = new TextBox { Location = new Point(110, yNhap - 3), Width = 280, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
-
-            var lblGia = new Label { Text = "Giá (VNĐ):", Location = new Point(420, yNhap), AutoSize = true, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
-            AppTheme.ApplyLabel(lblGia);
-            _numGia = new NumericUpDown
+            _colMaDV = new DataGridViewTextBoxColumn
             {
-                Location = new Point(500, yNhap - 3),
-                Width = 180,
-                Maximum = 1_000_000_000,
-                ThousandsSeparator = true,
-                Anchor = AnchorStyles.Left | AnchorStyles.Bottom
+                DataPropertyName = "IdDichVu",
+                HeaderText = "Mã DV",
+                Width = 90,
+                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
             };
 
-            int yNut = yNhap + 45;
-            _btnThem = new Button { Text = "Thêm", Location = new Point(12, yNut), Width = 90, Height = 34, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
-            _btnSua = new Button { Text = "Sửa", Location = new Point(112, yNut), Width = 90, Height = 34, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
-            _btnXoa = new Button { Text = "Xóa", Location = new Point(212, yNut), Width = 90, Height = 34, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
-            _btnLamMoi = new Button { Text = "Làm mới", Location = new Point(312, yNut), Width = 90, Height = 34, Anchor = AnchorStyles.Left | AnchorStyles.Bottom };
-
-            _btnThem.Click += async (_, _) => await ThemAsync();
-            _btnSua.Click += async (_, _) => await SuaAsync();
-            _btnXoa.Click += async (_, _) => await XoaAsync();
-            _btnLamMoi.Click += (_, _) => LamMoiForm();
-
-            Controls.AddRange(new Control[]
+            _colTenDV = new DataGridViewTextBoxColumn
             {
-                lblTimKiem, _txtTimKiem, _btnTimKiem,
-                _dgv,
-                lblTen, _txtTen,
-                lblGia, _numGia,
-                _btnThem, _btnSua, _btnXoa, _btnLamMoi
+                DataPropertyName = "TenDichVu",
+                HeaderText = "Tên dịch vụ",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                MinimumWidth = 180
+            };
+
+            _colGia = new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "MucGia",
+                HeaderText = "Đơn giá (VNĐ)",
+                Width = 160,
+                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleRight, Format = "N0" }
+            };
+
+            _colEdit = new DataGridViewImageColumn
+            {
+                HeaderText = "Cập nhật",
+                Image = EmbeddedImages.EditSmall,
+                Width = 70,
+                ImageLayout = DataGridViewImageCellLayout.Zoom,
+                Description = "Sửa",
+                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            };
+
+            _colDelete = new DataGridViewImageColumn
+            {
+                HeaderText = "Xóa",
+                Image = EmbeddedImages.DeleteSmall,
+                Width = 60,
+                ImageLayout = DataGridViewImageCellLayout.Zoom,
+                Description = "Xóa",
+                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            };
+
+            _dgv.Columns.AddRange(new DataGridViewColumn[]
+            {
+                _colMaDV, _colTenDV, _colGia, _colEdit, _colDelete
             });
 
-            AppTheme.ApplySecondaryButton(_btnTimKiem);
-            AppTheme.ApplyTextBox(_txtTimKiem);
-            AppTheme.ApplyTextBox(_txtTen);
-            AppTheme.ApplyNumericUpDown(_numGia);
-            AppTheme.ApplyDataGridView(_dgv);
-            AppTheme.ApplyPrimaryButton(_btnThem);
-            AppTheme.ApplySecondaryButton(_btnSua);
-            AppTheme.ApplyDangerButton(_btnXoa);
-            AppTheme.ApplySecondaryButton(_btnLamMoi);
-
-            // Căn chỉnh vị trí ô nhập liệu & nút sau khi font/label tính xong
-            this.Shown += (_, _) =>
-            {
-                _txtTimKiem.Location = new Point(lblTimKiem.Right + 8, lblTimKiem.Top - 3);
-                _btnTimKiem.Location = new Point(_txtTimKiem.Right + 10, lblTimKiem.Top - 5);
-                _btnTimKiem.Height = _txtTimKiem.Height + 6;
-
-                _txtTen.Left = lblTen.Right + 8;
-                lblGia.Left = _txtTen.Right + 20;
-                _numGia.Left = lblGia.Right + 8;
-            };
+            Controls.Add(_dgv);
+            Controls.Add(_pnlTop);
         }
 
         #endregion

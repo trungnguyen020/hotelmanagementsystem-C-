@@ -195,6 +195,66 @@ namespace HotelManagement
         }
 
         /// <summary>
+        /// Nút "Xuất file Excel" - Nền xanh lam nhạt / Cyan (#00BCD4), chữ trắng.
+        /// </summary>
+        public static void ApplyExcelButton(Button btn)
+        {
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.BackColor = Color.FromArgb(0, 188, 212);
+            btn.ForeColor = Color.White;
+            btn.Font = FontBodyBold;
+            btn.Cursor = Cursors.Hand;
+
+            btn.MouseEnter -= OnExcelButtonMouseEnter;
+            btn.MouseLeave -= OnExcelButtonMouseLeave;
+            btn.MouseEnter += OnExcelButtonMouseEnter;
+            btn.MouseLeave += OnExcelButtonMouseLeave;
+        }
+
+        private static void OnExcelButtonMouseEnter(object? sender, EventArgs e)
+        {
+            if (sender is Button btn && btn.Enabled)
+                btn.BackColor = Color.FromArgb(0, 151, 167);
+        }
+
+        private static void OnExcelButtonMouseLeave(object? sender, EventArgs e)
+        {
+            if (sender is Button btn && btn.Enabled)
+                btn.BackColor = Color.FromArgb(0, 188, 212);
+        }
+
+        /// <summary>
+        /// Nút "+ Thêm mới" - Nền hồng pastel (#FF8DA1) hoặc Coral, chữ trắng.
+        /// </summary>
+        public static void ApplyAddButton(Button btn)
+        {
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.BackColor = Color.FromArgb(255, 141, 161);
+            btn.ForeColor = Color.White;
+            btn.Font = FontBodyBold;
+            btn.Cursor = Cursors.Hand;
+
+            btn.MouseEnter -= OnAddButtonMouseEnter;
+            btn.MouseLeave -= OnAddButtonMouseLeave;
+            btn.MouseEnter += OnAddButtonMouseEnter;
+            btn.MouseLeave += OnAddButtonMouseLeave;
+        }
+
+        private static void OnAddButtonMouseEnter(object? sender, EventArgs e)
+        {
+            if (sender is Button btn && btn.Enabled)
+                btn.BackColor = Color.FromArgb(233, 30, 99);
+        }
+
+        private static void OnAddButtonMouseLeave(object? sender, EventArgs e)
+        {
+            if (sender is Button btn && btn.Enabled)
+                btn.BackColor = Color.FromArgb(255, 141, 161);
+        }
+
+        /// <summary>
         /// Áp dụng giao diện thẻ Card (Panel trắng, viền thanh mảnh).
         /// </summary>
         public static void ApplyCardPanel(Panel pnl, int borderRadius = 8)

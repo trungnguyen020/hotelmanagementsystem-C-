@@ -1,5 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using HotelManagement.BLL.DTOs;
 using HotelManagement.BLL.Services;
+using HotelManagement.Common;
 using HotelManagement.Models.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -7,16 +12,14 @@ namespace HotelManagement.Forms
 {
     /// <summary>
     /// Form CRUD Khách hàng (DCKLTTQ-67) — mở từ menu "Quản lý khách hàng" của FormChinh.
-    /// Giao diện khai báo trong FormKhachHang.Designer.cs.
-    /// Tự tạo scope DI riêng, dispose khi đóng Form.
+    /// Thiết kế hiện đại với thanh công cụ trên cùng và thao tác sửa/xóa trực tiếp trong dòng.
     /// </summary>
     public partial class FormKhachHang : Form
     {
         private readonly TaiKhoan? _taiKhoanDangNhap;
         private readonly IServiceScope _scope;
         private readonly IKhachHangService _khachHangService;
-
-        private int? _idDangChon;
+        private readonly System.Windows.Forms.Timer _debounceTimer = new();
 
         public FormKhachHang(TaiKhoan? taiKhoanDangNhap = null)
         {
@@ -26,221 +29,157 @@ namespace HotelManagement.Forms
 
             InitializeComponent();
 
+            _debounceTimer.Interval = 300;
+            _debounceTimer.Tick += async (_, _) =>
+            {
+                _debounceTimer.Stop();
+                await TimKiemAsync();
+            };
+
+            _txtTimKiem.TextChanged += (_, _) =>
+            {
+                _debounceTimer.Stop();
+                _debounceTimer.Start();
+            };
+
+            _btnThemMoi.Click += async (_, _) => await ThemMoiAsync();
+            _btnXuatExcel.Click += async (_, _) => await ExcelExportHelper.XuatDataGridViewRaExcelAsync(_dgv, "Khách hàng", "DanhSachKhachHang", this);
+            _btnDatPhong.Click += (_, _) => MoDatPhongChoKhachHang();
+
+            _mnuDatPhong.Click += (_, _) => MoDatPhongChoKhachHang();
+            _mnuDatLaiMk.Click += async (_, _) => await DatLaiMatKhauAsync();
+            _mnuKhoaMoKhoa.Click += async (_, _) => await ChuyenTrangThaiTaiKhoanAsync();
+
+            _dgv.CellContentClick += Dgv_CellContentClick;
             _dgv.CellDoubleClick += (_, _) => MoDatPhongChoKhachHang();
+
             Load += async (_, _) => await TaiDanhSachAsync();
-            FormClosed += (_, _) => _scope.Dispose();
+            FormClosed += (_, _) =>
+            {
+                _debounceTimer.Dispose();
+                _scope.Dispose();
+            };
         }
 
         private async Task TaiDanhSachAsync()
         {
-            var danhSach = await _khachHangService.GetAllAsync();
-            GanDuLieuLuoi(danhSach);
+            try
+            {
+                var danhSach = await _khachHangService.GetAllAsync();
+                _dgv.DataSource = danhSach;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải danh sách khách hàng: " + ex.Message, "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private async Task TimKiemAsync()
         {
-            var ketQua = await _khachHangService.TimKiemAsync(_txtTimKiem.Text);
-            GanDuLieuLuoi(ketQua);
-        }
-
-        private void GanDuLieuLuoi(List<KhachHangDto> danhSach)
-        {
-            _dgv.DataSource = null;
-            _dgv.DataSource = danhSach;
-
-            if (_dgv.Columns["IdKhachHang"] != null) _dgv.Columns["IdKhachHang"].Visible = false;
-            if (_dgv.Columns["Ten"] != null) _dgv.Columns["Ten"].HeaderText = "Tên khách hàng";
-            if (_dgv.Columns["Cccd"] != null) _dgv.Columns["Cccd"].HeaderText = "CCCD";
-            if (_dgv.Columns["Email"] != null) _dgv.Columns["Email"].HeaderText = "Email";
-            if (_dgv.Columns["Sdt"] != null) _dgv.Columns["Sdt"].HeaderText = "Số điện thoại";
-            if (_dgv.Columns["GioiTinh"] != null) _dgv.Columns["GioiTinh"].HeaderText = "Giới tính";
-            if (_dgv.Columns["NgaySinh"] != null) _dgv.Columns["NgaySinh"].HeaderText = "Ngày sinh";
-            if (_dgv.Columns["TenTaiKhoan"] != null) _dgv.Columns["TenTaiKhoan"].HeaderText = "Tài khoản";
-            if (_dgv.Columns["TrangThaiTaiKhoan"] != null) _dgv.Columns["TrangThaiTaiKhoan"].HeaderText = "TT Tài khoản";
-            if (_dgv.Columns["SoLanSaiMatKhau"] != null) _dgv.Columns["SoLanSaiMatKhau"].HeaderText = "Sai MK";
-        }
-
-        private void Dgv_SelectionChanged(object? sender, EventArgs e)
-        {
-            if (_dgv.CurrentRow?.DataBoundItem is not KhachHangDto dto) return;
-
-            _idDangChon = dto.IdKhachHang;
-            _txtTen.Text = dto.Ten;
-            _txtCccd.Text = dto.Cccd;
-            _txtEmail.Text = dto.Email;
-            _txtSdt.Text = dto.Sdt;
-
-            // Giới tính
-            int idx = _cboGioiTinh.Items.IndexOf(dto.GioiTinh ?? "");
-            _cboGioiTinh.SelectedIndex = idx >= 0 ? idx : 0;
-
-            // Ngày sinh
-            if (dto.NgaySinh.HasValue)
+            try
             {
-                _chkCoNgaySinh.Checked = true;
-                _dtpNgaySinh.Value = dto.NgaySinh.Value.ToDateTime(TimeOnly.MinValue);
+                string tuKhoa = _txtTimKiem.Text.Trim();
+                var ketQua = await _khachHangService.TimKiemAsync(tuKhoa);
+                _dgv.DataSource = ketQua;
             }
-            else
+            catch (Exception ex)
             {
-                _chkCoNgaySinh.Checked = false;
-            }
-
-            // Hiển thị thông tin tài khoản khách hàng
-            if (!string.IsNullOrEmpty(dto.TenTaiKhoan))
-            {
-                _lblTaiKhoanInfo.Text = $"Tài khoản: {dto.TenTaiKhoan} ({dto.TrangThaiTaiKhoan ?? "Hoạt động"})\nSố lần sai MK: {dto.SoLanSaiMatKhau}/10 lần";
-                _btnDatLaiMk.Visible = true;
-                _btnKhoaMoKhoa.Visible = true;
-                _btnKhoaMoKhoa.Text = dto.TrangThaiTaiKhoan == "Khóa" ? "🔓 Mở khóa tài khoản" : "🔒 Khóa tài khoản";
-            }
-            else
-            {
-                _lblTaiKhoanInfo.Text = "Khách hàng này chưa có tài khoản đăng nhập";
-                _btnDatLaiMk.Visible = false;
-                _btnKhoaMoKhoa.Visible = false;
+                MessageBox.Show("Lỗi tìm kiếm khách hàng: " + ex.Message, "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private async Task ThemAsync()
+        private async Task ThemMoiAsync()
         {
-            var (success, message) = await _khachHangService.AddAsync(LayDtoTuForm(0));
-            MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
-                MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
-
-            if (success)
+            using var dlg = new FormChiTietKhachHang();
+            if (dlg.ShowDialog(this) == DialogResult.OK)
             {
-                LamMoiForm();
-                await TaiDanhSachAsync();
+                var (success, message) = await _khachHangService.AddAsync(dlg.DtoKetQua);
+                MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
+                    MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+
+                if (success)
+                    await TaiDanhSachAsync();
             }
         }
 
-        private async Task SuaAsync()
+        private async void Dgv_CellContentClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (_idDangChon is null)
+            if (e.RowIndex < 0 || e.RowIndex >= _dgv.Rows.Count) return;
+
+            if (_dgv.Rows[e.RowIndex].DataBoundItem is not KhachHangDto dto) return;
+
+            // 1. Nhấn Sửa
+            if (e.ColumnIndex == _colEdit.Index)
             {
-                MessageBox.Show("Vui lòng chọn một khách hàng trong danh sách để sửa.", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
+                using var dlg = new FormChiTietKhachHang(dto);
+                if (dlg.ShowDialog(this) == DialogResult.OK)
+                {
+                    var (success, message) = await _khachHangService.UpdateAsync(dlg.DtoKetQua);
+                    MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
+                        MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+
+                    if (success)
+                        await TaiDanhSachAsync();
+                }
             }
-
-            var (success, message) = await _khachHangService.UpdateAsync(LayDtoTuForm(_idDangChon.Value));
-            MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
-                MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
-
-            if (success)
+            // 2. Nhấn Xóa
+            else if (e.ColumnIndex == _colDelete.Index)
             {
-                LamMoiForm();
-                await TaiDanhSachAsync();
+                var xacNhan = MessageBox.Show(
+                    $"Bạn có chắc chắn muốn xóa khách hàng '{dto.Ten}'?", "Xác nhận xóa",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (xacNhan != DialogResult.Yes) return;
+
+                var (success, message) = await _khachHangService.DeleteAsync(dto.IdKhachHang);
+                MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
+                    MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+
+                if (success)
+                    await TaiDanhSachAsync();
             }
-        }
-
-        private async Task XoaAsync()
-        {
-            if (_idDangChon is null)
-            {
-                MessageBox.Show("Vui lòng chọn một khách hàng trong danh sách để xóa.", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            var xacNhan = MessageBox.Show(
-                "Bạn có chắc chắn muốn xóa khách hàng đã chọn?", "Xác nhận xóa",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (xacNhan != DialogResult.Yes) return;
-
-            var (success, message) = await _khachHangService.DeleteAsync(_idDangChon.Value);
-            MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
-                MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
-
-            if (success)
-            {
-                LamMoiForm();
-                await TaiDanhSachAsync();
-            }
-        }
-
-        private KhachHangDto LayDtoTuForm(int id) => new()
-        {
-            IdKhachHang = id,
-            Ten = _txtTen.Text,
-            Cccd = _txtCccd.Text,
-            Email = _txtEmail.Text,
-            Sdt = _txtSdt.Text,
-            GioiTinh = _cboGioiTinh.SelectedItem?.ToString(),
-            NgaySinh = _chkCoNgaySinh.Checked
-                ? DateOnly.FromDateTime(_dtpNgaySinh.Value)
-                : null
-        };
-
-        private void LamMoiForm()
-        {
-            _idDangChon = null;
-            _txtTen.Clear();
-            _txtCccd.Clear();
-            _txtEmail.Clear();
-            _txtSdt.Clear();
-            _cboGioiTinh.SelectedIndex = 0;
-            _chkCoNgaySinh.Checked = false;
-            _lblTaiKhoanInfo.Text = "Chưa chọn khách hàng";
-            _btnDatLaiMk.Visible = false;
-            _btnKhoaMoKhoa.Visible = false;
-            _dgv.ClearSelection();
         }
 
         private async Task DatLaiMatKhauAsync()
         {
-            if (!_idDangChon.HasValue) return;
+            if (_dgv.CurrentRow?.DataBoundItem is not KhachHangDto dto) return;
 
             var xacNhan = MessageBox.Show(
-                "Bạn có chắc chắn muốn đặt lại mật khẩu của khách hàng này về mặc định '123456' và mở khóa tài khoản?",
+                $"Bạn có chắc chắn muốn đặt lại mật khẩu của khách hàng '{dto.Ten}' về mặc định '123456'?",
                 "Xác nhận đặt lại mật khẩu",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
             if (xacNhan != DialogResult.Yes) return;
 
-            var (success, message) = await _khachHangService.ResetMatKhauKhachHangAsync(_idDangChon.Value);
+            var (success, message) = await _khachHangService.ResetMatKhauKhachHangAsync(dto.IdKhachHang);
             MessageBox.Show(message, success ? "Thành công" : "Lỗi",
                 MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
 
             if (success)
-            {
                 await TaiDanhSachAsync();
-            }
         }
 
         private async Task ChuyenTrangThaiTaiKhoanAsync()
         {
-            if (!_idDangChon.HasValue) return;
+            if (_dgv.CurrentRow?.DataBoundItem is not KhachHangDto dto) return;
 
-            var (success, message) = await _khachHangService.ChuyenTrangThaiTaiKhoanAsync(_idDangChon.Value);
+            var (success, message) = await _khachHangService.ChuyenTrangThaiTaiKhoanAsync(dto.IdKhachHang);
             MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
                 MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
 
             if (success)
-            {
                 await TaiDanhSachAsync();
-            }
         }
 
         private void MoDatPhongChoKhachHang()
         {
-            var khachHang = _dgv.CurrentRow?.DataBoundItem as KhachHangDto;
-            if (khachHang == null && _idDangChon.HasValue)
+            if (_dgv.CurrentRow?.DataBoundItem is not KhachHangDto khachHang)
             {
-                khachHang = new KhachHangDto
-                {
-                    IdKhachHang = _idDangChon.Value,
-                    Ten = _txtTen.Text.Trim(),
-                    Cccd = _txtCccd.Text.Trim(),
-                    Sdt = _txtSdt.Text.Trim(),
-                    Email = _txtEmail.Text.Trim()
-                };
-            }
-
-            if (khachHang == null)
-            {
-                MessageBox.Show("Vui lòng chọn một khách hàng từ danh sách để đặt phòng.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Vui lòng chọn một khách hàng từ danh sách để đặt phòng.", "Thông báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 

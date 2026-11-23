@@ -1,13 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using HotelManagement.BLL.DTOs;
 using HotelManagement.BLL.Services;
+using HotelManagement.Common;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManagement.Forms
 {
     /// <summary>
     /// Form CRUD Phòng — mở từ menu "Quản lý phòng" của FormChinh.
-    /// Giao diện khai báo trong Formphong.Designer.cs, tự tạo scope DI riêng,
-    /// dispose khi đóng Form.
+    /// Thiết kế hiện đại với thanh công cụ trên cùng và thao tác sửa/xóa trực tiếp trong dòng.
     /// </summary>
     public partial class FormPhong : Form
     {
@@ -15,8 +19,9 @@ namespace HotelManagement.Forms
         private readonly IPhongService _phongService;
         private readonly ILoaiPhongService _loaiPhongService;
         private readonly HotelManagement.Models.Entities.TaiKhoan? _taiKhoanDangNhap;
+        private readonly System.Windows.Forms.Timer _debounceTimer = new();
 
-        private int? _idDangChon;
+        private List<LoaiPhongDto> _dsLoaiPhong = new();
 
         public FormPhong(HotelManagement.Models.Entities.TaiKhoan? taiKhoanDangNhap = null)
         {
@@ -33,144 +38,165 @@ namespace HotelManagement.Forms
                 _btnImportExcel.Visible = _taiKhoanDangNhap.IdVaitroNavigation.TenVaitro == "Admin";
             }
 
+            _debounceTimer.Interval = 300;
+            _debounceTimer.Tick += async (_, _) =>
+            {
+                _debounceTimer.Stop();
+                await TimKiemAsync();
+            };
+
+            _txtTimKiem.TextChanged += (_, _) =>
+            {
+                _debounceTimer.Stop();
+                _debounceTimer.Start();
+            };
+
+            _btnThemMoi.Click += async (_, _) => await ThemMoiAsync();
+            _btnXuatExcel.Click += async (_, _) => await ExcelExportHelper.XuatDataGridViewRaExcelAsync(_dgv, "Phòng", "DanhSachPhong", this);
             _btnImportExcel.Click += async (_, _) =>
             {
                 using var form = new FormImportPhong();
                 form.ShowDialog(this);
-                // Tự động tải lại danh sách phòng sau khi import
                 await TaiDanhSachAsync();
             };
+
+            _dgv.CellContentClick += Dgv_CellContentClick;
 
             Load += async (_, _) =>
             {
                 await TaiDanhSachLoaiPhongAsync();
                 await TaiDanhSachAsync();
             };
-            FormClosed += (_, _) => _scope.Dispose();
+
+            FormClosed += (_, _) =>
+            {
+                _debounceTimer.Dispose();
+                _scope.Dispose();
+            };
         }
 
         private async Task TaiDanhSachLoaiPhongAsync()
         {
-            var dsLoaiPhong = await _loaiPhongService.LayDanhSachAsync();
-            _cboLoaiPhong.DataSource = dsLoaiPhong;
+            try
+            {
+                _dsLoaiPhong = await _loaiPhongService.LayDanhSachAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải loại phòng: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private async Task TaiDanhSachAsync()
         {
-            var danhSach = await _phongService.LayDanhSachAsync();
-            GanDuLieuLuoi(danhSach);
+            try
+            {
+                var danhSach = await _phongService.LayDanhSachAsync();
+                _dgv.DataSource = danhSach;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải danh sách phòng: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private async Task TimKiemAsync()
         {
-            var ketQua = await _phongService.TimKiemAsync(_txtTimKiem.Text);
-            GanDuLieuLuoi(ketQua);
-        }
-
-        private void GanDuLieuLuoi(List<PhongDto> danhSach)
-        {
-            _dgv.DataSource = null;
-            _dgv.DataSource = danhSach;
-
-            if (_dgv.Columns["Id"] != null) _dgv.Columns["Id"].Visible = false;
-            if (_dgv.Columns["IdLoaiPhong"] != null) _dgv.Columns["IdLoaiPhong"].Visible = false;
-            if (_dgv.Columns["SoPhong"] != null) _dgv.Columns["SoPhong"].HeaderText = "Số phòng";
-            if (_dgv.Columns["TenLoaiPhong"] != null) _dgv.Columns["TenLoaiPhong"].HeaderText = "Loại phòng";
-            if (_dgv.Columns["TrangThai"] != null) _dgv.Columns["TrangThai"].HeaderText = "Trạng thái";
-        }
-
-        private void Dgv_SelectionChanged(object? sender, EventArgs e)
-        {
-            if (_dgv.CurrentRow?.DataBoundItem is not PhongDto dto) return;
-
-            _idDangChon = dto.Id;
-            _txtSoPhong.Text = dto.SoPhong;
-            _cboLoaiPhong.SelectedValue = dto.IdLoaiPhong;
-            _cboTrangThai.SelectedItem = dto.TrangThai;
-        }
-
-        private async Task ThemAsync()
-        {
             try
             {
-                await _phongService.ThemAsync(LayDtoTuForm(0));
-                MessageBox.Show("Thêm phòng thành công.", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LamMoiForm();
-                await TaiDanhSachAsync();
+                string tuKhoa = _txtTimKiem.Text.Trim();
+                var ketQua = await _phongService.TimKiemAsync(tuKhoa);
+                _dgv.DataSource = ketQua;
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Lỗi tìm kiếm phòng: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private async Task SuaAsync()
+        private async Task ThemMoiAsync()
         {
-            if (_idDangChon is null)
-            {
-                MessageBox.Show("Vui lòng chọn một phòng trong danh sách để sửa.", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
+            if (_dsLoaiPhong.Count == 0)
+                await TaiDanhSachLoaiPhongAsync();
 
-            try
+            using var dlg = new FormChiTietPhong(null, _dsLoaiPhong);
+            if (dlg.ShowDialog(this) == DialogResult.OK)
             {
-                await _phongService.CapNhatAsync(LayDtoTuForm(_idDangChon.Value));
-                MessageBox.Show("Cập nhật phòng thành công.", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LamMoiForm();
-                await TaiDanhSachAsync();
-            }
-            catch (InvalidOperationException ex)
-            {
-                MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                try
+                {
+                    await _phongService.ThemAsync(dlg.DtoKetQua);
+                    MessageBox.Show("Thêm phòng thành công.", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    await TaiDanhSachAsync();
+                }
+                catch (InvalidOperationException ex)
+                {
+                    MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Có lỗi xảy ra: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
-        private async Task XoaAsync()
+        private async void Dgv_CellContentClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (_idDangChon is null)
+            if (e.RowIndex < 0 || e.RowIndex >= _dgv.Rows.Count) return;
+
+            if (_dgv.Rows[e.RowIndex].DataBoundItem is not PhongDto dto) return;
+
+            // 1. Nhấn Sửa
+            if (e.ColumnIndex == _colEdit.Index)
             {
-                MessageBox.Show("Vui lòng chọn một phòng trong danh sách để xóa.", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
+                if (_dsLoaiPhong.Count == 0)
+                    await TaiDanhSachLoaiPhongAsync();
+
+                using var dlg = new FormChiTietPhong(dto, _dsLoaiPhong);
+                if (dlg.ShowDialog(this) == DialogResult.OK)
+                {
+                    try
+                    {
+                        await _phongService.CapNhatAsync(dlg.DtoKetQua);
+                        MessageBox.Show("Cập nhật phòng thành công.", "Thông báo",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        await TaiDanhSachAsync();
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Có lỗi xảy ra: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
             }
-
-            var xacNhan = MessageBox.Show(
-                "Bạn có chắc chắn muốn xóa phòng đã chọn?", "Xác nhận xóa",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (xacNhan != DialogResult.Yes) return;
-
-            try
+            // 2. Nhấn Xóa
+            else if (e.ColumnIndex == _colDelete.Index)
             {
-                await _phongService.XoaAsync(_idDangChon.Value);
-                MessageBox.Show("Xóa phòng thành công.", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LamMoiForm();
-                await TaiDanhSachAsync();
-            }
-            catch (InvalidOperationException ex)
-            {
-                MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-        }
+                var xacNhan = MessageBox.Show(
+                    $"Bạn có chắc chắn muốn xóa phòng {dto.SoPhong}?", "Xác nhận xóa",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-        private PhongDto LayDtoTuForm(int id) => new()
-        {
-            Id = id,
-            SoPhong = _txtSoPhong.Text,
-            IdLoaiPhong = _cboLoaiPhong.SelectedValue is int idLoaiPhong ? idLoaiPhong : 0,
-            TrangThai = _cboTrangThai.SelectedItem as string ?? IPhongService.DanhSachTrangThai[0]
-        };
+                if (xacNhan != DialogResult.Yes) return;
 
-        private void LamMoiForm()
-        {
-            _idDangChon = null;
-            _txtSoPhong.Clear();
-            if (_cboLoaiPhong.Items.Count > 0) _cboLoaiPhong.SelectedIndex = 0;
-            _cboTrangThai.SelectedIndex = 0;
-            _dgv.ClearSelection();
+                try
+                {
+                    await _phongService.XoaAsync(dto.Id);
+                    MessageBox.Show("Xóa phòng thành công.", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    await TaiDanhSachAsync();
+                }
+                catch (InvalidOperationException ex)
+                {
+                    MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Có lỗi xảy ra: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
     }
 }
