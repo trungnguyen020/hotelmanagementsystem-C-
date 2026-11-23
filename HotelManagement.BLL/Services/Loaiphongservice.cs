@@ -1,4 +1,4 @@
-﻿using HotelManagement.BLL.DTOs;
+using HotelManagement.BLL.DTOs;
 using HotelManagement.DAL;
 using HotelManagement.DAL.Repositories;
 using HotelManagement.Models.Entities;

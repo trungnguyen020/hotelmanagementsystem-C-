@@ -26,27 +26,6 @@ namespace HotelManagement
             CapNhatNgonNgu();
         }
 
-        private Form? _activeChildForm;
-
-        public void HienThiChildForm(Form childForm)
-        {
-            if (_activeChildForm != null)
-            {
-                _pnlMainContainer.Controls.Remove(_activeChildForm);
-                _activeChildForm.Dispose();
-                _activeChildForm = null;
-            }
-
-            _activeChildForm = childForm;
-            childForm.TopLevel = false;
-            childForm.FormBorderStyle = FormBorderStyle.None;
-            childForm.Dock = DockStyle.Fill;
-            _pnlMainContainer.Controls.Add(childForm);
-            _pnlMainContainer.Tag = childForm;
-            childForm.BringToFront();
-            childForm.Show();
-        }
-
         private void KhoiTaoGiaoDien()
         {
             // TODO: đối chiếu lại nếu sau này chuyển sang MDI - hiện đang là Form độc lập (non-MDI)
@@ -56,9 +35,6 @@ namespace HotelManagement
             mnuImportPhong.Visible = laAdmin;
             mnuDashboard.Visible = laAdmin;
             mnuDoiMatKhau.Visible = !laAdmin; // Không cho Admin đổi mật khẩu
-
-            // Tự động nạp màn hình Quản lý Loại phòng khi mở hệ thống
-            HienThiChildForm(new HotelManagement.Forms.FormLoaiPhong());
         }
 
         private async void MnuDangXuat_Click(object? sender, EventArgs e)

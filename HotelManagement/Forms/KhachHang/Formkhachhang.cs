@@ -12,7 +12,8 @@ namespace HotelManagement.Forms
 {
     /// <summary>
     /// Form CRUD Khách hàng (DCKLTTQ-67) — mở từ menu "Quản lý khách hàng" của FormChinh.
-    /// Thiết kế hiện đại với thanh công cụ trên cùng và thao tác sửa/xóa trực tiếp trong dòng.
+    /// Thiết kế hiện đại với thanh công cụ trên cùng, thao tác sửa/xóa trực tiếp trong dòng
+    /// và thanh quản lý tài khoản ở phía dưới.
     /// </summary>
     public partial class FormKhachHang : Form
     {
@@ -20,6 +21,8 @@ namespace HotelManagement.Forms
         private readonly IServiceScope _scope;
         private readonly IKhachHangService _khachHangService;
         private readonly System.Windows.Forms.Timer _debounceTimer = new();
+
+        private int? _idDangChon;
 
         public FormKhachHang(TaiKhoan? taiKhoanDangNhap = null)
         {
@@ -46,11 +49,15 @@ namespace HotelManagement.Forms
             _btnXuatExcel.Click += async (_, _) => await ExcelExportHelper.XuatDataGridViewRaExcelAsync(_dgv, "Khách hàng", "DanhSachKhachHang", this);
             _btnDatPhong.Click += (_, _) => MoDatPhongChoKhachHang();
 
+            _btnDatLaiMk.Click += async (_, _) => await DatLaiMatKhauAsync();
+            _btnKhoaMoKhoa.Click += async (_, _) => await ChuyenTrangThaiTaiKhoanAsync();
+
             _mnuDatPhong.Click += (_, _) => MoDatPhongChoKhachHang();
             _mnuDatLaiMk.Click += async (_, _) => await DatLaiMatKhauAsync();
             _mnuKhoaMoKhoa.Click += async (_, _) => await ChuyenTrangThaiTaiKhoanAsync();
 
             _dgv.CellContentClick += Dgv_CellContentClick;
+            _dgv.SelectionChanged += Dgv_SelectionChanged;
             _dgv.CellDoubleClick += (_, _) => MoDatPhongChoKhachHang();
 
             Load += async (_, _) => await TaiDanhSachAsync();
@@ -87,6 +94,34 @@ namespace HotelManagement.Forms
             {
                 MessageBox.Show("Lỗi tìm kiếm khách hàng: " + ex.Message, "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void Dgv_SelectionChanged(object? sender, EventArgs e)
+        {
+            if (_dgv.CurrentRow?.DataBoundItem is not KhachHangDto dto)
+            {
+                _idDangChon = null;
+                _lblTaiKhoanInfo.Text = "Chưa chọn khách hàng";
+                _btnDatLaiMk.Visible = false;
+                _btnKhoaMoKhoa.Visible = false;
+                return;
+            }
+
+            _idDangChon = dto.IdKhachHang;
+
+            if (!string.IsNullOrEmpty(dto.TenTaiKhoan))
+            {
+                _lblTaiKhoanInfo.Text = $"Tài khoản: {dto.TenTaiKhoan} ({dto.TrangThaiTaiKhoan ?? "Hoạt động"}) | Số lần sai MK: {dto.SoLanSaiMatKhau}/10 lần";
+                _btnDatLaiMk.Visible = true;
+                _btnKhoaMoKhoa.Visible = true;
+                _btnKhoaMoKhoa.Text = dto.TrangThaiTaiKhoan == "Khóa" ? "🔓 Mở khóa tài khoản" : "🔒 Khóa tài khoản";
+            }
+            else
+            {
+                _lblTaiKhoanInfo.Text = "Khách hàng này chưa có tài khoản đăng nhập";
+                _btnDatLaiMk.Visible = false;
+                _btnKhoaMoKhoa.Visible = false;
             }
         }
 
@@ -144,17 +179,20 @@ namespace HotelManagement.Forms
 
         private async Task DatLaiMatKhauAsync()
         {
-            if (_dgv.CurrentRow?.DataBoundItem is not KhachHangDto dto) return;
+            if (!_idDangChon.HasValue) return;
+
+            var dto = _dgv.CurrentRow?.DataBoundItem as KhachHangDto;
+            string tenKhach = dto?.Ten ?? "này";
 
             var xacNhan = MessageBox.Show(
-                $"Bạn có chắc chắn muốn đặt lại mật khẩu của khách hàng '{dto.Ten}' về mặc định '123456'?",
+                $"Bạn có chắc chắn muốn đặt lại mật khẩu của khách hàng '{tenKhach}' về mặc định '123456'?",
                 "Xác nhận đặt lại mật khẩu",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
             if (xacNhan != DialogResult.Yes) return;
 
-            var (success, message) = await _khachHangService.ResetMatKhauKhachHangAsync(dto.IdKhachHang);
+            var (success, message) = await _khachHangService.ResetMatKhauKhachHangAsync(_idDangChon.Value);
             MessageBox.Show(message, success ? "Thành công" : "Lỗi",
                 MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
 
@@ -164,9 +202,9 @@ namespace HotelManagement.Forms
 
         private async Task ChuyenTrangThaiTaiKhoanAsync()
         {
-            if (_dgv.CurrentRow?.DataBoundItem is not KhachHangDto dto) return;
+            if (!_idDangChon.HasValue) return;
 
-            var (success, message) = await _khachHangService.ChuyenTrangThaiTaiKhoanAsync(dto.IdKhachHang);
+            var (success, message) = await _khachHangService.ChuyenTrangThaiTaiKhoanAsync(_idDangChon.Value);
             MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
                 MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
 

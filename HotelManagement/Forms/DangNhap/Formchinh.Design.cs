@@ -86,15 +86,27 @@ namespace HotelManagement
             mnuQuanLyPhong = new ToolStripMenuItem("Quản lý phòng");
             
             mnuPhong = new ToolStripMenuItem("Danh sách phòng");
-            mnuPhong.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormPhong(_taiKhoanDangNhap));
+            mnuPhong.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormPhong(_taiKhoanDangNhap);
+                form.ShowDialog(this);
+            };
             mnuQuanLyPhong.DropDownItems.Add(mnuPhong);
 
             mnuLoaiPhong = new ToolStripMenuItem("Loại phòng");
-            mnuLoaiPhong.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormLoaiPhong());
+            mnuLoaiPhong.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormLoaiPhong();
+                form.ShowDialog(this);
+            };
             mnuQuanLyPhong.DropDownItems.Add(mnuLoaiPhong);
 
             mnuDichVu = new ToolStripMenuItem("Quản lý dịch vụ");
-            mnuDichVu.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormDichVu());
+            mnuDichVu.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormDichVu();
+                form.ShowDialog(this);
+            };
             mnuQuanLyPhong.DropDownItems.Add(mnuDichVu);
 
             mnuImportPhong = new ToolStripMenuItem("Import phòng từ Excel");
@@ -109,53 +121,93 @@ namespace HotelManagement
 
             // --- 1.2 Sơ đồ phòng ---
             mnuSoDoPhongTop = new ToolStripMenuItem("Sơ đồ phòng");
-            mnuSoDoPhongTop.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormSoDoPhong(_taiKhoanDangNhap));
+            mnuSoDoPhongTop.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormSoDoPhong(_taiKhoanDangNhap);
+                form.ShowDialog(this);
+            };
             menuChinh.Items.Add(mnuSoDoPhongTop);
 
             // --- 1.3 Quản lý đặt phòng ---
             mnuQuanLyDatPhong = new ToolStripMenuItem("Quản lý đặt phòng");
 
             mnuDatPhong = new ToolStripMenuItem("Đặt phòng mới");
-            mnuDatPhong.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormDatPhong(_taiKhoanDangNhap));
+            mnuDatPhong.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormDatPhong(_taiKhoanDangNhap);
+                form.ShowDialog(this);
+            };
             mnuQuanLyDatPhong.DropDownItems.Add(mnuDatPhong);
 
             mnuCheckIn = new ToolStripMenuItem("Check-in (Nhận phòng)");
-            mnuCheckIn.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormCheckIn(_taiKhoanDangNhap));
+            mnuCheckIn.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormCheckIn(_taiKhoanDangNhap);
+                form.ShowDialog(this);
+            };
             mnuQuanLyDatPhong.DropDownItems.Add(mnuCheckIn);
 
             mnuCheckOut = new ToolStripMenuItem("Check-out (Trả phòng)");
-            mnuCheckOut.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormCheckOut(_taiKhoanDangNhap));
+            mnuCheckOut.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormCheckOut(_taiKhoanDangNhap);
+                form.ShowDialog(this);
+            };
             mnuQuanLyDatPhong.DropDownItems.Add(mnuCheckOut);
 
             mnuThanhToan = new ToolStripMenuItem("Thanh toán hóa đơn");
-            mnuThanhToan.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormThanhToan());
+            mnuThanhToan.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormThanhToan();
+                form.ShowDialog(this);
+            };
             mnuQuanLyDatPhong.DropDownItems.Add(mnuThanhToan);
 
             menuChinh.Items.Add(mnuQuanLyDatPhong);
 
             // --- 1.4 Quản lý khách hàng ---
             mnuKhachHang = new ToolStripMenuItem("Quản lý khách hàng");
-            mnuKhachHang.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormKhachHang(_taiKhoanDangNhap));
+            mnuKhachHang.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormKhachHang(_taiKhoanDangNhap);
+                form.ShowDialog(this);
+            };
             menuChinh.Items.Add(mnuKhachHang);
 
             // --- 1.5 Quản lý nhân sự (Admin) ---
             mnuQuanLyNhanSu = new ToolStripMenuItem("Quản lý nhân sự");
-            mnuQuanLyNhanSu.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormNhanSu());
+            mnuQuanLyNhanSu.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormNhanSu();
+                form.ShowDialog(this);
+            };
             menuChinh.Items.Add(mnuQuanLyNhanSu);
 
             // --- 1.6 Báo cáo doanh thu (Admin) ---
             mnuBaoCao = new ToolStripMenuItem("Báo cáo doanh thu");
-            mnuBaoCao.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormBaoCaoDoanhThu(_taiKhoanDangNhap));
+            mnuBaoCao.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormBaoCaoDoanhThu(_taiKhoanDangNhap);
+                form.ShowDialog(this);
+            };
             menuChinh.Items.Add(mnuBaoCao);
 
             // --- 1.7 Dashboard biểu đồ LiveCharts2 (Admin - DCKLTTQ-84) ---
             mnuDashboard = new ToolStripMenuItem("Dashboard thống kê");
-            mnuDashboard.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormDashboard());
+            mnuDashboard.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormDashboard();
+                form.ShowDialog(this);
+            };
             menuChinh.Items.Add(mnuDashboard);
 
             // --- 1.8 Lịch sử thông báo (DCKLTTQ-82) ---
             mnuLichSuThongBao = new ToolStripMenuItem("Lịch sử thông báo");
-            mnuLichSuThongBao.Click += (_, _) => HienThiChildForm(new HotelManagement.Forms.FormLichSuThongBao());
+            mnuLichSuThongBao.Click += (_, _) =>
+            {
+                using var form = new HotelManagement.Forms.FormLichSuThongBao();
+                form.ShowDialog(this);
+            };
             menuChinh.Items.Add(mnuLichSuThongBao);
 
             // --- 1.9 Mở chế độ Kiosk (DCKLTTQ-107 - Cửa sổ độc lập không chặn) ---

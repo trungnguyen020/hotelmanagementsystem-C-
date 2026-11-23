@@ -1,4 +1,4 @@
-﻿namespace HotelManagement.BLL.DTOs
+namespace HotelManagement.BLL.DTOs
 {
     /// <summary>
     /// DTO truyền dữ liệu Loại phòng giữa tầng UI và tầng BLL,

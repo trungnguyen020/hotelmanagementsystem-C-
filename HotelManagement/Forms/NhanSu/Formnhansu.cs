@@ -11,13 +11,16 @@ namespace HotelManagement.Forms
 {
     /// <summary>
     /// Form CRUD Nhân sự (DCKLTTQ-68) — mở từ menu "Quản lý nhân sự" của FormChinh.
-    /// Thiết kế hiện đại với thanh công cụ trên cùng và thao tác sửa/xóa trực tiếp trong dòng.
+    /// Thiết kế hiện đại với thanh công cụ trên cùng, thao tác sửa/xóa trực tiếp trong dòng
+    /// và thanh quản lý tài khoản ở phía dưới.
     /// </summary>
     public partial class FormNhanSu : Form
     {
         private readonly IServiceScope _scope;
         private readonly INhanSuService _nhanSuService;
         private readonly System.Windows.Forms.Timer _debounceTimer = new();
+
+        private int? _idDangChon;
 
         public FormNhanSu()
         {
@@ -41,9 +44,11 @@ namespace HotelManagement.Forms
 
             _btnThemMoi.Click += async (_, _) => await ThemMoiAsync();
             _btnXuatExcel.Click += async (_, _) => await ExcelExportHelper.XuatDataGridViewRaExcelAsync(_dgv, "Nhân sự", "DanhSachNhanSu", this);
+            _btnDatLaiMk.Click += async (_, _) => await DatLaiMatKhauAsync();
             _mnuDatLaiMk.Click += async (_, _) => await DatLaiMatKhauAsync();
 
             _dgv.CellContentClick += Dgv_CellContentClick;
+            _dgv.SelectionChanged += Dgv_SelectionChanged;
 
             Load += async (_, _) => await TaiDanhSachAsync();
             FormClosed += (_, _) =>
@@ -79,6 +84,37 @@ namespace HotelManagement.Forms
             {
                 MessageBox.Show("Lỗi tìm kiếm nhân sự: " + ex.Message, "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void Dgv_SelectionChanged(object? sender, EventArgs e)
+        {
+            if (_dgv.CurrentRow?.DataBoundItem is not NhanSuDto dto)
+            {
+                _idDangChon = null;
+                _lblTaiKhoanInfo.Text = "Chưa chọn nhân sự";
+                _btnDatLaiMk.Visible = false;
+                return;
+            }
+
+            _idDangChon = dto.IdNhanSu;
+
+            if (!string.IsNullOrEmpty(dto.TenTaiKhoanHienThi))
+            {
+                _lblTaiKhoanInfo.Text = $"📋 Tài khoản: {dto.TenTaiKhoanHienThi} — Trạng thái: {dto.TrangThaiTaiKhoan}";
+                if (dto.TenTaiKhoanHienThi.ToLower() == "admin")
+                {
+                    _btnDatLaiMk.Visible = false;
+                }
+                else
+                {
+                    _btnDatLaiMk.Visible = true;
+                }
+            }
+            else
+            {
+                _lblTaiKhoanInfo.Text = "(Nhân sự này chưa có tài khoản)";
+                _btnDatLaiMk.Visible = false;
             }
         }
 
@@ -136,22 +172,24 @@ namespace HotelManagement.Forms
 
         private async Task DatLaiMatKhauAsync()
         {
-            if (_dgv.CurrentRow?.DataBoundItem is not NhanSuDto dto) return;
+            if (!_idDangChon.HasValue) return;
 
-            if (dto.TenTaiKhoanHienThi?.ToLower() == "admin")
+            var dto = _dgv.CurrentRow?.DataBoundItem as NhanSuDto;
+            if (dto?.TenTaiKhoanHienThi?.ToLower() == "admin")
             {
                 MessageBox.Show("Không thể đặt lại mật khẩu cho tài khoản Quản trị viên (Admin) từ đây.", "Cảnh báo",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            string hoTen = dto?.HoTen ?? "này";
             var xacNhan = MessageBox.Show(
-                $"Bạn có chắc chắn muốn đặt lại mật khẩu cho nhân sự '{dto.HoTen}' thành 'letan123'?", "Xác nhận",
+                $"Bạn có chắc chắn muốn đặt lại mật khẩu cho nhân sự '{hoTen}' thành 'letan123'?", "Xác nhận",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (xacNhan != DialogResult.Yes) return;
 
-            var (success, message) = await _nhanSuService.DatLaiMatKhauTaiKhoanAsync(dto.IdNhanSu, "letan123");
+            var (success, message) = await _nhanSuService.DatLaiMatKhauTaiKhoanAsync(_idDangChon.Value, "letan123");
             MessageBox.Show(message, success ? "Thông báo" : "Lỗi",
                 MessageBoxButtons.OK, success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
         }

@@ -24,6 +24,11 @@ namespace HotelManagement.Forms
         private TextBox _txtTimKiem = null!;
         private Button _btnXuatExcel = null!;
         private Button _btnThemMoi = null!;
+
+        private Panel _pnlBottom = null!;
+        private Label _lblTaiKhoanInfo = null!;
+        private Button _btnDatLaiMk = null!;
+
         private DataGridView _dgv = null!;
 
         private DataGridViewTextBoxColumn _colMaNV = null!;
@@ -96,12 +101,48 @@ namespace HotelManagement.Forms
 
             _pnlTop.Controls.AddRange(new Control[] { _txtTimKiem, _btnXuatExcel, _btnThemMoi });
 
-            // ================= 2. Context Menu =================
+            // ================= 2. Bottom Bar (Quản lý tài khoản) =================
+            _pnlBottom = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 56,
+                Padding = new Padding(16, 10, 16, 10),
+                BackColor = AppTheme.Surface
+            };
+
+            _lblTaiKhoanInfo = new Label
+            {
+                Text = "Chưa chọn nhân sự",
+                Location = new Point(16, 17),
+                AutoSize = true,
+                Font = AppTheme.FontBodyBold,
+                ForeColor = AppTheme.Primary
+            };
+
+            _btnDatLaiMk = new Button
+            {
+                Text = "🔑 Đặt lại MK (letan123)",
+                Size = new Size(185, 34),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Visible = false
+            };
+            AppTheme.ApplySecondaryButton(_btnDatLaiMk);
+
+            void CanChinhBottomNut()
+            {
+                _btnDatLaiMk.Location = new Point(_pnlBottom.ClientSize.Width - _btnDatLaiMk.Width - 16, 11);
+            }
+            _pnlBottom.Resize += (s, e) => CanChinhBottomNut();
+            CanChinhBottomNut();
+
+            _pnlBottom.Controls.AddRange(new Control[] { _lblTaiKhoanInfo, _btnDatLaiMk });
+
+            // ================= 3. Context Menu =================
             _ctxMenu = new ContextMenuStrip();
             _mnuDatLaiMk = new ToolStripMenuItem("🔑 Đặt lại mật khẩu (về letan123)");
             _ctxMenu.Items.Add(_mnuDatLaiMk);
 
-            // ================= 3. DataGridView =================
+            // ================= 4. DataGridView =================
             _dgv = new DataGridView
             {
                 Dock = DockStyle.Fill,
@@ -203,6 +244,7 @@ namespace HotelManagement.Forms
             });
 
             Controls.Add(_dgv);
+            Controls.Add(_pnlBottom);
             Controls.Add(_pnlTop);
         }
 

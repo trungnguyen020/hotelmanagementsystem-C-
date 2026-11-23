@@ -25,6 +25,12 @@ namespace HotelManagement.Forms
         private Button _btnDatPhong = null!;
         private Button _btnXuatExcel = null!;
         private Button _btnThemMoi = null!;
+
+        private Panel _pnlBottom = null!;
+        private Label _lblTaiKhoanInfo = null!;
+        private Button _btnDatLaiMk = null!;
+        private Button _btnKhoaMoKhoa = null!;
+
         private DataGridView _dgv = null!;
 
         private DataGridViewTextBoxColumn _colMaKH = null!;
@@ -39,7 +45,6 @@ namespace HotelManagement.Forms
         private DataGridViewImageColumn _colEdit = null!;
         private DataGridViewImageColumn _colDelete = null!;
 
-        // Menu ngữ cảnh cho tài khoản khách hàng
         private ContextMenuStrip _ctxMenu = null!;
         private ToolStripMenuItem _mnuDatPhong = null!;
         private ToolStripMenuItem _mnuDatLaiMk = null!;
@@ -111,14 +116,60 @@ namespace HotelManagement.Forms
 
             _pnlTop.Controls.AddRange(new Control[] { _txtTimKiem, _btnDatPhong, _btnXuatExcel, _btnThemMoi });
 
-            // ================= 2. Context Menu =================
+            // ================= 2. Bottom Bar (Quản lý tài khoản) =================
+            _pnlBottom = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 56,
+                Padding = new Padding(16, 10, 16, 10),
+                BackColor = AppTheme.Surface
+            };
+
+            _lblTaiKhoanInfo = new Label
+            {
+                Text = "Chưa chọn khách hàng",
+                Location = new Point(16, 17),
+                AutoSize = true,
+                Font = AppTheme.FontBodyBold,
+                ForeColor = AppTheme.Primary
+            };
+
+            _btnDatLaiMk = new Button
+            {
+                Text = "🔑 Đặt lại MK (123456)",
+                Size = new Size(175, 34),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Visible = false
+            };
+            AppTheme.ApplySecondaryButton(_btnDatLaiMk);
+
+            _btnKhoaMoKhoa = new Button
+            {
+                Text = "🔒 Khóa tài khoản",
+                Size = new Size(190, 34),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Visible = false
+            };
+            AppTheme.ApplySecondaryButton(_btnKhoaMoKhoa);
+
+            void CanChinhBottomNut()
+            {
+                _btnKhoaMoKhoa.Location = new Point(_pnlBottom.ClientSize.Width - _btnKhoaMoKhoa.Width - 16, 11);
+                _btnDatLaiMk.Location = new Point(_btnKhoaMoKhoa.Left - _btnDatLaiMk.Width - 10, 11);
+            }
+            _pnlBottom.Resize += (s, e) => CanChinhBottomNut();
+            CanChinhBottomNut();
+
+            _pnlBottom.Controls.AddRange(new Control[] { _lblTaiKhoanInfo, _btnDatLaiMk, _btnKhoaMoKhoa });
+
+            // ================= 3. Context Menu =================
             _ctxMenu = new ContextMenuStrip();
             _mnuDatPhong = new ToolStripMenuItem("🏨 Đặt phòng cho khách này");
             _mnuDatLaiMk = new ToolStripMenuItem("🔑 Đặt lại mật khẩu (về 123456)");
             _mnuKhoaMoKhoa = new ToolStripMenuItem("🔒 Khóa / Mở khóa tài khoản");
             _ctxMenu.Items.AddRange(new ToolStripItem[] { _mnuDatPhong, new ToolStripSeparator(), _mnuDatLaiMk, _mnuKhoaMoKhoa });
 
-            // ================= 3. DataGridView =================
+            // ================= 4. DataGridView =================
             _dgv = new DataGridView
             {
                 Dock = DockStyle.Fill,
@@ -236,6 +287,7 @@ namespace HotelManagement.Forms
             });
 
             Controls.Add(_dgv);
+            Controls.Add(_pnlBottom);
             Controls.Add(_pnlTop);
         }
 
