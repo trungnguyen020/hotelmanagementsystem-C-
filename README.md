@@ -64,20 +64,36 @@ Dự án cung cấp tệp script khởi tạo CSDL trọn gói **`HotelManagemen
 
 ---
 
-## 🔑 5. Tài khoản Đăng nhập Mẫu
+## 🔑 5. Tài khoản Đăng nhập Mẫu & Hướng dẫn Demo
 
 | Tài khoản | Tên đăng nhập | Mật khẩu | Phạm vi sử dụng |
 |---|---|---|---|
-| **Quản trị viên (Admin)** | `admin` | `admin123` | Toàn quyền quản trị danh mục, nhân sự, tài khoản, Dashboard và Báo cáo doanh thu |
-| **Lễ tân (Receptionist)** | `letan1` *(hoặc `receptionist`)* | `rec123` | Quản lý sơ đồ phòng, tiếp nhận đặt phòng, Check-in, Check-out, Hóa đơn |
+| **Quản trị viên (Admin)** | `admin` | `admin123` | Toàn quyền quản trị danh mục (phòng, loại phòng, dịch vụ, tiện nghi), nhân sự, tài khoản, Dashboard và Báo cáo doanh thu |
+| **Lễ tân (Receptionist)** | `letan1` *(hoặc `receptionist`)* | `letan123` | Quản lý sơ đồ phòng (tìm kiếm & phân trang), tiếp nhận đặt phòng, Check-in, Check-out, Thanh toán hóa đơn (chọn dịch vụ miễn phí, giảm giá, in PDF, gửi email) |
+| **Khách hàng trực tuyến** | `trungnguyen` *(hoặc tự Đăng ký)* | `khach123` | Cổng Khách hàng: Tự đặt phòng trực tuyến (kèm chọn dịch vụ), xem lịch sử đặt phòng, quản lý thông tin cá nhân & đổi mật khẩu |
 | **Kiosk tự phục vụ** | *(Không cần đăng nhập)* | *(Trực tiếp)* | Tra cứu mã booking, Chatbot AI tư vấn thông tin khách sạn |
 
 ---
 
-## 💡 6. Ghi chú Thiết kế Quan trọng
+### 🌐 Hướng dẫn Demo Luồng Khách hàng Mới:
+1. **Đăng ký tài khoản mới:** Tại màn hình Đăng nhập, bấm **"Đăng ký khách hàng"**. Nhập họ tên, CCCD (12 số), SĐT, Email và Mật khẩu. Hệ thống tự động tạo hồ sơ khách hàng và tài khoản đăng nhập.
+2. **Đăng nhập Cổng khách hàng:** Đăng nhập bằng tài khoản vừa tạo hoặc tài khoản mẫu `trungnguyen` / `khach123`.
+3. **Tự đặt phòng & dịch vụ:**
+   - Chọn ngày nhận phòng, ngày trả phòng (validate không được trước thời điểm hiện tại), số lượng khách và loại phòng mong muốn.
+   - Bấm **"Tìm phòng"** để xem danh sách phòng trống khả dụng.
+   - Tích chọn phòng muốn đặt.
+   - Chọn thêm dịch vụ phát sinh mong muốn kèm số lượng (phân loại rõ ràng: **Nước uống**, **Thức ăn**, **Dịch vụ**).
+   - Bấm **"Xác nhận đặt phòng"**: Hệ thống bảo đảm an toàn giao dịch đa luồng (Serializable Isolation Level), tạo booking và tự động gửi email xác nhận đặt phòng kèm thông tin chi tiết.
+4. **Xem lịch sử & Quản lý tài khoản:** Chuyển qua tab **"Lịch sử đặt phòng"** để theo dõi trạng thái các đơn đặt (Đã xác nhận / Đã check-in / Đã check-out) hoặc tab **"Thông tin cá nhân"** để đổi mật khẩu.
 
-- **Giao diện Desktop WinForms:** Tối ưu hóa cho môi trường quầy lễ tân (POS) và màn hình cảm ứng Kiosk, hỗ trợ vẽ sơ đồ phòng thời gian thực (GDI+) và in hóa đơn PDF trực tiếp.
-- **Kiosk tự phục vụ không cần tài khoản:** Khách hàng tại sảnh có thể tự tra cứu thông tin đặt phòng qua Mã Booking hoặc SĐT và trò chuyện với Chatbot Gemini AI mà không có quyền truy cập vào chức năng nội bộ.
-- **Bảo vệ tài khoản Admin:** Cơ chế chống dò mật khẩu sẽ khóa tài khoản nhân viên sau 10 lần nhập sai, riêng tài khoản `admin` được miễn trừ khóa để tránh mất quyền quản trị hệ thống.
-- **Xử lý bất đồng bộ:** Toàn bộ tác vụ nặng (Import Excel, Báo cáo, Hóa đơn PDF, Email, AI) đều chạy trên background thread (`Task.Run` / `IProgress<T>` / `CancellationToken`), có nút Hủy và không gây treo giao diện.
-- **Bảo mật & Nhật ký:** Không hardcode thông tin nhạy cảm vào mã nguồn; hệ thống sử dụng Serilog ghi log xoay vòng theo ngày và xử lý ngoại lệ toàn cục tránh crash đột ngột.
+---
+
+## 💡 6. Ghi chú Thiết kế & Tính năng Nổi bật
+
+- **Quản lý Dịch vụ & Thanh toán Khuyến mãi:**
+  - Phân loại danh mục dịch vụ rõ ràng: **Nước uống**, **Thức ăn**, **Dịch vụ**.
+  - Khi thanh toán hóa đơn (`FormThanhToan`), hỗ trợ tính năng **Chọn dịch vụ miễn phí**: Thu ngân có thể chọn cụ thể từng dịch vụ được tặng/miễn phí (100%) hoặc chọn tất cả dịch vụ để áp dụng giảm trừ trực tiếp trên tổng hóa đơn.
+- **Giá phòng linh hoạt:** Quản lý đồng thời **Giá theo ngày** và **Giá theo giờ** cho từng Loại phòng.
+- **Giao diện Desktop WinForms Hiện đại:** Chuẩn màu Emerald Green & Cream White, bảng điều khiển tìm kiếm với cơ chế Debounce 300ms, xuất dữ liệu ra file Excel định dạng chuẩn chỉ với 1 click.
+- **Bảo vệ tài khoản & Quản trị nhanh:** Cơ chế chống dò mật khẩu khóa tài khoản sau 10 lần nhập sai (miễn trừ admin). Hỗ trợ nút Đặt lại mật khẩu nhanh và Khóa / Mở khóa tài khoản ngay trên danh sách.
+- **Xử lý bất đồng bộ:** Toàn bộ tác vụ nặng (Báo cáo, Hóa đơn PDF, Email SMTP, AI Gemini) đều chạy trên background thread (`Task.Run` / `IProgress<T>` / `CancellationToken`), không gây đơ hoặc giật lag giao diện.

@@ -82,6 +82,7 @@ namespace HotelManagement.BLL.Services
                     IdDatPhong = dv.IdDatphong,
                     IdDichVu = dv.IdDichvu,
                     TenDichVu = dv.IdDichvuNavigation?.TenDichvu ?? string.Empty,
+                    LoaiDichVu = dv.IdDichvuNavigation?.LoaiDichvu ?? "Dịch vụ",
                     SoLuong = dv.Soluong,
                     DonGia = dv.Dongia,
                     ThoiGian = dv.Thoigian
@@ -264,6 +265,7 @@ namespace HotelManagement.BLL.Services
                     IdDatPhong = dv.IdDatphong,
                     IdDichVu = dv.IdDichvu,
                     TenDichVu = dv.IdDichvuNavigation?.TenDichvu ?? string.Empty,
+                    LoaiDichVu = dv.IdDichvuNavigation?.LoaiDichvu ?? "Dịch vụ",
                     SoLuong = dv.Soluong,
                     DonGia = dv.Dongia,
                     ThoiGian = dv.Thoigian

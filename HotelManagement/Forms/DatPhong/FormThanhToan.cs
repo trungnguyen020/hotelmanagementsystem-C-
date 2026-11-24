@@ -42,10 +42,23 @@ namespace HotelManagement.Forms
 
             _btnMienPhiDichVu.Click += (_, _) =>
             {
-                if (_hoaDonHienTai != null)
+                if (_hoaDonHienTai == null)
                 {
-                    _numGiamGia.Value = Math.Min(_hoaDonHienTai.TienDichVu, _numGiamGia.Maximum);
-                    _lblGhiChuKhuyenMai.Text = "✓ Đã áp dụng: Miễn phí 100% tiền dịch vụ";
+                    MessageBox.Show("Vui lòng tra cứu hóa đơn trước khi chọn khuyến mãi.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                if (_hoaDonHienTai.DanhSachDichVu == null || !_hoaDonHienTai.DanhSachDichVu.Any())
+                {
+                    MessageBox.Show("Hóa đơn này không có dịch vụ nào để áp dụng miễn phí.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                using var dlg = new FormChonDichVuMienPhi(_hoaDonHienTai.DanhSachDichVu);
+                if (dlg.ShowDialog(this) == DialogResult.OK)
+                {
+                    _numGiamGia.Value = Math.Min(dlg.TongTienMienPhi, _numGiamGia.Maximum);
+                    _lblGhiChuKhuyenMai.Text = dlg.MoTaKhuyenMai;
                     _lblGhiChuKhuyenMai.ForeColor = AppTheme.StatusSuccessText;
                 }
             };

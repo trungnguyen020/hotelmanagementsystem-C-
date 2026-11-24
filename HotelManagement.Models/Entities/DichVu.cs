@@ -9,6 +9,8 @@ public partial class DichVu
 
     public string TenDichvu { get; set; } = null!;
 
+    public string LoaiDichvu { get; set; } = "Dịch vụ";
+
     public decimal Mucgia { get; set; }
 
     public DateTime CreatedAt { get; set; }

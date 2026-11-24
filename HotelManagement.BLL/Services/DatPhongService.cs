@@ -365,6 +365,7 @@ namespace HotelManagement.BLL.Services
                     IdDatPhong = cd.IdDatphong,
                     IdDichVu = cd.IdDichvu,
                     TenDichVu = cd.IdDichvuNavigation?.TenDichvu ?? string.Empty,
+                    LoaiDichVu = cd.IdDichvuNavigation?.LoaiDichvu ?? "Dịch vụ",
                     SoLuong = cd.Soluong,
                     DonGia = cd.Dongia,
                     ThoiGian = cd.Thoigian
@@ -501,6 +502,7 @@ namespace HotelManagement.BLL.Services
             {
                 IdDichVu = d.IdDichvu,
                 TenDichVu = d.TenDichvu,
+                LoaiDichVu = d.LoaiDichvu ?? "Dịch vụ",
                 MucGia = d.Mucgia
             }).OrderBy(d => d.TenDichVu).ToList();
         }

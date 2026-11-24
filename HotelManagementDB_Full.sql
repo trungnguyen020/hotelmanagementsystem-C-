@@ -110,12 +110,14 @@ CREATE TABLE dbo.LoaiPhong (
     id_loaiphong    INT IDENTITY(1,1) NOT NULL,
     ten             NVARCHAR(100) NOT NULL,
     mucgia          DECIMAL(12,2) NOT NULL,
+    giatheogio      DECIMAL(12,2) NULL CONSTRAINT DF_LoaiPhong_GiaTheoGio DEFAULT (0),
     succhua         INT NOT NULL,
     mota            NVARCHAR(500) NULL,
     created_at      DATETIME2 NOT NULL CONSTRAINT DF_LoaiPhong_CreatedAt DEFAULT (sysdatetime()),
     updated_at      DATETIME2 NULL,
     CONSTRAINT PK_LoaiPhong PRIMARY KEY (id_loaiphong),
     CONSTRAINT CK_LoaiPhong_MucGia CHECK (mucgia >= 0),
+    CONSTRAINT CK_LoaiPhong_GiaTheoGio CHECK (giatheogio IS NULL OR giatheogio >= 0),
     CONSTRAINT CK_LoaiPhong_SucChua CHECK (succhua > 0)
 );
 GO
@@ -139,6 +141,7 @@ GO
 CREATE TABLE dbo.DichVu (
     id_dichvu       INT IDENTITY(1,1) NOT NULL,
     ten_dichvu      NVARCHAR(100) NOT NULL,
+    loai_dichvu     NVARCHAR(50) NOT NULL CONSTRAINT DF_DichVu_Loai DEFAULT (N'Dịch vụ'),
     mucgia          DECIMAL(12,2) NOT NULL,
     created_at      DATETIME2 NOT NULL CONSTRAINT DF_DichVu_CreatedAt DEFAULT (sysdatetime()),
     updated_at      DATETIME2 NULL,
@@ -287,18 +290,19 @@ INSERT INTO dbo.NhanSu (hoten, ngaysinh, cccd, sdt) VALUES
     (N'Lê Thị Thu Ngân', '2000-01-15', '079099009876', '0988776655');
 GO
 
--- 3. Tài khoản đăng nhập
-INSERT INTO dbo.TaiKhoan (ten_dangnhap, matkhau_hash, id_nhansu, id_vaitro, trangthai, solan_saimatkhau) VALUES
-    ('admin',        '$2a$11$FEwLOM5vc8p2YlVdh1JzpuD/F5Ab4yfvdoFRUeQqsI78jPGPmvXHS', 1, 1, N'Hoạt động', 0),
-    ('letan1',       '$2a$11$8pXNPeK3P8mu5XRIEBF1lukK4qj1mCizlbq3GnVdTnnrq4CLSJMuG', 2, 2, N'Hoạt động', 0),
-    ('receptionist', '$2a$11$8pXNPeK3P8mu5XRIEBF1lukK4qj1mCizlbq3GnVdTnnrq4CLSJMuG', 3, 2, N'Hoạt động', 0);
+-- 3. Tài khoản đăng nhập (Mật khẩu: Admin: admin123, Lễ tân: letan123, Khách hàng: khach123)
+INSERT INTO dbo.TaiKhoan (ten_dangnhap, matkhau_hash, id_nhansu, id_khachhang, id_vaitro, trangthai, solan_saimatkhau) VALUES
+    ('admin',        '$2a$11$FEwLOM5vc8p2YlVdh1JzpuD/F5Ab4yfvdoFRUeQqsI78jPGPmvXHS', 1,    NULL, 1, N'Hoạt động', 0),
+    ('letan1',       '$2a$11$8pXNPeK3P8mu5XRIEBF1lukK4qj1mCizlbq3GnVdTnnrq4CLSJMuG', 2,    NULL, 2, N'Hoạt động', 0),
+    ('receptionist', '$2a$11$8pXNPeK3P8mu5XRIEBF1lukK4qj1mCizlbq3GnVdTnnrq4CLSJMuG', 3,    NULL, 2, N'Hoạt động', 0),
+    ('trungnguyen',  '$2a$11$8pXNPeK3P8mu5XRIEBF1lukK4qj1mCizlbq3GnVdTnnrq4CLSJMuG', NULL, 3,    3, N'Hoạt động', 0);
 GO
 
 -- 4. Loại phòng
-INSERT INTO dbo.LoaiPhong (ten, mucgia, succhua, mota) VALUES
-    (N'Phòng Standard',  500000, 2, N'Phòng tiêu chuẩn 1 giường đôi, đầy đủ tiện nghi, view thành phố.'),
-    (N'Phòng Deluxe',    800000, 2, N'Phòng cao cấp 1 giường King, view biển thoáng mát, kèm minibar miễn phí.'),
-    (N'Phòng Suite',    1500000, 4, N'Căn hộ cao cấp 2 phòng ngủ, phòng khách riêng, ban công ngắm hoàng hôn.');
+INSERT INTO dbo.LoaiPhong (ten, mucgia, giatheogio, succhua, mota) VALUES
+    (N'Phòng Standard',  500000, 125000, 2, N'Phòng tiêu chuẩn 1 giường đôi, đầy đủ tiện nghi, view thành phố.'),
+    (N'Phòng Deluxe',    800000, 200000, 2, N'Phòng cao cấp 1 giường King, view biển thoáng mát, kèm minibar miễn phí.'),
+    (N'Phòng Suite',    1500000, 375000, 4, N'Căn hộ cao cấp 2 phòng ngủ, phòng khách riêng, ban công ngắm hoàng hôn.');
 GO
 
 -- 5. Danh sách phòng
@@ -315,12 +319,12 @@ INSERT INTO dbo.Phong (sophong, id_loaiphong, trangthai) VALUES
 GO
 
 -- 6. Dịch vụ
-INSERT INTO dbo.DichVu (ten_dichvu, mucgia) VALUES
-    (N'Minibar nước ngọt / snack', 50000),
-    (N'Giặt ủi quần áo lấy liền',   30000),
-    (N'Đưa đón sân bay 4 chỗ',     200000),
-    (N'Buffet ăn sáng cao cấp',    120000),
-    (N'Dịch vụ Spa & Massage',     300000);
+INSERT INTO dbo.DichVu (ten_dichvu, loai_dichvu, mucgia) VALUES
+    (N'Minibar nước ngọt / snack', N'Nước uống', 50000),
+    (N'Giặt ủi quần áo lấy liền',   N'Dịch vụ',   30000),
+    (N'Đưa đón sân bay 4 chỗ',     N'Dịch vụ',  200000),
+    (N'Buffet ăn sáng cao cấp',    N'Thức ăn',   120000),
+    (N'Dịch vụ Spa & Massage',     N'Dịch vụ',  300000);
 GO
 
 -- 7. Khách hàng mẫu

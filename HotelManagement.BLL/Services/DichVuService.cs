@@ -38,7 +38,7 @@ namespace HotelManagement.BLL.Services
 
             string tk = tuKhoa.Trim();
             var ketQua = await _unitOfWork.DichVuRepository.FindAsync(
-                dv => dv.TenDichvu.Contains(tk));
+                dv => dv.TenDichvu.Contains(tk) || (dv.LoaiDichvu != null && dv.LoaiDichvu.Contains(tk)));
 
             return ketQua.Select(ChuyenDto)
                          .OrderBy(x => x.TenDichVu)
@@ -52,6 +52,7 @@ namespace HotelManagement.BLL.Services
             var entity = new DichVu
             {
                 TenDichvu = dto.TenDichVu.Trim(),
+                LoaiDichvu = string.IsNullOrWhiteSpace(dto.LoaiDichVu) ? "Dịch vụ" : dto.LoaiDichVu.Trim(),
                 Mucgia = dto.MucGia,
                 CreatedAt = DateTime.Now
             };
@@ -70,6 +71,7 @@ namespace HotelManagement.BLL.Services
                 throw new KeyNotFoundException($"Không tìm thấy dịch vụ ID = {dto.IdDichVu}.");
 
             entity.TenDichvu = dto.TenDichVu.Trim();
+            entity.LoaiDichvu = string.IsNullOrWhiteSpace(dto.LoaiDichVu) ? "Dịch vụ" : dto.LoaiDichVu.Trim();
             entity.Mucgia = dto.MucGia;
             entity.UpdatedAt = DateTime.Now;
 
@@ -112,6 +114,7 @@ namespace HotelManagement.BLL.Services
         {
             IdDichVu = entity.IdDichvu,
             TenDichVu = entity.TenDichvu,
+            LoaiDichVu = entity.LoaiDichvu ?? "Dịch vụ",
             MucGia = entity.Mucgia
         };
     }

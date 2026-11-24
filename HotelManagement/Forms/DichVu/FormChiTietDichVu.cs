@@ -11,6 +11,7 @@ namespace HotelManagement.Forms
         public DichVuDto DtoKetQua { get; private set; } = null!;
 
         private TextBox _txtTen = null!;
+        private ComboBox _cboLoai = null!;
         private NumericUpDown _numGia = null!;
         private Button _btnLuu = null!;
         private Button _btnHuy = null!;
@@ -26,7 +27,7 @@ namespace HotelManagement.Forms
         {
             Text = _dtoGoc == null ? "Thêm mới dịch vụ" : "Cập nhật dịch vụ";
             Width = 500;
-            Height = 280;
+            Height = 330;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
@@ -54,6 +55,19 @@ namespace HotelManagement.Forms
             AppTheme.ApplyTextBox(_txtTen);
 
             y += spacing;
+            var lblLoai = new Label { Text = "Loại dịch vụ (*):", Location = new Point(lblX, y + 4), AutoSize = true };
+            AppTheme.ApplyLabel(lblLoai);
+            _cboLoai = new ComboBox
+            {
+                Location = new Point(inputX, y),
+                Width = inputW,
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            _cboLoai.Items.AddRange(new object[] { "Nước uống", "Thức ăn", "Dịch vụ" });
+            _cboLoai.SelectedIndex = 2; // Mặc định: Dịch vụ
+            AppTheme.ApplyComboBox(_cboLoai);
+
+            y += spacing;
             var lblGia = new Label { Text = "Đơn giá (VNĐ):", Location = new Point(lblX, y + 4), AutoSize = true };
             AppTheme.ApplyLabel(lblGia);
             _numGia = new NumericUpDown
@@ -79,6 +93,7 @@ namespace HotelManagement.Forms
             {
                 lblTieuDe,
                 lblTen, _txtTen,
+                lblLoai, _cboLoai,
                 lblGia, _numGia,
                 _btnLuu, _btnHuy
             });
@@ -90,6 +105,17 @@ namespace HotelManagement.Forms
 
             _txtTen.Text = _dtoGoc.TenDichVu;
             _numGia.Value = _dtoGoc.MucGia;
+            if (!string.IsNullOrEmpty(_dtoGoc.LoaiDichVu))
+            {
+                int idx = _cboLoai.FindStringExact(_dtoGoc.LoaiDichVu);
+                if (idx >= 0)
+                    _cboLoai.SelectedIndex = idx;
+                else
+                {
+                    _cboLoai.Items.Add(_dtoGoc.LoaiDichVu);
+                    _cboLoai.SelectedItem = _dtoGoc.LoaiDichVu;
+                }
+            }
         }
 
         private void BtnLuu_Click(object? sender, EventArgs e)
@@ -106,6 +132,7 @@ namespace HotelManagement.Forms
             {
                 IdDichVu = _dtoGoc?.IdDichVu ?? 0,
                 TenDichVu = ten,
+                LoaiDichVu = _cboLoai.SelectedItem?.ToString() ?? "Dịch vụ",
                 MucGia = _numGia.Value
             };
 

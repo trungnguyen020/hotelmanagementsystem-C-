@@ -134,6 +134,15 @@ namespace HotelManagement.Forms
 
             dgvDichVu.Columns.Add(new DataGridViewTextBoxColumn
             {
+                Name = "LoaiDichVu",
+                HeaderText = "Loại",
+                DataPropertyName = "LoaiDichVu",
+                ReadOnly = true,
+                Width = 90
+            });
+
+            dgvDichVu.Columns.Add(new DataGridViewTextBoxColumn
+            {
                 Name = "MucGia",
                 HeaderText = "Đơn giá (VNĐ)",
                 DataPropertyName = "MucGia",
@@ -152,7 +161,7 @@ namespace HotelManagement.Forms
 
             dgvDichVu.CellValueChanged += (s, e) =>
             {
-                if (e.ColumnIndex == 0 || e.ColumnIndex == 3)
+                if (e.ColumnIndex == 0 || (dgvDichVu.Columns["SoLuong"] != null && e.ColumnIndex == dgvDichVu.Columns["SoLuong"].Index))
                 {
                     CapNhatTongTienDuKien();
                 }
@@ -178,7 +187,7 @@ namespace HotelManagement.Forms
                 dgvDichVu.Rows.Clear();
                 foreach (var dv in _danhSachDichVu)
                 {
-                    int rowIndex = dgvDichVu.Rows.Add(false, dv.TenDichVu, dv.MucGia, 1);
+                    int rowIndex = dgvDichVu.Rows.Add(false, dv.TenDichVu, dv.LoaiDichVu, dv.MucGia, 1);
                     dgvDichVu.Rows[rowIndex].Tag = dv;
                 }
             }

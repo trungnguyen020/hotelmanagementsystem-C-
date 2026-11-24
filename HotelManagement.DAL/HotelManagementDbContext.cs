@@ -154,6 +154,10 @@ public partial class HotelManagementDbContext : DbContext
             entity.Property(e => e.Mucgia)
                 .HasColumnType("decimal(12, 2)")
                 .HasColumnName("mucgia");
+            entity.Property(e => e.LoaiDichvu)
+                .HasMaxLength(50)
+                .HasDefaultValue("Dịch vụ", "DF_DichVu_Loai")
+                .HasColumnName("loai_dichvu");
             entity.Property(e => e.TenDichvu)
                 .HasMaxLength(100)
                 .HasColumnName("ten_dichvu");

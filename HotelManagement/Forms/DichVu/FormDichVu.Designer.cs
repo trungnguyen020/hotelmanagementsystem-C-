@@ -28,6 +28,7 @@ namespace HotelManagement.Forms
 
         private DataGridViewTextBoxColumn _colMaDV = null!;
         private DataGridViewTextBoxColumn _colTenDV = null!;
+        private DataGridViewTextBoxColumn _colLoaiDV = null!;
         private DataGridViewTextBoxColumn _colGia = null!;
         private DataGridViewImageColumn _colEdit = null!;
         private DataGridViewImageColumn _colDelete = null!;
@@ -122,6 +123,14 @@ namespace HotelManagement.Forms
                 MinimumWidth = 180
             };
 
+            _colLoaiDV = new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "LoaiDichVu",
+                HeaderText = "Loại dịch vụ",
+                Width = 140,
+                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleLeft }
+            };
+
             _colGia = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "MucGia",
@@ -152,7 +161,7 @@ namespace HotelManagement.Forms
 
             _dgv.Columns.AddRange(new DataGridViewColumn[]
             {
-                _colMaDV, _colTenDV, _colGia, _colEdit, _colDelete
+                _colMaDV, _colTenDV, _colLoaiDV, _colGia, _colEdit, _colDelete
             });
 
             Controls.Add(_dgv);

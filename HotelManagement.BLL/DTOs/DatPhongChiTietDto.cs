@@ -59,6 +59,7 @@ namespace HotelManagement.BLL.DTOs
         public int IdDatPhong { get; set; }
         public int IdDichVu { get; set; }
         public string TenDichVu { get; set; } = string.Empty;
+        public string LoaiDichVu { get; set; } = "Dịch vụ";
         public int SoLuong { get; set; }
         public decimal DonGia { get; set; }
         public decimal ThanhTien => SoLuong * DonGia;
@@ -72,6 +73,7 @@ namespace HotelManagement.BLL.DTOs
     {
         public int IdDichVu { get; set; }
         public string TenDichVu { get; set; } = string.Empty;
+        public string LoaiDichVu { get; set; } = "Dịch vụ";
         public decimal MucGia { get; set; }
     }
 }
