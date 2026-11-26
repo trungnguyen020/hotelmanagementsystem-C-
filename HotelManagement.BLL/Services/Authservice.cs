@@ -39,20 +39,22 @@ namespace HotelManagement.BLL.Services
                 return TaoKetQua(TrangThaiDangNhap.SaiTenDangNhapHoacMatKhau, "Sai tên đăng nhập hoặc mật khẩu.");
             }
 
-            // Kiểm tra xem có phải tài khoản Admin hoặc vai trò Quản trị viên không
+            // Kiểm tra xem có phải tài khoản Admin hoặc Khách hàng không (cả 2 đều miễn trừ khóa tự động)
             bool laAdmin = string.Equals(taiKhoan.TenDangnhap, "admin", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(taiKhoan.IdVaitroNavigation?.TenVaitro, "Admin", StringComparison.OrdinalIgnoreCase);
+            bool laKhachHang = taiKhoan.IdKhachhang.HasValue
+                || string.Equals(taiKhoan.IdVaitroNavigation?.TenVaitro, "KhachHang", StringComparison.OrdinalIgnoreCase);
 
             if (taiKhoan.Trangthai == TrangThaiKhoa)
             {
-                if (laAdmin)
+                if (laAdmin || laKhachHang)
                 {
-                    // Tự động mở khóa bảo vệ nếu tài khoản Admin vô tình bị khóa trước đó
+                    // Tự động mở khóa bảo vệ nếu tài khoản Admin hoặc Khách hàng vô tình bị khóa trước đó
                     taiKhoan.Trangthai = TrangThaiHoatDong;
                     taiKhoan.SolanSaimatkhau = 0;
                     _uow.TaiKhoanRepository.Update(taiKhoan);
                     await _uow.SaveChangesAsync();
-                    Log.Information("[AuthService] Tự động kích hoạt lại tài khoản Admin.");
+                    Log.Information("[AuthService] Tự động kích hoạt lại tài khoản '{Username}'.", taiKhoan.TenDangnhap);
                 }
                 else
                 {
@@ -76,10 +78,10 @@ namespace HotelManagement.BLL.Services
 
             if (!matKhauDung)
             {
-                // Tài khoản Admin được miễn trừ cơ chế khóa để tránh mất quyền quản trị hệ thống
-                if (laAdmin)
+                // Tài khoản Admin và Khách hàng được miễn trừ cơ chế tự khóa tài khoản
+                if (laAdmin || laKhachHang)
                 {
-                    Log.Warning("[AuthService] Tài khoản Admin '{Username}' nhập sai mật khẩu. Miễn trừ cơ chế khóa tài khoản.", taiKhoan.TenDangnhap);
+                    Log.Warning("[AuthService] Tài khoản '{Username}' nhập sai mật khẩu. Miễn trừ cơ chế khóa tài khoản.", taiKhoan.TenDangnhap);
                     return TaoKetQua(TrangThaiDangNhap.SaiTenDangNhapHoacMatKhau, "Sai mật khẩu.");
                 }
 
@@ -346,15 +348,22 @@ namespace HotelManagement.BLL.Services
 
         private async Task GhiNhatKyAsync(int idTaiKhoan, string hanhDong)
         {
-            var nhatKy = new NhatKyHoatDong
+            try
             {
-                IdTaikhoan = idTaiKhoan,
-                Hanhdong = hanhDong,
-                Thoigian = DateTime.Now
-            };
+                var nhatKy = new NhatKyHoatDong
+                {
+                    IdTaikhoan = idTaiKhoan,
+                    Hanhdong = hanhDong,
+                    Thoigian = DateTime.Now
+                };
 
-            await _uow.NhatKyHoatDongRepository.AddAsync(nhatKy);
-            await _uow.SaveChangesAsync();
+                await _uow.NhatKyHoatDongRepository.AddAsync(nhatKy);
+                await _uow.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "[AuthService] Không thể ghi nhật ký hoạt động '{HanhDong}' cho tài khoản ID {IdTaiKhoan}.", hanhDong, idTaiKhoan);
+            }
         }
 
         private static KetQuaDangNhap TaoKetQua(TrangThaiDangNhap trangThai, string thongBao)

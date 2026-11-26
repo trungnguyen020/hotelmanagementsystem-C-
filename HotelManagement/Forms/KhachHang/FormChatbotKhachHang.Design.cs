@@ -44,48 +44,29 @@ namespace HotelManagement.Forms
             pnlHeader = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 65,
+                Height = 68,
                 BackColor = AppTheme.Surface,
-                Padding = new Padding(20, 10, 20, 10)
+                Padding = new Padding(12, 10, 12, 10)
             };
 
-            lblHeaderIcon = new Label
+            var flpHeaderActions = new FlowLayoutPanel
             {
-                Text = "🤖",
-                Font = new Font(AppTheme.DefaultFontFamily, 22f),
-                Location = new Point(16, 10),
-                Size = new Size(45, 45),
-                TextAlign = ContentAlignment.MiddleCenter
-            };
-
-            lblHeaderTitle = new Label
-            {
-                Text = "TRỢ LÝ ẢO AI — TƯ VẤN KHÁCH SẠN",
-                Font = AppTheme.FontHeader,
-                ForeColor = AppTheme.Primary,
-                Location = new Point(68, 12),
-                AutoSize = true
-            };
-
-            var tenKhach = _taiKhoanDangNhap.IdKhachhangNavigation?.Ten ?? _taiKhoanDangNhap.TenDangnhap;
-            lblHeaderSubtitle = new Label
-            {
-                Text = $"Chào bạn, {tenKhach}! Em sẵn sàng tư vấn khách sạn 24/7.",
-                Font = AppTheme.FontSmall,
-                ForeColor = AppTheme.TextSecondary,
-                Location = new Point(70, 36),
-                AutoSize = true
+                Dock = DockStyle.Right,
+                Width = 84,
+                FlowDirection = FlowDirection.RightToLeft,
+                WrapContents = false,
+                Padding = new Padding(0, 6, 0, 0),
+                BackColor = Color.Transparent
             };
 
             btnDongChat = new Button
             {
                 Text = "✖",
                 Size = new Size(34, 34),
-                Anchor = AnchorStyles.Top | AnchorStyles.Right,
                 Cursor = Cursors.Hand,
-                Font = AppTheme.FontBodyBold
+                Font = AppTheme.FontBodyBold,
+                Margin = new Padding(6, 0, 0, 0)
             };
-            btnDongChat.Location = new Point(this.ClientSize.Width - 46, 15);
             AppTheme.ApplySecondaryButton(btnDongChat);
             btnDongChat.Click += (s, e) => YeuCauDong?.Invoke(this, EventArgs.Empty);
 
@@ -93,21 +74,53 @@ namespace HotelManagement.Forms
             {
                 Text = "🔄",
                 Size = new Size(34, 34),
-                Anchor = AnchorStyles.Top | AnchorStyles.Right,
                 Cursor = Cursors.Hand,
-                Font = AppTheme.FontBodyBold
+                Font = AppTheme.FontBodyBold,
+                Margin = new Padding(0)
             };
-            btnLamMoiChat.Location = new Point(this.ClientSize.Width - 86, 15);
             AppTheme.ApplySecondaryButton(btnLamMoiChat);
             btnLamMoiChat.Click += (s, e) => LamMoiHoiThoai();
+
+            flpHeaderActions.Controls.AddRange(new Control[] { btnDongChat, btnLamMoiChat });
+
+            lblHeaderIcon = new Label
+            {
+                Text = "🤖",
+                Font = new Font(AppTheme.DefaultFontFamily, 22f),
+                Location = new Point(12, 10),
+                Size = new Size(44, 44),
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+
+            lblHeaderTitle = new Label
+            {
+                Text = "TRỢ LÝ ẢO AI — TƯ VẤN",
+                Font = AppTheme.FontBodyBold,
+                ForeColor = AppTheme.Primary,
+                Location = new Point(60, 12),
+                MaximumSize = new Size(300, 24),
+                AutoEllipsis = true,
+                AutoSize = true
+            };
+
+            var tenKhach = _taiKhoanDangNhap.IdKhachhangNavigation?.Ten ?? _taiKhoanDangNhap.TenDangnhap;
+            lblHeaderSubtitle = new Label
+            {
+                Text = $"Chào {tenKhach}! Sẵn sàng hỗ trợ 24/7.",
+                Font = AppTheme.FontSmall,
+                ForeColor = AppTheme.TextSecondary,
+                Location = new Point(60, 36),
+                MaximumSize = new Size(300, 20),
+                AutoEllipsis = true,
+                AutoSize = true
+            };
 
             pnlHeader.Controls.AddRange(new Control[]
             {
                 lblHeaderIcon,
                 lblHeaderTitle,
                 lblHeaderSubtitle,
-                btnLamMoiChat,
-                btnDongChat
+                flpHeaderActions
             });
 
             // ================= 2. Footer Input Panel =================

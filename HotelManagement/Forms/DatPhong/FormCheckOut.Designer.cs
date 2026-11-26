@@ -309,33 +309,33 @@ namespace HotelManagement.Forms
             AppTheme.ApplyDataGridView(_dgvDichVu);
 
             _dgvDichVu.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Id", HeaderText = "ID", Visible = false });
-            _dgvDichVu.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "TenDichVu", HeaderText = "Tên dịch vụ", FillWeight = 30 });
+            _dgvDichVu.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "TenDichVu", HeaderText = "Tên dịch vụ", FillWeight = 38, MinimumWidth = 150 });
             _dgvDichVu.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "SoLuong",
-                HeaderText = "Số lượng",
-                FillWeight = 15,
+                HeaderText = "SL",
+                FillWeight = 12,
                 DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
             _dgvDichVu.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "DonGia",
                 HeaderText = "Đơn giá chốt",
-                FillWeight = 25,
+                FillWeight = 22,
                 DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight, Format = "N0" }
             });
             _dgvDichVu.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "ThanhTien",
                 HeaderText = "Thành tiền",
-                FillWeight = 25,
+                FillWeight = 22,
                 DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight, Format = "N0" }
             });
             _dgvDichVu.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "ThoiGian",
                 HeaderText = "Thời gian dùng",
-                FillWeight = 25,
+                FillWeight = 24,
                 DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy HH:mm" }
             });
 
@@ -356,8 +356,8 @@ namespace HotelManagement.Forms
             var lblChonDV = new Label { Text = "Dịch vụ:", Location = new Point(16, 28), AutoSize = true, Font = AppTheme.FontBody, ForeColor = AppTheme.TextSecondary };
             _cboDichVu = new ComboBox
             {
-                Location = new Point(80, 24),
-                Width = 260,
+                Location = new Point(95, 24),
+                Width = 280,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
             AppTheme.ApplyComboBox(_cboDichVu);
@@ -372,7 +372,7 @@ namespace HotelManagement.Forms
             _lblDonGiaDichVu = new Label
             {
                 Text = "Đơn giá: -",
-                Location = new Point(360, 28),
+                Location = new Point(390, 28),
                 AutoSize = true,
                 ForeColor = AppTheme.Primary,
                 Font = AppTheme.FontBodyBold
@@ -383,7 +383,7 @@ namespace HotelManagement.Forms
             _numSoLuong = new NumericUpDown
             {
                 Location = new Point(95, 65),
-                Width = 70,
+                Width = 75,
                 Minimum = 1,
                 Maximum = 99,
                 Value = 1
@@ -393,8 +393,8 @@ namespace HotelManagement.Forms
             _btnThemDichVu = new Button
             {
                 Text = "+ Thêm dịch vụ",
-                Location = new Point(180, 62),
-                Size = new Size(140, 32)
+                Location = new Point(185, 62),
+                Size = new Size(145, 32)
             };
             AppTheme.ApplyPrimaryButton(_btnThemDichVu);
             _btnThemDichVu.Click += async (_, _) => await ThemDichVuAsync();
@@ -402,13 +402,22 @@ namespace HotelManagement.Forms
             _btnXoaDichVu = new Button
             {
                 Text = "Xóa DV đã chọn",
-                Location = new Point(330, 62),
-                Size = new Size(140, 32)
+                Location = new Point(340, 62),
+                Size = new Size(145, 32)
             };
             AppTheme.ApplySecondaryButton(_btnXoaDichVu);
             _btnXoaDichVu.Click += async (_, _) => await XoaDichVuAsync();
 
             _grpThemDichVu.Controls.AddRange(new Control[] { lblChonDV, _cboDichVu, _lblDonGiaDichVu, lblSL, _numSoLuong, _btnThemDichVu, _btnXoaDichVu });
+
+            AppTheme.AlignInputAfterLabel(lblChonDV, _cboDichVu, 12);
+            _lblDonGiaDichVu.Left = _cboDichVu.Right + 16;
+            AppTheme.AlignInputAfterLabel(lblSL, _numSoLuong, 12);
+            if (_cboDichVu.Left < _numSoLuong.Left) _cboDichVu.Left = _numSoLuong.Left;
+            else _numSoLuong.Left = _cboDichVu.Left;
+            _lblDonGiaDichVu.Left = _cboDichVu.Right + 16;
+            _btnThemDichVu.Left = _numSoLuong.Right + 16;
+            _btnXoaDichVu.Left = _btnThemDichVu.Right + 12;
 
             // ================= 6. Bottom Bar: Nút hành động Check-out =================
             var pnlBottom = new Panel

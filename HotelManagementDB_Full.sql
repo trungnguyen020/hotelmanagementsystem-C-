@@ -268,7 +268,7 @@ CREATE TABLE dbo.NhatKyHoatDong (
     updated_at      DATETIME2 NULL,
     CONSTRAINT PK_NhatKyHoatDong PRIMARY KEY (id_nhatky),
     CONSTRAINT FK_NhatKyHoatDong_TaiKhoan FOREIGN KEY (id_taikhoan) REFERENCES dbo.TaiKhoan(id_taikhoan),
-    CONSTRAINT CK_NhatKyHoatDong_HanhDong CHECK (hanhdong IN (N'Đăng nhập', N'Đăng xuất'))
+    CONSTRAINT CK_NhatKyHoatDong_HanhDong CHECK (hanhdong IN (N'Đăng nhập', N'Đăng xuất', N'Đổi mật khẩu'))
 );
 GO
 
